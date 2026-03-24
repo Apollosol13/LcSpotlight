@@ -28,15 +28,15 @@ export async function EventsSection() {
 
       <div className="grid gap-6 min-[601px]:grid-cols-2 min-[901px]:grid-cols-3">
         {(events ?? []).map((e) => (
-          <div
-            key={e.name}
-            className="cursor-pointer overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white transition-all hover:-translate-y-[3px] hover:shadow-[0_12px_40px_rgba(12,27,51,0.1)]"
+          <Link
+            key={e.id}
+            href="/events"
+            className="overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white no-underline transition-all hover:-translate-y-[3px] hover:shadow-[0_12px_40px_rgba(12,27,51,0.1)]"
           >
             <div
               className="relative flex h-[180px] items-center justify-center overflow-hidden"
-              style={{ background: e.bg }}
+              style={{ background: e.bg ?? "#1E3A5F" }}
             >
-              <span className="absolute text-5xl opacity-15">{e.icon}</span>
               <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.7)] to-transparent" />
               <div className="absolute left-3.5 top-3.5 z-[1] rounded-[2px] bg-spotlight-gold px-2.5 py-1.5 text-center leading-tight text-spotlight-navy">
                 <span className="block font-serif text-[22px] font-semibold">
@@ -55,21 +55,17 @@ export async function EventsSection() {
               <h3 className="mb-2 font-serif text-lg font-normal leading-tight text-spotlight-navy">
                 {e.name}
               </h3>
-              <div className="mb-3.5 flex gap-4 text-xs text-spotlight-text-muted">
-                <span className="flex items-center gap-1">📍 {e.location}</span>
-                <span className="flex items-center gap-1">🕕 {e.time}</span>
+              <div className="mb-3.5 flex flex-wrap gap-4 text-xs text-spotlight-text-muted">
+                {e.location && <span>📍 {e.location}</span>}
+                {e.time && <span>🕕 {e.time}</span>}
               </div>
-              <p className="text-[13px] font-medium text-spotlight-teal">
-                {e.price}
-              </p>
-              <button
-                type="button"
-                className="mt-3 rounded-[2px] border border-[rgba(12,27,51,0.1)] bg-transparent px-[18px] py-2 text-xs font-medium uppercase tracking-[0.5px] text-spotlight-navy transition-all hover:border-spotlight-navy hover:bg-spotlight-navy hover:text-white"
-              >
-                {e.cta}
-              </button>
+              {e.price && (
+                <p className="text-[13px] font-medium text-spotlight-teal">
+                  {e.price}
+                </p>
+              )}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </section>

@@ -14,9 +14,23 @@ interface RSSItem {
   "content:encoded"?: string;
 }
 
+function decodeEntities(str: string): string {
+  return str
+    .replace(/&#8212;/g, "\u2014")
+    .replace(/&#8211;/g, "\u2013")
+    .replace(/&#8217;/g, "\u2019")
+    .replace(/&#8216;/g, "\u2018")
+    .replace(/&#8220;/g, "\u201C")
+    .replace(/&#8221;/g, "\u201D")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
 function extractDescription(html: string): string {
   const stripped = html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
-  return stripped.length > 300 ? stripped.slice(0, 300) + "..." : stripped;
+  const decoded = decodeEntities(stripped);
+  return decoded.length > 300 ? decoded.slice(0, 300) + "..." : decoded;
 }
 
 function formatDate(pubDate: string): string {
@@ -72,7 +86,7 @@ export async function scrapeIslandNews(supabase: SupabaseClient) {
     }
 
     const { error } = await supabase.from("news").insert({
-      title: item.title,
+      title: decodeEntities(item.title),
       description,
       date: formatDate(item.pubDate),
       category: categories[0] ?? "Local",
