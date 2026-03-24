@@ -1,45 +1,12 @@
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
-const events = [
-  {
-    day: "05",
-    month: "Apr",
-    category: "Music",
-    bg: "#1E3A5F",
-    icon: "🎵",
-    name: "Hilton Head Jazz & Wine Festival",
-    location: "Shelter Cove Marina",
-    time: "6:00 PM",
-    price: "From $45 · General Admission",
-    cta: "Get Tickets",
-  },
-  {
-    day: "12",
-    month: "Apr",
-    category: "Outdoors",
-    bg: "#1A3A2A",
-    icon: "🌿",
-    name: "Coastal Discovery Museum Plein Air",
-    location: "Sea Pines Forest",
-    time: "9:00 AM",
-    price: "Free Entry",
-    cta: "Learn More",
-  },
-  {
-    day: "19",
-    month: "Apr",
-    category: "Food & Drink",
-    bg: "#3A1A2A",
-    icon: "🍷",
-    name: "Savannah Food & Wine Experience",
-    location: "Forsyth Park, Savannah",
-    time: "4:00 PM",
-    price: "From $75 · Tasting Pass",
-    cta: "Get Tickets",
-  },
-];
-
-export function EventsSection() {
+export async function EventsSection() {
+  const { data: events } = await supabase
+    .from("events")
+    .select("*")
+    .order("created_at", { ascending: true })
+    .limit(3);
   return (
     <section className="mx-auto w-full max-w-[1200px] px-5 py-16 min-[601px]:px-10">
       <div className="mb-9 flex items-baseline justify-between border-b border-[rgba(12,27,51,0.1)] pb-4">
@@ -60,7 +27,7 @@ export function EventsSection() {
       </div>
 
       <div className="grid gap-6 min-[601px]:grid-cols-2 min-[901px]:grid-cols-3">
-        {events.map((e) => (
+        {(events ?? []).map((e) => (
           <div
             key={e.name}
             className="cursor-pointer overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white transition-all hover:-translate-y-[3px] hover:shadow-[0_12px_40px_rgba(12,27,51,0.1)]"

@@ -1,15 +1,12 @@
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
-const deals = [
-  { icon: "🚣", badge: "30% OFF", title: "Dolphin Kayak Tour", desc: "2-hour guided kayak tour through the salt marshes with dolphin spotting.", venue: "Outside Hilton Head", expires: "Expires Apr 30" },
-  { icon: "⛳", badge: "$20 OFF", title: "Round of Golf — Harbour Town", desc: "Twilight round discount every day after 3 PM. Cart included.", venue: "Sea Pines Resort", expires: "Weekdays only" },
-  { icon: "🛶", badge: "FREE", title: "Guided Nature Walk", desc: "Saturday morning walks through the Pinckney Island Wildlife Refuge.", venue: "US Fish & Wildlife Service", expires: "Every Saturday 8 AM" },
-  { icon: "🍹", badge: "BOGO", title: "Happy Hour at Skull Creek Dockside", desc: "Buy one cocktail, get one free every day 3–6 PM on the waterfront deck.", venue: "Skull Creek Dockside", expires: "Daily 3–6 PM" },
-  { icon: "🎨", badge: "15% OFF", title: "Art Classes at Morris Center", desc: "Watercolor, pottery, and mixed media classes for all skill levels.", venue: "Arts Center of Coastal Carolina", expires: "Spring session" },
-  { icon: "🏄", badge: "25% OFF", title: "Surf Lessons for Beginners", desc: "Board rental + 90-min lesson at Folly Field Beach. Great for families.", venue: "Hilton Head Surf Co.", expires: "Expires May 15" },
-];
-
-export function ThingsToDoSection() {
+export async function ThingsToDoSection() {
+  const { data: deals } = await supabase
+    .from("things_to_do")
+    .select("*")
+    .order("created_at", { ascending: true })
+    .limit(6);
   return (
     <section className="mx-auto w-full max-w-[1200px] px-5 py-16 min-[601px]:px-10">
       <div className="mb-9 flex items-baseline justify-between border-b border-[rgba(12,27,51,0.1)] pb-4">
@@ -30,9 +27,9 @@ export function ThingsToDoSection() {
       </div>
 
       <div className="grid gap-5 min-[601px]:grid-cols-2 min-[901px]:grid-cols-3">
-        {deals.map((d) => (
+        {(deals ?? []).map((d) => (
           <div
-            key={d.title}
+            key={d.id}
             className="group relative cursor-pointer overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white p-6 transition-colors hover:border-spotlight-teal"
           >
             {/* Top accent bar on hover */}
@@ -46,7 +43,7 @@ export function ThingsToDoSection() {
               {d.title}
             </h3>
             <p className="mb-3.5 text-[13px] font-light text-spotlight-text-muted">
-              {d.desc}
+              {d.description}
             </p>
             <p className="text-xs font-medium uppercase tracking-[0.5px] text-spotlight-text-mid">
               {d.venue}

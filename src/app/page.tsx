@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Hero } from "@/components/Hero";
 import { Ticker } from "@/components/Ticker";
 import { EventsSection } from "@/components/EventsSection";
@@ -8,18 +9,28 @@ import { RealEstateSection } from "@/components/RealEstateSection";
 import { TicketingBanner } from "@/components/TicketingBanner";
 import { Newsletter } from "@/components/Newsletter";
 
+export const revalidate = 300;
+
 export default function Home() {
   return (
     <>
       <Hero />
       <Ticker />
-      <EventsSection />
+      <Suspense>
+        <EventsSection />
+      </Suspense>
       <hr className="m-0 border-0 border-t border-[rgba(12,27,51,0.1)]" />
-      <OpeningsSection />
+      <Suspense>
+        <OpeningsSection />
+      </Suspense>
       <hr className="m-0 border-0 border-t border-[rgba(12,27,51,0.1)]" />
-      <NewsSection />
+      <Suspense>
+        <NewsSection />
+      </Suspense>
       <hr className="m-0 border-0 border-t border-[rgba(12,27,51,0.1)]" />
-      <ThingsToDoSection />
+      <Suspense>
+        <ThingsToDoSection />
+      </Suspense>
       <RealEstateSection />
       <TicketingBanner />
       <Newsletter />

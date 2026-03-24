@@ -1,13 +1,12 @@
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
-const openings = [
-  { icon: "🍽️", name: "The Marsh House Brasserie", type: "Restaurant · French-Southern", location: "Coligny Plaza, HHI" },
-  { icon: "🍦", name: "Sweet Perks Ice Cream", type: "Dessert · Cafe", location: "Coligny Circle, HHI" },
-  { icon: "💇", name: "Tide & Grace Salon", type: "Beauty · Wellness", location: "Old Town Bluffton" },
-  { icon: "🏋️", name: "Lowcountry Strength Co.", type: "Gym · Fitness Studio", location: "Bluffton" },
-];
-
-export function OpeningsSection() {
+export async function OpeningsSection() {
+  const { data: openings } = await supabase
+    .from("openings")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(4);
   return (
     <section className="mx-auto w-full max-w-[1200px] px-5 py-16 min-[601px]:px-10">
       <div className="mb-9 flex items-baseline justify-between border-b border-[rgba(12,27,51,0.1)] pb-4">
@@ -28,9 +27,9 @@ export function OpeningsSection() {
       </div>
 
       <div className="grid gap-5 min-[601px]:grid-cols-2 min-[901px]:grid-cols-4">
-        {openings.map((o) => (
+        {(openings ?? []).map((o) => (
           <div
-            key={o.name}
+            key={o.id}
             className="relative cursor-pointer rounded border border-[rgba(12,27,51,0.1)] bg-white p-6 transition-transform hover:-translate-y-0.5"
           >
             <span className="absolute right-4 top-4 rounded-[2px] bg-spotlight-coral px-2 py-[3px] text-[9px] font-medium uppercase tracking-[1px] text-white">
