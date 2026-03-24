@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Hero } from "@/components/Hero";
 import { Ticker } from "@/components/Ticker";
+import { InlineCTA } from "@/components/InlineCTA";
 import { EventsSection } from "@/components/EventsSection";
 import { OpeningsSection } from "@/components/OpeningsSection";
 import { NewsSection } from "@/components/NewsSection";
@@ -16,6 +17,7 @@ export default function Home() {
     <>
       <Hero />
       <Ticker />
+      <InlineCTA />
       <Suspense>
         <EventsSection />
       </Suspense>
