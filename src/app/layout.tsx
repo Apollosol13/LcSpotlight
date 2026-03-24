@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, DM_Sans, Playfair_Display } from "next/font/google";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+import { PublicShell } from "@/components/PublicShell";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -40,9 +39,7 @@ export default function RootLayout({
       className={`${playfair.variable} ${dmSans.variable} ${bebasNeue.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
-        <Navbar />
-        <div className="flex-1">{children}</div>
-        <Footer />
+        <PublicShell>{children}</PublicShell>
       </body>
     </html>
   );
