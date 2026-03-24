@@ -49,11 +49,15 @@ export async function NewsSection() {
             rel={featured.source_url ? "noopener noreferrer" : undefined}
             className="overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white no-underline transition-shadow hover:shadow-[0_8px_32px_rgba(12,27,51,0.08)]"
           >
-            <div
-              className="relative flex h-[280px] items-center justify-center overflow-hidden"
-              style={{ background: featured.image_bg ?? "#14324A" }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.8)] to-transparent" />
+            <div className="relative h-[280px] overflow-hidden bg-[#14324A]">
+              {featured.image_bg?.startsWith("http") ? (
+                <img
+                  src={featured.image_bg}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : null}
+              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.6)] to-transparent" />
             </div>
             <div className="p-7">
               <span className="mb-2.5 inline-block border-b border-[rgba(201,168,76,0.3)] pb-1 text-[10px] font-medium uppercase tracking-[2px] text-spotlight-gold">

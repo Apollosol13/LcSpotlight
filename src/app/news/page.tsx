@@ -46,10 +46,14 @@ export default async function NewsPage() {
             rel={article.source_url ? "noopener noreferrer" : undefined}
             className="group overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white no-underline transition-shadow hover:shadow-[0_8px_32px_rgba(12,27,51,0.08)]"
           >
-            <div
-              className="relative flex h-[160px] items-center justify-center overflow-hidden"
-              style={{ background: article.image_bg ?? "#14324A" }}
-            >
+            <div className="relative h-[160px] overflow-hidden bg-[#14324A]">
+              {article.image_bg?.startsWith("http") ? (
+                <img
+                  src={article.image_bg}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : null}
               <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.7)] to-transparent" />
               {article.category && (
                 <span className="absolute right-3 top-3 z-[1] rounded-[2px] bg-[rgba(12,27,51,0.8)] px-2.5 py-1 text-[10px] uppercase tracking-[1px] text-white/90">

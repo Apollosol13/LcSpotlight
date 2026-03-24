@@ -1,5 +1,6 @@
 import { XMLParser } from "fast-xml-parser";
 import { isContentClean } from "./content-filter";
+import { fetchOgImage } from "./og-image";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 const FEEDS = [
@@ -121,6 +122,8 @@ export async function scrapeGoogleNews(supabase: SupabaseClient) {
           publishedAt = new Date(item.pubDate).toISOString();
         } catch { /* fall back to auto */ }
 
+        const ogImage = await fetchOgImage(item.link);
+
         const { error } = await supabase.from("news").insert({
           title,
           description,
@@ -130,6 +133,7 @@ export async function scrapeGoogleNews(supabase: SupabaseClient) {
           source: `google:${feed.region.toLowerCase().replace(/\s/g, "")}`,
           source_url: item.link,
           icon: null,
+          image_bg: ogImage,
           featured: false,
           ...(publishedAt ? { created_at: publishedAt } : {}),
         });

@@ -1,5 +1,6 @@
 import { XMLParser } from "fast-xml-parser";
 import { isContentClean } from "./content-filter";
+import { fetchOgImage } from "./og-image";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 const FEED_URL = "https://yourislandnews.com/feed/";
@@ -91,6 +92,8 @@ export async function scrapeIslandNews(supabase: SupabaseClient) {
       publishedAt = new Date(item.pubDate).toISOString();
     } catch { /* fall back to auto */ }
 
+    const ogImage = await fetchOgImage(item.link);
+
     const { error } = await supabase.from("news").insert({
       title: decodeEntities(item.title),
       description,
@@ -100,6 +103,7 @@ export async function scrapeIslandNews(supabase: SupabaseClient) {
       source: "rss:islandnews",
       source_url: item.link,
       icon: null,
+      image_bg: ogImage,
       featured: false,
       ...(publishedAt ? { created_at: publishedAt } : {}),
     });
