@@ -14,14 +14,13 @@ export interface FieldDef {
 interface AdminCrudProps {
   table: string;
   title: string;
-  icon: string;
   fields: FieldDef[];
   columns: string[];
 }
 
 type Row = Record<string, unknown> & { id: string };
 
-export function AdminCrud({ table, title, icon, fields, columns }: AdminCrudProps) {
+export function AdminCrud({ table, title, fields, columns }: AdminCrudProps) {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -112,14 +111,13 @@ export function AdminCrud({ table, title, icon, fields, columns }: AdminCrudProp
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-white">
-            <span className="mr-2">{icon}</span>
             {title}
           </h1>
           <p className="mt-1 text-sm text-white/40">{rows.length} items</p>
         </div>
         <button
           onClick={openNew}
-          className="rounded-md bg-spotlight-gold px-4 py-2 text-sm font-semibold text-[#0c1b33] transition hover:bg-spotlight-gold-light"
+          className="rounded-md bg-spotlight-gold px-4 py-2 text-sm font-semibold text-black transition hover:bg-spotlight-gold-light"
         >
           + Add New
         </button>
@@ -190,7 +188,7 @@ export function AdminCrud({ table, title, icon, fields, columns }: AdminCrudProp
             <button
               onClick={handleSave}
               disabled={saving}
-              className="rounded-md bg-spotlight-gold px-5 py-2 text-sm font-semibold text-[#0c1b33] transition hover:bg-spotlight-gold-light disabled:opacity-50"
+              className="rounded-md bg-spotlight-gold px-5 py-2 text-sm font-semibold text-black transition hover:bg-spotlight-gold-light disabled:opacity-50"
             >
               {saving ? "Saving..." : editing ? "Update" : "Create"}
             </button>
@@ -208,8 +206,7 @@ export function AdminCrud({ table, title, icon, fields, columns }: AdminCrudProp
         <p className="text-sm text-white/40">Loading...</p>
       ) : rows.length === 0 ? (
         <div className="rounded-lg border border-dashed border-white/10 py-16 text-center">
-          <p className="text-4xl">{icon}</p>
-          <p className="mt-3 text-sm text-white/40">No {title.toLowerCase()} yet</p>
+          <p className="text-sm text-white/40">No {title.toLowerCase()} yet</p>
           <button
             onClick={openNew}
             className="mt-4 text-sm font-medium text-spotlight-gold hover:underline"

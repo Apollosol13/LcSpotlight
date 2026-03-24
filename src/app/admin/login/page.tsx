@@ -33,8 +33,8 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0c1b33]">
-      <div className="w-full max-w-sm rounded-lg border border-white/10 bg-[#111827] p-8 shadow-2xl">
+    <div className="flex min-h-screen items-center justify-center bg-black">
+      <div className="w-full max-w-sm rounded-lg border border-white/10 bg-[#0a0a0a] p-8 shadow-2xl">
         <div className="mb-8 text-center">
           <h1 className="font-serif text-2xl text-white">
             LC<span className="text-spotlight-gold">Spotlight</span>
@@ -82,7 +82,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded bg-spotlight-gold py-2.5 text-sm font-semibold text-[#0c1b33] transition hover:bg-spotlight-gold-light disabled:opacity-50"
+            className="w-full rounded bg-spotlight-gold py-2.5 text-sm font-semibold text-black transition hover:bg-spotlight-gold-light disabled:opacity-50"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>

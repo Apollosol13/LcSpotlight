@@ -9,7 +9,7 @@ const fields: FieldDef[] = [
   { key: "location", label: "Location", placeholder: "Shelter Cove Marina" },
   { key: "price", label: "Price", placeholder: "From $45 · General Admission" },
   { key: "cta", label: "Button Text", placeholder: "Get Tickets", defaultValue: "Learn More" },
-  { key: "icon", label: "Icon", placeholder: "🎵", defaultValue: "🎵" },
+  { key: "icon", label: "Icon", placeholder: "Music note, etc." },
   { key: "bg", label: "Background Color", type: "color", defaultValue: "#1E3A5F" },
 ];
 
@@ -20,7 +20,6 @@ export default function AdminEventsPage() {
     <AdminCrud
       table="events"
       title="Events"
-      icon="🎵"
       fields={fields}
       columns={columns}
     />

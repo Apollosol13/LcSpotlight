@@ -19,16 +19,16 @@ export default async function AdminDashboard() {
   ]);
 
   const cards = [
-    { label: "Events", count: events, href: "/admin/events", icon: "🎵", color: "border-blue-500/30 bg-blue-500/5" },
-    { label: "News", count: news, href: "/admin/news", icon: "📰", color: "border-emerald-500/30 bg-emerald-500/5" },
-    { label: "Openings", count: openings, href: "/admin/openings", icon: "🏪", color: "border-purple-500/30 bg-purple-500/5" },
-    { label: "Things To Do", count: thingsToDo, href: "/admin/things-to-do", icon: "🎯", color: "border-amber-500/30 bg-amber-500/5" },
+    { label: "Events", count: events, href: "/admin/events" },
+    { label: "News", count: news, href: "/admin/news" },
+    { label: "Openings", count: openings, href: "/admin/openings" },
+    { label: "Things To Do", count: thingsToDo, href: "/admin/things-to-do" },
   ];
 
   return (
     <>
       <h1 className="mb-1 text-2xl font-semibold text-white">Dashboard</h1>
-      <p className="mb-8 text-sm text-white/50">
+      <p className="mb-8 text-sm text-white/40">
         Manage your LCSpotlight content
       </p>
 
@@ -37,10 +37,9 @@ export default async function AdminDashboard() {
           <a
             key={card.label}
             href={card.href}
-            className={`rounded-lg border p-5 transition hover:scale-[1.02] ${card.color} no-underline`}
+            className="rounded-lg border border-white/10 bg-white/[0.03] p-5 no-underline transition hover:border-spotlight-gold/30 hover:bg-white/[0.05]"
           >
-            <span className="text-2xl">{card.icon}</span>
-            <p className="mt-3 text-3xl font-bold text-white">{card.count}</p>
+            <p className="text-3xl font-bold text-white">{card.count}</p>
             <p className="mt-1 text-sm text-white/50">{card.label}</p>
           </a>
         ))}
