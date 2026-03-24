@@ -115,6 +115,11 @@ export async function scrapeGoogleNews(supabase: SupabaseClient) {
           continue;
         }
 
+        let publishedAt: string | undefined;
+        try {
+          publishedAt = new Date(item.pubDate).toISOString();
+        } catch { /* fall back to auto */ }
+
         const { error } = await supabase.from("news").insert({
           title,
           description,
@@ -125,6 +130,7 @@ export async function scrapeGoogleNews(supabase: SupabaseClient) {
           source_url: item.link,
           icon: null,
           featured: false,
+          ...(publishedAt ? { created_at: publishedAt } : {}),
         });
 
         if (!error) inserted++;
