@@ -1,26 +1,65 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --navy: #111111;
+  --navy-mid: #1c1c1c;
+  --gold: #c9a84c;
+  --gold-light: #e8c96e;
+  --sand: #f5f0e8;
+  --cream: #fdfaf5;
+  --white: #ffffff;
+  --teal: #1e7b72;
+  --teal-light: #2ea89b;
+  --coral: #d4614a;
+  --text-dark: #111111;
+  --text-mid: #444444;
+  --text-muted: #888888;
+  --border: rgba(12, 27, 51, 0.1);
+  --border-gold: rgba(201, 168, 76, 0.3);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-spotlight-navy: var(--navy);
+  --color-spotlight-navy-mid: var(--navy-mid);
+  --color-spotlight-gold: var(--gold);
+  --color-spotlight-gold-light: var(--gold-light);
+  --color-spotlight-sand: var(--sand);
+  --color-spotlight-cream: var(--cream);
+  --color-spotlight-teal: var(--teal);
+  --color-spotlight-teal-light: var(--teal-light);
+  --color-spotlight-coral: var(--coral);
+  --color-spotlight-text: var(--text-dark);
+  --color-spotlight-text-mid: var(--text-mid);
+  --color-spotlight-text-muted: var(--text-muted);
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-display: var(--font-bebas), ui-sans-serif, system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes spotlight-pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.7);
+  }
+}
+
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  font-size: 15px;
+  line-height: 1.6;
 }
