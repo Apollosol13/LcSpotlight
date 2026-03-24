@@ -27,6 +27,7 @@ function decodeEntities(str: string): string {
     .replace(/&#8221;/g, "\u201D")
     .replace(/&#39;/g, "'")
     .replace(/&quot;/g, '"')
+    .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">");

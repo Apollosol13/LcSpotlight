@@ -11,6 +11,7 @@ function decodeEntities(str: string) {
     .replace(/&#8216;/g, "\u2018")
     .replace(/&#8220;/g, "\u201C")
     .replace(/&#8221;/g, "\u201D")
+    .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">");
