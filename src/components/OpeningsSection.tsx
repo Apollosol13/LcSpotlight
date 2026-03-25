@@ -1,14 +1,6 @@
 import Link from "next/link";
+import { typeOrNameInitial } from "@/lib/text-initial";
 import { supabase } from "@/lib/supabase";
-
-function openingIcon(type: string | null | undefined, name: string | null | undefined) {
-  const t = (type || "").toLowerCase();
-  if (t.includes("restaurant") || t.includes("food") || t.includes("dessert")) return "🍽️";
-  if (t.includes("ice") || t.includes("cafe") || t.includes("coffee")) return "🍦";
-  if (t.includes("beauty") || t.includes("salon") || t.includes("wellness")) return "💇";
-  if (t.includes("gym") || t.includes("fitness")) return "🏋️";
-  return (name?.[0] || "?").toUpperCase();
-}
 
 export async function OpeningsSection() {
   const { data: openings } = await supabase
@@ -47,8 +39,11 @@ export async function OpeningsSection() {
               <span className="absolute right-5 top-5 bg-spotlight-gold px-2 py-0.5 text-[8px] font-medium uppercase tracking-[0.16em] text-spotlight-navy">
                 New
               </span>
-              <span className="mb-4 block text-2xl leading-none" aria-hidden>
-                {openingIcon(o.type, o.name)}
+              <span
+                className="mb-4 flex size-12 items-center justify-center rounded bg-spotlight-gold/15 text-sm font-semibold uppercase tracking-wide text-spotlight-gold"
+                aria-hidden
+              >
+                {typeOrNameInitial(o.type, o.name)}
               </span>
               <p className="mb-2 text-[9px] font-normal uppercase tracking-[0.18em] text-spotlight-gold/55">
                 {o.type}

@@ -41,9 +41,9 @@ export function Navbar() {
         aria-label="Main"
       >
         <Link href="/" className="no-underline">
-          <span className="font-serif text-xl font-bold uppercase tracking-[0.08em] text-spotlight-navy">
-            Spot
-            <em className="font-normal italic text-spotlight-teal">light</em>
+          <span className="font-serif text-xl tracking-[0.04em] text-spotlight-navy">
+            <span className="font-bold">LC</span>
+            <em className="font-normal italic text-spotlight-teal">Spotlight</em>
           </span>
         </Link>
 

@@ -27,43 +27,43 @@ const markets: Record<
 > = {
   hhi: {
     price: "$748K",
-    priceChg: "↑ +4.2% YoY",
+    priceChg: "+4.2% YoY",
     dom: "38",
-    domChg: "↓ 5 days faster",
+    domChg: "5 days faster",
     listings: "142",
-    listChg: "↑ +12 this month",
+    listChg: "+12 this month",
     ratio: "98.4%",
-    ratioChg: "↑ Strong demand",
+    ratioChg: "Strong demand",
   },
   bluffton: {
     price: "$465K",
-    priceChg: "↑ +2.8% YoY",
+    priceChg: "+2.8% YoY",
     dom: "44",
     domChg: "Stable",
     listings: "98",
-    listChg: "↑ +7 this month",
+    listChg: "+7 this month",
     ratio: "97.1%",
-    ratioChg: "↑ Healthy market",
+    ratioChg: "Healthy market",
   },
   beaufort: {
     price: "$312K",
-    priceChg: "↑ +5.1% YoY",
+    priceChg: "+5.1% YoY",
     dom: "51",
-    domChg: "↓ 3 days slower",
+    domChg: "3 days slower",
     listings: "64",
     listChg: "Low inventory",
     ratio: "96.8%",
-    ratioChg: "↑ Balanced",
+    ratioChg: "Balanced",
   },
   savannah: {
     price: "$398K",
-    priceChg: "↑ +6.4% YoY",
+    priceChg: "+6.4% YoY",
     dom: "35",
-    domChg: "↓ 8 days faster",
+    domChg: "8 days faster",
     listings: "211",
-    listChg: "↑ +28 this month",
+    listChg: "+28 this month",
     ratio: "99.2%",
-    ratioChg: "↑ Very competitive",
+    ratioChg: "Very competitive",
   },
 };
 
@@ -147,7 +147,7 @@ export function RealEstateSection() {
             const change = m[s.chgKey];
             const neg = change.includes("slower") || change.toLowerCase().includes("low inventory");
             const pos =
-              change.startsWith("↑") ||
+              change.startsWith("+") ||
               change.includes("faster") ||
               change.includes("Strong") ||
               change.includes("competitive") ||

@@ -85,7 +85,7 @@ export async function EventsSection() {
                     {featured.name}
                   </h3>
                   <div className="mb-3 text-[11px] font-light tracking-[0.03em] text-[#8a96a8]">
-                    {featured.location && <span>📍 {featured.location}</span>}
+                    {featured.location && <span>{featured.location}</span>}
                     {featured.location && featured.time && <span> · </span>}
                     {featured.time && <span>{featured.time}</span>}
                   </div>
@@ -138,7 +138,7 @@ export async function EventsSection() {
                       {fourth.name}
                     </h3>
                     <div className="mb-3 text-[11px] font-light tracking-[0.03em] text-[#8a96a8]">
-                      {fourth.location && <span>📍 {fourth.location}</span>}
+                      {fourth.location && <span>{fourth.location}</span>}
                       {fourth.location && fourth.time && <span> · </span>}
                       {fourth.time && <span>{fourth.time}</span>}
                     </div>
@@ -203,7 +203,7 @@ function EventCardSmall({
           {e.name}
         </h3>
         <div className="mb-3 text-[11px] font-light tracking-[0.03em] text-[#8a96a8]">
-          {e.location && <span>📍 {e.location}</span>}
+          {e.location && <span>{e.location}</span>}
           {e.location && e.time && <span> · </span>}
           {e.time && <span>{e.time}</span>}
         </div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { typeOrNameInitial } from "@/lib/text-initial";
 
 export const revalidate = 300;
 
@@ -32,20 +33,16 @@ export default async function OpeningsPage() {
             <span className="absolute right-4 top-4 rounded-[2px] bg-spotlight-coral px-2 py-[3px] text-[9px] font-medium uppercase tracking-[1px] text-white">
               New
             </span>
-            {o.icon && (
-              <div className="mb-4 flex size-12 items-center justify-center rounded bg-spotlight-sand text-[22px]">
-                {o.icon}
-              </div>
-            )}
+            <div className="mb-4 flex size-12 items-center justify-center rounded bg-spotlight-sand text-xs font-semibold uppercase tracking-wide text-spotlight-text-muted">
+              {typeOrNameInitial(o.type, o.name)}
+            </div>
             <h2 className="mb-1 font-serif text-base font-normal leading-tight text-spotlight-navy">
               {o.name}
             </h2>
             <p className="mb-3 text-xs uppercase tracking-[0.5px] text-spotlight-text-muted">
               {o.type}
             </p>
-            <p className="text-xs font-medium text-spotlight-teal">
-              📍 {o.location}
-            </p>
+            <p className="text-xs font-medium text-spotlight-teal">{o.location}</p>
           </div>
         ))}
       </div>
