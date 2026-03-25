@@ -6,10 +6,12 @@ import { useEffect, useState, useCallback } from "react";
 export interface FieldDef {
   key: string;
   label: string;
-  type?: "text" | "textarea" | "color" | "boolean";
+  type?: "text" | "textarea" | "color" | "boolean" | "select";
   placeholder?: string;
   defaultValue?: string | boolean;
   required?: boolean;
+  /** When type === "select" */
+  options?: { value: string; label: string }[];
 }
 
 type Row = Record<string, unknown> & { id: string };
@@ -51,6 +53,7 @@ export function AdminCrud({ table, title, fields, columns, detailBasePath }: Adm
     const defaults: Record<string, unknown> = {};
     fields.forEach((f) => {
       if (f.defaultValue !== undefined) defaults[f.key] = f.defaultValue;
+      else if (f.type === "select" && f.options?.[0]) defaults[f.key] = f.options[0].value;
       else defaults[f.key] = f.type === "boolean" ? false : "";
     });
     setFormData(defaults);
@@ -62,7 +65,15 @@ export function AdminCrud({ table, title, fields, columns, detailBasePath }: Adm
     setEditing(row);
     const data: Record<string, unknown> = {};
     fields.forEach((f) => {
-      data[f.key] = row[f.key] ?? (f.type === "boolean" ? false : "");
+      if (row[f.key] !== undefined && row[f.key] !== null && row[f.key] !== "") {
+        data[f.key] = row[f.key];
+      } else if (f.type === "boolean") {
+        data[f.key] = false;
+      } else if (f.type === "select" && f.options?.[0]) {
+        data[f.key] = f.options[0].value;
+      } else {
+        data[f.key] = "";
+      }
     });
     setFormData(data);
     setShowForm(true);
@@ -145,6 +156,18 @@ export function AdminCrud({ table, title, fields, columns, detailBasePath }: Adm
                     rows={3}
                     className="w-full rounded border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/25 outline-none focus:border-spotlight-gold"
                   />
+                ) : f.type === "select" && f.options?.length ? (
+                  <select
+                    value={(formData[f.key] as string) ?? ""}
+                    onChange={(e) => updateField(f.key, e.target.value)}
+                    className="w-full rounded border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-spotlight-gold"
+                  >
+                    {f.options.map((opt) => (
+                      <option key={opt.value} value={opt.value} className="bg-[#1a1a2e]">
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                 ) : f.type === "boolean" ? (
                   <label className="flex items-center gap-2 text-sm text-white/70">
                     <input

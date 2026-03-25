@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-server";
+import { thingsToDoSeedData } from "@/lib/seed-data/things-to-do";
 
 const eventsData = [
   { day: "05", month: "Apr", category: "Music", bg: "#1E3A5F", icon: null, name: "Hilton Head Jazz & Wine Festival", location: "Shelter Cove Marina", time: "6:00 PM", price: "From $45 · General Admission", cta: "Get Tickets", source: "manual" },
@@ -22,15 +23,6 @@ const openingsData = [
   { icon: null, name: "Lowcountry Strength Co.", type: "Gym · Fitness Studio", location: "Bluffton", source: "manual" },
 ];
 
-const thingsToDoData = [
-  { icon: null, badge: "30% OFF", title: "Dolphin Kayak Tour", description: "2-hour guided kayak tour through the salt marshes with dolphin spotting.", venue: "Outside Hilton Head", expires: "Expires Apr 30", source: "manual" },
-  { icon: null, badge: "$20 OFF", title: "Round of Golf — Harbour Town", description: "Twilight round discount every day after 3 PM. Cart included.", venue: "Sea Pines Resort", expires: "Weekdays only", source: "manual" },
-  { icon: null, badge: "FREE", title: "Guided Nature Walk", description: "Saturday morning walks through the Pinckney Island Wildlife Refuge.", venue: "US Fish & Wildlife Service", expires: "Every Saturday 8 AM", source: "manual" },
-  { icon: null, badge: "BOGO", title: "Happy Hour at Skull Creek Dockside", description: "Buy one cocktail, get one free every day 3–6 PM on the waterfront deck.", venue: "Skull Creek Dockside", expires: "Daily 3–6 PM", source: "manual" },
-  { icon: null, badge: "15% OFF", title: "Art Classes at Morris Center", description: "Watercolor, pottery, and mixed media classes for all skill levels.", venue: "Arts Center of Coastal Carolina", expires: "Spring session", source: "manual" },
-  { icon: null, badge: "25% OFF", title: "Surf Lessons for Beginners", description: "Board rental + 90-min lesson at Folly Field Beach. Great for families.", venue: "Hilton Head Surf Co.", expires: "Expires May 15", source: "manual" },
-];
-
 export async function POST() {
   const results: Record<string, string> = {};
 
@@ -43,8 +35,10 @@ export async function POST() {
   const { error: openingsErr } = await supabaseAdmin.from("openings").upsert(openingsData, { onConflict: "name" });
   results.openings = openingsErr ? openingsErr.message : `${openingsData.length} rows`;
 
-  const { error: thingsErr } = await supabaseAdmin.from("things_to_do").upsert(thingsToDoData, { onConflict: "title" });
-  results.things_to_do = thingsErr ? thingsErr.message : `${thingsToDoData.length} rows`;
+  const { error: thingsErr } = await supabaseAdmin
+    .from("things_to_do")
+    .upsert(thingsToDoSeedData, { onConflict: "title" });
+  results.things_to_do = thingsErr ? thingsErr.message : `${thingsToDoSeedData.length} rows`;
 
   return NextResponse.json({ seeded: results });
 }
