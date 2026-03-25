@@ -41,7 +41,7 @@ export function Newsletter() {
         <h2 className="mb-2 font-serif text-[32px] font-normal text-spotlight-navy">
           Stay in the <em className="italic">loop</em>
         </h2>
-        <p className="mb-6 text-sm font-light text-[rgba(12,27,51,0.65)]">
+        <p className="mb-6 text-sm font-light text-spotlight-navy/65">
           The Spotlight weekly digest — events, openings, deals, and market
           news, delivered every Thursday morning.
         </p>

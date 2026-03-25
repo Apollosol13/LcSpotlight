@@ -48,7 +48,7 @@ export function InlineCTA() {
         </div>
 
         {status === "success" ? (
-          <p className="text-sm font-medium text-spotlight-teal">{message}</p>
+          <p className="text-sm font-medium text-spotlight-gold">{message}</p>
         ) : (
           <form onSubmit={handleSubmit} className="flex w-full max-w-[380px] shrink-0">
             <input

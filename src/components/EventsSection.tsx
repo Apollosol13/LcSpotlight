@@ -38,11 +38,11 @@ export async function EventsSection() {
               style={{ background: e.bg ?? "#1E3A5F" }}
             >
               <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.7)] to-transparent" />
-              <div className="absolute left-3.5 top-3.5 z-[1] rounded-[2px] bg-spotlight-gold px-2.5 py-1.5 text-center leading-tight text-spotlight-navy">
+              <div className="absolute left-3.5 top-3.5 z-[1] rounded-[2px] bg-spotlight-teal px-2.5 py-1.5 text-center leading-tight text-spotlight-gold">
                 <span className="block font-serif text-[22px] font-semibold">
                   {e.day}
                 </span>
-                <span className="block text-[10px] font-medium uppercase tracking-[1px]">
+                <span className="block text-[10px] font-medium uppercase tracking-[1px] text-spotlight-gold/90">
                   {e.month}
                 </span>
               </div>
@@ -60,7 +60,7 @@ export async function EventsSection() {
                 {e.time && <span>{e.time}</span>}
               </div>
               {e.price && (
-                <p className="text-[13px] font-medium text-spotlight-teal">
+                <p className="text-[13px] font-medium text-spotlight-gold">
                   {e.price}
                 </p>
               )}

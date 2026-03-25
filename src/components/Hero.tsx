@@ -42,7 +42,7 @@ export function Hero() {
         </div>
 
         {/* Right panel */}
-        <div className="hidden rounded border border-[rgba(201,168,76,0.2)] bg-white/5 p-8 min-[901px]:block">
+        <div className="hidden rounded border border-spotlight-gold/25 bg-white/5 p-8 min-[901px]:block">
           <p className="mb-6 text-[11px] font-medium uppercase tracking-[2px] text-spotlight-gold">
             Market Snapshot — March 2026
           </p>
@@ -61,8 +61,8 @@ export function Hero() {
                 <span
                   className={`rounded-[2px] px-2 py-0.5 text-[11px] font-medium tracking-[0.5px] ${
                     s.up
-                      ? "bg-[rgba(30,123,114,0.2)] text-[#4dcfc4]"
-                      : "bg-[rgba(212,97,74,0.2)] text-[#f08070]"
+                      ? "bg-spotlight-teal/40 text-[#c5d4d2]"
+                      : "bg-spotlight-coral/20 text-spotlight-coral"
                   }`}
                 >
                   {s.change}

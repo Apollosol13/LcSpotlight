@@ -44,7 +44,7 @@ export async function OpeningsSection() {
             <p className="mb-3 text-xs uppercase tracking-[0.5px] text-spotlight-text-muted">
               {o.type}
             </p>
-            <p className="text-xs font-medium text-spotlight-teal">{o.location}</p>
+            <p className="text-xs font-medium text-spotlight-gold">{o.location}</p>
           </div>
         ))}
       </div>

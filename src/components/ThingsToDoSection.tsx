@@ -30,12 +30,11 @@ export async function ThingsToDoSection() {
         {(deals ?? []).map((d) => (
           <div
             key={d.id}
-            className="group relative cursor-pointer overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white p-6 transition-colors hover:border-spotlight-teal"
+            className="group relative cursor-pointer overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white p-6 transition-colors hover:border-spotlight-teal/50"
           >
-            {/* Top accent bar on hover */}
             <div className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-spotlight-teal transition-transform group-hover:scale-x-100" />
 
-            <span className="mb-3.5 inline-flex items-center rounded-[2px] bg-[rgba(30,123,114,0.1)] px-3 py-1 text-[13px] font-medium text-spotlight-teal">
+            <span className="mb-3.5 inline-flex items-center rounded-[2px] border border-spotlight-teal/20 bg-spotlight-teal/10 px-3 py-1 text-[13px] font-medium text-spotlight-gold">
               {d.badge}
             </span>
             <h3 className="mb-1.5 font-serif text-[17px] font-normal text-spotlight-navy">

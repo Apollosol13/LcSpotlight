@@ -34,9 +34,9 @@ export default async function EventsPage() {
               style={{ background: e.bg ?? "#1E3A5F" }}
             >
               <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.7)] to-transparent" />
-              <div className="absolute left-3.5 top-3.5 z-[1] rounded-[2px] bg-spotlight-gold px-2.5 py-1.5 text-center leading-tight text-spotlight-navy">
+              <div className="absolute left-3.5 top-3.5 z-[1] rounded-[2px] bg-spotlight-teal px-2.5 py-1.5 text-center leading-tight text-spotlight-gold">
                 <span className="block font-serif text-[22px] font-semibold">{e.day}</span>
-                <span className="block text-[10px] font-medium uppercase tracking-[1px]">{e.month}</span>
+                <span className="block text-[10px] font-medium uppercase tracking-[1px] text-spotlight-gold/90">{e.month}</span>
               </div>
               {e.category && (
                 <span className="absolute right-3.5 top-3.5 z-[1] rounded-[2px] bg-[rgba(12,27,51,0.8)] px-2.5 py-1 text-[10px] uppercase tracking-[1px] text-white/90">
@@ -53,7 +53,7 @@ export default async function EventsPage() {
                 {e.time && <span>{e.time}</span>}
               </div>
               {e.price && (
-                <p className="text-[13px] font-medium text-spotlight-teal">{e.price}</p>
+                <p className="text-[13px] font-medium text-spotlight-gold">{e.price}</p>
               )}
             </div>
           </div>

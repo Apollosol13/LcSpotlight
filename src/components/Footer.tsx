@@ -33,7 +33,7 @@ const columns = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-[rgba(201,168,76,0.2)] bg-spotlight-navy px-5 pb-8 pt-[60px] min-[601px]:px-10">
+    <footer className="border-t border-spotlight-gold/25 bg-spotlight-navy px-5 pb-8 pt-[60px] min-[601px]:px-10">
       <div className="mx-auto max-w-[1200px]">
         <div className="mb-12 grid gap-10 min-[601px]:grid-cols-2 min-[901px]:grid-cols-[1.5fr_1fr_1fr_1fr]">
           {/* Brand col */}

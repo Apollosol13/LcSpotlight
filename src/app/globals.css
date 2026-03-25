@@ -2,20 +2,22 @@
 
 :root {
   --navy: #111111;
-  --navy-mid: #1c1c1c;
-  --gold: #c9a84c;
-  --gold-light: #e8c96e;
-  --sand: #f5f0e8;
-  --cream: #fdfaf5;
+  --navy-mid: #1a1a1a;
+  /* Champagne gold — primary accent */
+  --gold: #bfa06a;
+  --gold-light: #d4bc8c;
+  --sand: #f5efe3;
+  --cream: #f5efe3;
   --white: #ffffff;
-  --teal: #1e7b72;
-  --teal-light: #2ea89b;
+  /* Deep teal — structural accents, badges, ticker */
+  --teal: #1a3a3a;
+  --teal-light: #234848;
   --coral: #d4614a;
   --text-dark: #111111;
-  --text-mid: #444444;
-  --text-muted: #888888;
-  --border: rgba(12, 27, 51, 0.1);
-  --border-gold: rgba(201, 168, 76, 0.3);
+  --text-mid: #5c564c;
+  --text-muted: #888074;
+  --border: rgba(17, 17, 17, 0.08);
+  --border-gold: rgba(191, 160, 106, 0.35);
 }
 
 @theme inline {

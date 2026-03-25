@@ -60,7 +60,7 @@ export async function NewsSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.6)] to-transparent" />
             </div>
             <div className="p-7">
-              <span className="mb-2.5 inline-block border-b border-[rgba(201,168,76,0.3)] pb-1 text-[10px] font-medium uppercase tracking-[2px] text-spotlight-gold">
+              <span className="mb-2.5 inline-block border-b border-[var(--border-gold)] pb-1 text-[10px] font-medium uppercase tracking-[2px] text-spotlight-gold">
                 {featured.category}
               </span>
               <h3 className="mb-3 font-serif text-[26px] font-normal leading-[1.3] text-spotlight-navy">

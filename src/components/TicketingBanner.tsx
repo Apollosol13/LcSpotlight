@@ -23,7 +23,7 @@ export function TicketingBanner() {
                 key={f}
                 className="flex items-center gap-1.5 text-[13px] text-spotlight-text-mid"
               >
-                <span className="font-medium text-spotlight-teal" aria-hidden>
+                <span className="font-medium text-spotlight-gold" aria-hidden>
                   {"\u2022"}
                 </span>{" "}
                 {f}

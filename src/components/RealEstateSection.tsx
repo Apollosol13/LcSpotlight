@@ -105,9 +105,9 @@ export function RealEstateSection() {
                 <p
                   className={`flex items-center gap-1 text-[13px] ${
                     isUp
-                      ? "text-[#4dcfc4]"
+                      ? "text-[#c5d4d2]"
                       : isDown
-                        ? "text-[#f08070]"
+                        ? "text-spotlight-coral"
                         : "text-white/50"
                   }`}
                 >
@@ -123,10 +123,10 @@ export function RealEstateSection() {
           {listings.map((l) => (
             <div
               key={l.address}
-              className="cursor-pointer overflow-hidden rounded border border-white/[0.08] bg-white/[0.04] transition-colors hover:border-[rgba(201,168,76,0.4)]"
+              className="cursor-pointer overflow-hidden rounded border border-white/[0.08] bg-white/[0.04] transition-colors hover:border-spotlight-gold/40"
             >
               <div className="relative flex h-40 items-center justify-center bg-white/5">
-                <span className="absolute bottom-3 left-3 rounded-[2px] bg-spotlight-gold px-2 py-[3px] text-[10px] font-medium uppercase tracking-[1px] text-spotlight-navy">
+                <span className="absolute bottom-3 left-3 rounded-[2px] bg-spotlight-teal px-2 py-[3px] text-[10px] font-medium uppercase tracking-[1px] text-spotlight-gold">
                   {l.type}
                 </span>
               </div>

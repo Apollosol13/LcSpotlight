@@ -37,7 +37,7 @@ export function Navbar() {
   return (
     <>
       <nav
-        className="sticky top-0 z-[100] flex h-[60px] items-center justify-between border-b border-[rgba(201,168,76,0.2)] bg-spotlight-navy px-5 min-[601px]:px-10"
+        className="sticky top-0 z-[100] flex h-[60px] items-center justify-between border-b border-spotlight-gold/25 bg-spotlight-navy px-5 min-[601px]:px-10"
         aria-label="Main"
       >
         <Link
@@ -112,7 +112,7 @@ export function Navbar() {
           aria-label="Close menu"
         />
         <div
-          className={`absolute right-0 top-[60px] flex w-[min(100%,320px)] flex-col border-l border-[rgba(201,168,76,0.2)] bg-spotlight-navy shadow-xl transition-transform duration-200 ease-out ${mobileOpen ? "translate-x-0" : "translate-x-full"}`}
+          className={`absolute right-0 top-[60px] flex w-[min(100%,320px)] flex-col border-l border-spotlight-gold/25 bg-spotlight-navy shadow-xl transition-transform duration-200 ease-out ${mobileOpen ? "translate-x-0" : "translate-x-full"}`}
         >
           <ul className="m-0 list-none p-0">
             {navItems.map(({ href, label }) => {
