@@ -71,6 +71,34 @@
   }
 }
 
+@keyframes coast-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-6px, 4px, 0);
+  }
+}
+
+@keyframes coast-drift-reverse {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(5px, -3px, 0);
+  }
+}
+
+.animate-coast-drift {
+  animation: coast-drift 26s ease-in-out infinite;
+}
+
+.animate-coast-drift-reverse {
+  animation: coast-drift-reverse 34s ease-in-out infinite;
+}
+
 body {
   background: var(--cream);
   color: var(--text-dark);
