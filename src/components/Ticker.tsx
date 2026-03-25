@@ -11,11 +11,14 @@ function TickerRow() {
   return (
     <>
       {items.map((text, i) => (
-        <span key={i} className="flex items-center">
-          <span className="whitespace-nowrap px-10 text-xs font-medium uppercase tracking-[0.5px] text-spotlight-gold">
+        <span key={i} className="inline-flex shrink-0 items-center gap-3 px-7">
+          <span
+            className="size-[3px] shrink-0 rounded-full bg-spotlight-gold/40"
+            aria-hidden
+          />
+          <span className="whitespace-nowrap text-[10px] font-normal uppercase tracking-[0.14em] text-spotlight-cream/55">
             {text}
           </span>
-          <span className="mx-5 inline-block size-1 shrink-0 rounded-full bg-spotlight-gold/35" />
         </span>
       ))}
     </>
@@ -25,10 +28,10 @@ function TickerRow() {
 export function Ticker() {
   return (
     <div
-      className="overflow-hidden border-y border-spotlight-gold/20 bg-spotlight-teal py-2"
+      className="h-10 overflow-hidden border-t border-spotlight-gold/10 bg-spotlight-navy"
       aria-hidden="true"
     >
-      <div className="inline-flex animate-[ticker_30s_linear_infinite]">
+      <div className="inline-flex h-full items-center animate-mag-tick">
         <TickerRow />
         <TickerRow />
       </div>

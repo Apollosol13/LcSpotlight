@@ -1,46 +1,52 @@
 import Link from "next/link";
 
+const perks = [
+  "Instant e-tickets delivered to your inbox",
+  "Mobile-friendly — works at the gate",
+  "No booking fees or hidden charges",
+  "Local events only — curated for the Lowcountry",
+];
+
 export function TicketingBanner() {
   return (
-    <section className="mx-auto max-w-[1200px] px-5 min-[601px]:px-10">
-      <div className="mt-12 grid items-center gap-10 rounded border border-[rgba(17,34,80,0.1)] bg-spotlight-sand p-10 min-[901px]:grid-cols-[1fr_auto]">
+    <section className="bg-spotlight-teal px-5 py-16 min-[601px]:px-12 min-[601px]:py-[88px]">
+      <div className="mx-auto grid max-w-[1200px] items-center gap-12 min-[901px]:grid-cols-2 min-[901px]:gap-20">
         <div>
-          <h2 className="mb-2 font-serif text-[28px] font-normal text-spotlight-navy">
-            Buy tickets to local events in seconds
-          </h2>
-          <p className="text-sm font-light text-spotlight-text-muted">
-            No service fees. No hidden charges. Direct to the venue. Built for
-            the Lowcountry.
+          <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.22em] text-spotlight-gold/65">
+            No fees. No hassle.
           </p>
-          <div className="mt-5 flex flex-wrap gap-6">
-            {[
-              "Instant e-tickets",
-              "Mobile-friendly",
-              "No booking fees",
-              "Local events only",
-            ].map((f) => (
-              <span
-                key={f}
-                className="flex items-center gap-1.5 text-[13px] text-spotlight-text-mid"
+          <h2 className="font-serif text-[clamp(2rem,4vw,2.75rem)] font-bold leading-none text-spotlight-cream">
+            Buy tickets in <em className="font-normal italic text-spotlight-gold">seconds</em>
+          </h2>
+          <ul className="mt-8 flex list-none flex-col gap-[18px] p-0">
+            {perks.map((p) => (
+              <li
+                key={p}
+                className="flex items-start gap-3.5 text-[13px] font-light leading-[1.7] tracking-[0.02em] text-spotlight-cream/60"
               >
-                <span className="font-medium text-spotlight-gold" aria-hidden>
-                  {"\u2022"}
-                </span>{" "}
-                {f}
-              </span>
+                <span
+                  className="mt-2 size-[5px] shrink-0 rounded-full bg-spotlight-gold"
+                  aria-hidden
+                />
+                {p}
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
-        <div className="text-center">
+        <div>
+          <p className="font-serif text-[clamp(4rem,15vw,7.5rem)] font-black leading-none tracking-[-0.04em] text-spotlight-cream/[0.05]">
+            40+
+          </p>
+          <p className="-mt-4 mb-8 text-sm font-light leading-[1.8] tracking-[0.02em] text-spotlight-cream/50">
+            Over 40 events this month across Hilton Head, Bluffton, Beaufort, and Savannah.
+            Browse and book directly with the venue.
+          </p>
           <Link
             href="/events"
-            className="inline-block rounded-[2px] bg-spotlight-gold px-9 py-4 text-sm font-medium uppercase tracking-[0.5px] text-spotlight-navy transition-colors hover:bg-spotlight-gold-light"
+            className="inline-block bg-spotlight-gold px-7 py-3.5 text-[10px] font-medium uppercase tracking-[0.18em] text-spotlight-navy no-underline transition-colors hover:bg-spotlight-gold-dark"
           >
-            Browse All Events
+            Browse all events
           </Link>
-          <p className="mt-2.5 text-xs text-spotlight-text-muted">
-            Over 40 events this month
-          </p>
         </div>
       </div>
     </section>

@@ -23,25 +23,26 @@ export async function NewsSection() {
   const featured = (allNews ?? []).find((n) => n.featured) ?? (allNews ?? [])[0];
   const sidebarItems = (allNews ?? []).filter((n) => n.id !== featured?.id).slice(0, 4);
   return (
-    <section className="mx-auto w-full max-w-[1200px] px-5 py-16 min-[601px]:px-10">
-      <div className="mb-9 flex items-baseline justify-between border-b border-[rgba(17,34,80,0.1)] pb-4">
+    <section className="bg-spotlight-cream px-5 py-16 min-[601px]:px-12 min-[601px]:py-[72px]">
+      <div className="mx-auto max-w-[1200px]">
+        <div className="mb-10 flex flex-col gap-4 min-[601px]:flex-row min-[601px]:items-end min-[601px]:justify-between">
         <div>
-          <p className="mb-2 text-[10px] font-medium uppercase tracking-[3px] text-spotlight-text-muted">
+          <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.22em] text-spotlight-teal/55">
             Community
           </p>
-          <h2 className="font-serif text-[32px] font-normal text-spotlight-navy">
-            News &amp; <em className="italic text-spotlight-gold">Updates</em>
+          <h2 className="font-serif text-[clamp(2rem,5vw,3rem)] font-bold leading-none text-spotlight-navy">
+            News &amp; <em className="font-normal italic text-spotlight-teal">Updates</em>
           </h2>
         </div>
         <Link
           href="/news"
-          className="text-xs font-medium uppercase tracking-[1px] text-spotlight-gold no-underline transition-colors hover:underline"
+          className="inline-flex items-center gap-2 self-start border-b border-spotlight-gold-dark pb-1 text-[10px] font-normal uppercase tracking-[0.16em] text-spotlight-gold-dark no-underline min-[601px]:self-auto"
         >
-          All stories
+          All stories →
         </Link>
-      </div>
+        </div>
 
-      <div className="grid gap-8 min-[901px]:grid-cols-[2fr_1fr]">
+        <div className="grid gap-8 min-[901px]:grid-cols-[2fr_1fr]">
         {featured && (
           <a
             href={featured.source_url ?? "/news"}
@@ -102,6 +103,7 @@ export async function NewsSection() {
               </div>
             </a>
           ))}
+        </div>
         </div>
       </div>
     </section>

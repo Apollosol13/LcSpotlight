@@ -8,47 +8,47 @@ export async function ThingsToDoSection() {
     .order("created_at", { ascending: true })
     .limit(6);
   return (
-    <section className="mx-auto w-full max-w-[1200px] px-5 py-16 min-[601px]:px-10">
-      <div className="mb-9 flex items-baseline justify-between border-b border-[rgba(17,34,80,0.1)] pb-4">
+    <section className="bg-spotlight-cream px-5 py-16 min-[601px]:px-12 min-[601px]:py-[72px]">
+      <div className="mx-auto max-w-[1200px]">
+      <div className="mb-10 flex flex-col gap-4 min-[601px]:flex-row min-[601px]:items-end min-[601px]:justify-between">
         <div>
-          <p className="mb-2 text-[10px] font-medium uppercase tracking-[3px] text-spotlight-text-muted">
-            Deals &amp; Discounts
+          <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.22em] text-spotlight-teal/55">
+            Deals &amp; discounts
           </p>
-          <h2 className="font-serif text-[32px] font-normal text-spotlight-navy">
-            Things <em className="italic text-spotlight-gold">To Do</em>
+          <h2 className="font-serif text-[clamp(2rem,5vw,3rem)] font-bold leading-none text-spotlight-navy">
+            Things <em className="font-normal italic text-spotlight-teal">To Do</em>
           </h2>
         </div>
         <Link
           href="/things-to-do"
-          className="text-xs font-medium uppercase tracking-[1px] text-spotlight-gold no-underline transition-colors hover:underline"
+          className="inline-flex items-center gap-2 self-start border-b border-spotlight-gold-dark pb-1 text-[10px] font-normal uppercase tracking-[0.16em] text-spotlight-gold-dark no-underline min-[601px]:self-auto"
         >
-          All deals
+          All deals →
         </Link>
       </div>
 
-      <div className="grid gap-5 min-[601px]:grid-cols-2 min-[901px]:grid-cols-3">
+      <div className="grid grid-cols-1 gap-0.5 min-[601px]:grid-cols-2 min-[901px]:grid-cols-3">
         {(deals ?? []).map((d) => (
           <div
             key={d.id}
-            className="group relative cursor-pointer overflow-hidden rounded border border-[rgba(17,34,80,0.1)] bg-white p-6 transition-colors hover:border-spotlight-teal/50"
+            className="group relative cursor-pointer border border-spotlight-navy/[0.06] bg-white p-6 transition-colors hover:border-spotlight-teal/40 min-[601px]:p-6"
           >
-            <div className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-spotlight-teal transition-transform group-hover:scale-x-100" />
-
-            <span className="mb-3.5 inline-flex items-center rounded-[2px] border border-spotlight-teal/20 bg-spotlight-teal/10 px-3 py-1 text-[13px] font-medium text-spotlight-gold">
+            <span className="mb-3 inline-flex items-center border border-spotlight-teal/20 bg-spotlight-teal/10 px-2.5 py-1 text-[11px] font-medium text-spotlight-teal">
               {d.badge}
             </span>
-            <h3 className="mb-1.5 font-serif text-[17px] font-normal text-spotlight-navy">
+            <h3 className="mb-1.5 font-serif text-lg font-bold text-spotlight-navy">
               {d.title}
             </h3>
-            <p className="mb-3.5 text-[13px] font-light text-spotlight-text-muted">
+            <p className="mb-3 text-[13px] font-light tracking-[0.03em] text-[#8a96a8]">
               {d.description}
             </p>
-            <p className="text-xs font-medium uppercase tracking-[0.5px] text-spotlight-text-mid">
+            <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-spotlight-teal">
               {d.venue}
             </p>
             <p className="mt-1 text-[11px] text-spotlight-coral">{d.expires}</p>
           </div>
         ))}
+      </div>
       </div>
     </section>
   );

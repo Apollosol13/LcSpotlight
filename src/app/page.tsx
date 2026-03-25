@@ -8,7 +8,6 @@ import { NewsSection } from "@/components/NewsSection";
 import { ThingsToDoSection } from "@/components/ThingsToDoSection";
 import { RealEstateSection } from "@/components/RealEstateSection";
 import { TicketingBanner } from "@/components/TicketingBanner";
-import { Newsletter } from "@/components/Newsletter";
 
 export const revalidate = 300;
 
@@ -21,21 +20,17 @@ export default function Home() {
       <Suspense>
         <EventsSection />
       </Suspense>
-      <hr className="m-0 border-0 border-t border-[rgba(17,34,80,0.1)]" />
       <Suspense>
         <OpeningsSection />
       </Suspense>
-      <hr className="m-0 border-0 border-t border-[rgba(17,34,80,0.1)]" />
       <Suspense>
         <NewsSection />
       </Suspense>
-      <hr className="m-0 border-0 border-t border-[rgba(17,34,80,0.1)]" />
       <Suspense>
         <ThingsToDoSection />
       </Suspense>
       <RealEstateSection />
       <TicketingBanner />
-      <Newsletter />
     </>
   );
 }

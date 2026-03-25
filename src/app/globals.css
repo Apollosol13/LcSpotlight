@@ -11,8 +11,10 @@
   --royal-blue: #112250;
   --sapphire: #3c507d;
   --quicksand: #e0c58f;
+  --gold-dark: #c4a76a;
   --swan-wing: #f5f0e9;
   --shellstone: #d9cbc2;
+  --ink: #0c1829;
 
   --navy: var(--royal-blue);
   --navy-mid: #1a2f5c;
@@ -25,7 +27,7 @@
   --teal-light: #526899;
   /* Warm accent for “new” / urgency — not in swatch deck; harmonizes with blues */
   --coral: #b85c50;
-  --text-dark: var(--royal-blue);
+  --text-dark: var(--ink);
   --text-mid: #5a6478;
   --text-muted: #7a8294;
   --border: rgba(17, 34, 80, 0.12);
@@ -36,7 +38,9 @@
   --color-spotlight-navy: var(--navy);
   --color-spotlight-navy-mid: var(--navy-mid);
   --color-spotlight-gold: var(--gold);
+  --color-spotlight-gold-dark: var(--gold-dark);
   --color-spotlight-gold-light: var(--gold-light);
+  --color-spotlight-ink: var(--ink);
   --color-spotlight-sand: var(--sand);
   --color-spotlight-cream: var(--cream);
   --color-spotlight-teal: var(--teal);
@@ -48,9 +52,20 @@
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
   --font-display: var(--font-bebas), ui-sans-serif, system-ui, sans-serif;
+  --animate-mag-tick: mag-tick 45s linear infinite;
 }
 
 @keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Concept A magazine ticker (45s loop) */
+@keyframes mag-tick {
   from {
     transform: translateX(0);
   }

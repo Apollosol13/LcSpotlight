@@ -11,7 +11,7 @@ export default async function ThingsToDoPage() {
 
   return (
     <main className="mx-auto w-full max-w-[1200px] flex-1 px-5 py-16 min-[601px]:px-10">
-      <div className="mb-10 border-b border-[rgba(17,34,80,0.1)] pb-4">
+      <div className="mb-10 border-b border-[rgba(12,27,51,0.1)] pb-4">
         <p className="mb-2 text-[10px] font-medium uppercase tracking-[3px] text-spotlight-text-muted">
           Deals &amp; Discounts
         </p>
@@ -27,10 +27,11 @@ export default async function ThingsToDoPage() {
         {(deals ?? []).map((d) => (
           <div
             key={d.id}
-            className="group relative overflow-hidden rounded border border-[rgba(17,34,80,0.1)] bg-white p-6 transition-colors hover:border-spotlight-teal/50"
+            className="group relative overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white p-6 transition-colors hover:border-spotlight-teal"
           >
             <div className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-spotlight-teal transition-transform group-hover:scale-x-100" />
-            <span className="mb-3.5 inline-flex items-center rounded-[2px] border border-spotlight-teal/20 bg-spotlight-teal/10 px-3 py-1 text-[13px] font-medium text-spotlight-gold">
+            {d.icon && <span className="mb-3 block text-[28px]">{d.icon}</span>}
+            <span className="mb-3.5 inline-flex items-center rounded-[2px] bg-[rgba(30,123,114,0.1)] px-3 py-1 text-[13px] font-medium text-spotlight-teal">
               {d.badge}
             </span>
             <h2 className="mb-1.5 font-serif text-[17px] font-normal text-spotlight-navy">

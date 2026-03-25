@@ -7,7 +7,7 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
   style: ["normal", "italic"],
-  weight: ["400", "600"],
+  weight: ["400", "600", "700", "900"],
 });
 
 const dmSans = DM_Sans({

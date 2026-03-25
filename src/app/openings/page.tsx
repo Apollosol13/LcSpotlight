@@ -11,7 +11,7 @@ export default async function OpeningsPage() {
 
   return (
     <main className="mx-auto w-full max-w-[1200px] flex-1 px-5 py-16 min-[601px]:px-10">
-      <div className="mb-10 border-b border-[rgba(17,34,80,0.1)] pb-4">
+      <div className="mb-10 border-b border-[rgba(12,27,51,0.1)] pb-4">
         <p className="mb-2 text-[10px] font-medium uppercase tracking-[3px] text-spotlight-text-muted">
           What&apos;s New
         </p>
@@ -27,21 +27,25 @@ export default async function OpeningsPage() {
         {(openings ?? []).map((o) => (
           <div
             key={o.id}
-            className="relative rounded border border-[rgba(17,34,80,0.1)] bg-white p-6 transition-transform hover:-translate-y-0.5"
+            className="relative rounded border border-[rgba(12,27,51,0.1)] bg-white p-6 transition-transform hover:-translate-y-0.5"
           >
             <span className="absolute right-4 top-4 rounded-[2px] bg-spotlight-coral px-2 py-[3px] text-[9px] font-medium uppercase tracking-[1px] text-white">
               New
             </span>
-            <div className="mb-4 flex size-12 items-center justify-center rounded bg-spotlight-sand text-xs font-semibold uppercase tracking-wide text-spotlight-text-muted">
-              {(o.type?.replace(/[^A-Za-z]/g, "").charAt(0) || o.name?.charAt(0) || "?").toUpperCase()}
-            </div>
+            {o.icon && (
+              <div className="mb-4 flex size-12 items-center justify-center rounded bg-spotlight-sand text-[22px]">
+                {o.icon}
+              </div>
+            )}
             <h2 className="mb-1 font-serif text-base font-normal leading-tight text-spotlight-navy">
               {o.name}
             </h2>
             <p className="mb-3 text-xs uppercase tracking-[0.5px] text-spotlight-text-muted">
               {o.type}
             </p>
-            <p className="text-xs font-medium text-spotlight-gold">{o.location}</p>
+            <p className="text-xs font-medium text-spotlight-teal">
+              📍 {o.location}
+            </p>
           </div>
         ))}
       </div>
