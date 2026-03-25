@@ -29,7 +29,9 @@ export default function Home() {
       <Suspense>
         <ThingsToDoSection />
       </Suspense>
-      <RealEstateSection />
+      <Suspense>
+        <RealEstateSection />
+      </Suspense>
       <TicketingBanner />
     </>
   );

@@ -1,201 +1,107 @@
-"use client";
+import { supabase } from "@/lib/supabase";
+import { REAL_ESTATE_MARKETS, type RealEstateMarketKey } from "@/lib/real-estate-markets";
+import {
+  RealEstateSectionClient,
+  type RealEstateListingCard,
+  type RealEstateStatsCard,
+} from "./RealEstateSectionClient";
 
-import Link from "next/link";
-import { useState } from "react";
+function formatMoney(n: number | null): string {
+  if (n == null || n <= 0) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(n);
+}
 
-type MarketKey = "hhi" | "bluffton" | "beaufort" | "savannah";
+function listingDetail(beds: number | null, baths: number | null, sqft: number | null): string {
+  const parts: string[] = [];
+  if (beds != null) parts.push(`${beds} bed`);
+  if (baths != null) parts.push(`${baths} bath`);
+  if (sqft != null && sqft > 0) parts.push(`${sqft.toLocaleString()} sqft`);
+  return parts.length ? parts.join(" · ") : "Details on Redfin";
+}
 
-const tabs: { key: MarketKey; label: string }[] = [
-  { key: "hhi", label: "Hilton Head" },
-  { key: "bluffton", label: "Bluffton" },
-  { key: "beaufort", label: "Beaufort" },
-  { key: "savannah", label: "Savannah" },
-];
+function redfinUrl(path: string | null): string | null {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  return `https://www.redfin.com${path.startsWith("/") ? path : `/${path}`}`;
+}
 
-const markets: Record<
-  MarketKey,
-  {
-    price: string;
-    priceChg: string;
-    dom: string;
-    domChg: string;
-    listings: string;
-    listChg: string;
-    ratio: string;
-    ratioChg: string;
-  }
-> = {
-  hhi: {
-    price: "$748K",
-    priceChg: "+4.2% YoY",
-    dom: "38",
-    domChg: "5 days faster",
-    listings: "142",
-    listChg: "+12 this month",
-    ratio: "98.4%",
-    ratioChg: "Strong demand",
-  },
-  bluffton: {
-    price: "$465K",
-    priceChg: "+2.8% YoY",
-    dom: "44",
-    domChg: "Stable",
-    listings: "98",
-    listChg: "+7 this month",
-    ratio: "97.1%",
-    ratioChg: "Healthy market",
-  },
-  beaufort: {
-    price: "$312K",
-    priceChg: "+5.1% YoY",
-    dom: "51",
-    domChg: "3 days slower",
-    listings: "64",
-    listChg: "Low inventory",
-    ratio: "96.8%",
-    ratioChg: "Balanced",
-  },
-  savannah: {
-    price: "$398K",
-    priceChg: "+6.4% YoY",
-    dom: "35",
-    domChg: "8 days faster",
-    listings: "211",
-    listChg: "+28 this month",
-    ratio: "99.2%",
-    ratioChg: "Very competitive",
-  },
+function rowToStats(row: Record<string, unknown>): RealEstateStatsCard {
+  const s = (k: string, fallback: string) =>
+    typeof row[k] === "string" && (row[k] as string).length ? (row[k] as string) : fallback;
+  return {
+    median_price_display: s("median_price_display", "—"),
+    median_dom_display: s("median_dom_display", "—"),
+    active_listings_display: s("active_listings_display", "—"),
+    avg_price_per_sqft_display: s("avg_price_per_sqft_display", "—"),
+    price_subtext: s("price_subtext", "Median · sample"),
+    dom_subtext: s("dom_subtext", "Median days on Redfin"),
+    listings_subtext: s("listings_subtext", "Homes for sale (sample)"),
+    ratio_subtext: s("ratio_subtext", "Avg $/sqft"),
+  };
+}
+
+type RealEstateSectionProps = {
+  showFullReportsLink?: boolean;
+  /** Cap rows loaded per market (scraper stores up to ~350 each). */
+  maxListingsPerMarket?: number;
 };
 
-const statCards: {
-  key: keyof (typeof markets)["hhi"];
-  chgKey: keyof (typeof markets)["hhi"];
-  label: string;
-}[] = [
-  { key: "price", chgKey: "priceChg", label: "Median sale price" },
-  { key: "dom", chgKey: "domChg", label: "Avg. days on market" },
-  { key: "listings", chgKey: "listChg", label: "Active listings" },
-  { key: "ratio", chgKey: "ratioChg", label: "List-to-sale ratio" },
-];
+export async function RealEstateSection({
+  showFullReportsLink = true,
+  maxListingsPerMarket = 48,
+}: RealEstateSectionProps = {}) {
+  const keys = REAL_ESTATE_MARKETS.map((m) => m.key);
+  const { data: statRows } = await supabase.from("real_estate_stats").select("*").in("market_key", keys);
 
-const listings = [
-  {
-    type: "Single family",
-    price: "$1,250,000",
-    address: "47 Calibogue Cay Rd, HHI",
-    detail: "4 bed · 3 bath · 2,840 sqft",
-  },
-  {
-    type: "Townhome",
-    price: "$549,000",
-    address: "12 Marshview Court, HHI",
-    detail: "3 bed · 2.5 bath · 1,920 sqft",
-  },
-  {
-    type: "Condo",
-    price: "$389,000",
-    address: "Sea Pines Villa #204, HHI",
-    detail: "2 bed · 2 bath · 1,100 sqft",
-  },
-];
+  const statsByKey = new Map<string, RealEstateStatsCard>();
+  for (const row of statRows ?? []) {
+    const mk = row.market_key as string;
+    if ((keys as string[]).includes(mk)) {
+      statsByKey.set(mk, rowToStats(row as Record<string, unknown>));
+    }
+  }
 
-export function RealEstateSection() {
-  const [active, setActive] = useState<MarketKey>("hhi");
-  const m = markets[active];
+  const markets = {} as Record<
+    RealEstateMarketKey,
+    { stats: RealEstateStatsCard | null; listings: RealEstateListingCard[] }
+  >;
 
-  return (
-    <section className="bg-spotlight-sand px-5 py-16 min-[601px]:px-12 min-[601px]:py-[72px]">
-      <div className="mx-auto max-w-[1200px]">
-        <div className="mb-10 flex flex-col gap-4 min-[601px]:flex-row min-[601px]:items-end min-[601px]:justify-between">
-          <div>
-            <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.22em] text-spotlight-teal/55">
-              Market report ·{" "}
-              {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-            </p>
-            <h2 className="font-serif text-[clamp(2rem,5vw,3rem)] font-bold leading-none text-spotlight-navy">
-              Real estate <em className="font-normal italic text-spotlight-teal">Snapshot</em>
-            </h2>
-          </div>
-          <Link
-            href="/real-estate"
-            className="inline-flex items-center gap-2 self-start border-b border-spotlight-gold-dark pb-1 text-[10px] font-normal uppercase tracking-[0.16em] text-spotlight-gold-dark no-underline min-[601px]:self-auto"
-          >
-            Full reports →
-          </Link>
-        </div>
+  for (const m of REAL_ESTATE_MARKETS) {
+    const { data: listingRows } = await supabase
+      .from("real_estate_listings")
+      .select(
+        "id, property_type, price, beds, baths, sqft, address_line, city, state, redfin_path, photo_url",
+      )
+      .eq("market_key", m.key)
+      .not("price", "is", null)
+      .gt("price", 0)
+      .order("price", { ascending: false })
+      .limit(maxListingsPerMarket);
 
-        <div className="mb-2 flex flex-wrap gap-0 border-b border-spotlight-navy/10">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              type="button"
-              onClick={() => setActive(t.key)}
-              className={`-mb-px border-b-2 px-4 py-3 text-[10px] font-normal uppercase tracking-[0.14em] transition-colors min-[601px]:px-6 ${
-                active === t.key
-                  ? "border-spotlight-gold text-spotlight-navy"
-                  : "border-transparent text-spotlight-teal/50 hover:text-spotlight-navy"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+    const listings: RealEstateListingCard[] = (listingRows ?? []).map((r) => {
+      const addr =
+        [r.address_line, r.city, r.state].filter(Boolean).join(", ") || "Address on Redfin";
+      return {
+        id: r.id,
+        property_type: r.property_type,
+        price_amount: typeof r.price === "number" ? r.price : null,
+        price_display: formatMoney(r.price),
+        address: addr,
+        detail: listingDetail(r.beds, r.baths, r.sqft),
+        href: redfinUrl(r.redfin_path),
+        photo_url: typeof r.photo_url === "string" && r.photo_url.startsWith("http") ? r.photo_url : null,
+      };
+    });
 
-        <div className="mb-0.5 grid grid-cols-1 gap-0.5 min-[601px]:grid-cols-2 min-[901px]:grid-cols-4">
-          {statCards.map((s) => {
-            const value = m[s.key];
-            const change = m[s.chgKey];
-            const neg = change.includes("slower") || change.toLowerCase().includes("low inventory");
-            const pos =
-              change.startsWith("+") ||
-              change.includes("faster") ||
-              change.includes("Strong") ||
-              change.includes("competitive") ||
-              change.includes("Healthy") ||
-              change.includes("Balanced");
-            return (
-              <div
-                key={s.label}
-                className="cursor-pointer border-b-[3px] border-b-transparent bg-white px-6 py-7 transition-colors hover:border-b-spotlight-gold"
-              >
-                <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55">
-                  {s.label}
-                </p>
-                <p className="mb-1.5 font-serif text-[40px] font-bold leading-none text-spotlight-navy">
-                  {value}
-                </p>
-                <p
-                  className={`text-[11px] font-light tracking-[0.04em] ${
-                    neg ? "text-[#c07070]" : pos ? "text-[#5a8a6a]" : "text-spotlight-text-muted"
-                  }`}
-                >
-                  {change}
-                </p>
-              </div>
-            );
-          })}
-        </div>
+    markets[m.key] = {
+      stats: statsByKey.get(m.key) ?? null,
+      listings,
+    };
+  }
 
-        <div className="grid grid-cols-1 gap-0.5 min-[601px]:grid-cols-3">
-          {listings.map((l) => (
-            <div
-              key={l.address}
-              className="cursor-pointer border-t-2 border-t-transparent bg-white px-6 py-6 transition-colors hover:border-t-spotlight-teal"
-            >
-              <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/50">
-                {l.type}
-              </p>
-              <p className="mb-1.5 font-serif text-[32px] font-bold text-spotlight-navy">{l.price}</p>
-              <p className="mb-2 text-[13px] font-light tracking-[0.02em] text-[#5a6880]">
-                {l.address}
-              </p>
-              <p className="border-t border-spotlight-sand pt-2.5 text-[11px] font-light tracking-[0.04em] text-[#9aa0ab]">
-                {l.detail}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+  return <RealEstateSectionClient markets={markets} showFullReportsLink={showFullReportsLink} />;
 }

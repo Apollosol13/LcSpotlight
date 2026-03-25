@@ -68,7 +68,7 @@ export function Hero() {
           </div>
         </div>
 
-        <p className="relative z-[2] flex flex-wrap gap-5 text-[9px] font-normal uppercase tracking-[0.2em] text-spotlight-cream/25">
+        <p className="relative z-[2] flex flex-wrap gap-5 text-[9px] font-normal uppercase tracking-[0.2em] text-spotlight-gold">
           <span>Hilton Head</span>
           <span>Bluffton</span>
           <span>Beaufort</span>
