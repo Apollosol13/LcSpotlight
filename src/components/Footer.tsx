@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PalmSilhouette } from "@/components/coastal/CoastalMotifs";
 
 const columns = [
   {
@@ -34,14 +33,8 @@ const columns = [
 
 export function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-spotlight-gold/25 bg-spotlight-navy px-5 pb-8 pt-[60px] min-[601px]:px-10">
-      <div
-        className="pointer-events-none absolute bottom-0 right-[-2%] h-[min(38vw,220px)] w-[min(30vw,160px)] text-white/[0.06] max-[600px]:opacity-40"
-        aria-hidden
-      >
-        <PalmSilhouette className="h-full w-full" />
-      </div>
-      <div className="relative z-[1] mx-auto max-w-[1200px]">
+    <footer className="border-t border-spotlight-gold/25 bg-spotlight-navy px-5 pb-8 pt-[60px] min-[601px]:px-10">
+      <div className="mx-auto max-w-[1200px]">
         <div className="mb-12 grid gap-10 min-[601px]:grid-cols-2 min-[901px]:grid-cols-[1.5fr_1fr_1fr_1fr]">
           {/* Brand col */}
           <div>

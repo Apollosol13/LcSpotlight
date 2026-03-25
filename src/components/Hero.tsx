@@ -1,8 +1,4 @@
 import Link from "next/link";
-import {
-  PalmSilhouette,
-  WaveToTicker,
-} from "@/components/coastal/CoastalMotifs";
 
 const stats = [
   { label: "HHI Median Price", value: "$748K", change: "+4.2%", up: true },
@@ -13,21 +9,8 @@ const stats = [
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#1a3054] via-spotlight-navy to-spotlight-navy px-5 pb-[5.5rem] pt-20 min-[601px]:px-10">
-      <div
-        className="pointer-events-none absolute inset-0 overflow-hidden"
-        aria-hidden
-      >
-        <div className="absolute -top-24 left-1/2 h-56 w-[min(90%,720px)] -translate-x-1/2 rounded-[100%] bg-[radial-gradient(ellipse_at_center,rgba(107,143,174,0.22)_0%,transparent_68%)] blur-2xl" />
-        <div className="absolute -bottom-6 -right-2 h-[min(52vw,300px)] w-[min(42vw,220px)] text-white/[0.09] animate-coast-drift">
-          <PalmSilhouette className="h-full w-full" />
-        </div>
-        <div className="absolute bottom-8 -left-4 h-[200px] w-[130px] text-spotlight-gold/[0.07] animate-coast-drift-reverse max-[600px]:hidden">
-          <PalmSilhouette mirrored className="h-full w-full" />
-        </div>
-      </div>
-
-      <div className="relative z-[1] mx-auto grid max-w-[1200px] items-center gap-10 min-[901px]:grid-cols-[1fr_380px] min-[901px]:gap-[60px]">
+    <section className="overflow-hidden bg-spotlight-navy px-5 pb-[70px] pt-20 min-[601px]:px-10">
+      <div className="mx-auto grid max-w-[1200px] items-center gap-10 min-[901px]:grid-cols-[1fr_380px] min-[901px]:gap-[60px]">
         {/* Left */}
         <div>
           <p className="mb-5 text-[11px] font-medium uppercase tracking-[3px] text-spotlight-gold">
@@ -40,7 +23,7 @@ export function Hero() {
           </h1>
           <p className="mb-9 max-w-[480px] text-base font-light leading-[1.7] text-white/60">
             Events, new openings, things to do, and what&apos;s happening across
-            the Lowcountry — marsh to main street, updated daily.
+            the Lowcountry — all in one place, updated daily.
           </p>
           <div className="flex gap-3">
             <Link
@@ -59,7 +42,7 @@ export function Hero() {
         </div>
 
         {/* Right panel */}
-        <div className="relative z-[1] hidden rounded border border-spotlight-gold/25 bg-white/[0.06] p-8 backdrop-blur-[2px] min-[901px]:block">
+        <div className="hidden rounded border border-spotlight-gold/25 bg-white/5 p-8 min-[901px]:block">
           <p className="mb-6 text-[11px] font-medium uppercase tracking-[2px] text-spotlight-gold">
             Market Snapshot — March 2026
           </p>
@@ -89,8 +72,6 @@ export function Hero() {
           ))}
         </div>
       </div>
-
-      <WaveToTicker />
     </section>
   );
 }
