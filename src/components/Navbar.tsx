@@ -37,21 +37,21 @@ export function Navbar() {
   return (
     <>
       <nav
-        className="sticky top-0 z-[100] flex h-14 items-center justify-between border-b border-spotlight-sand bg-spotlight-cream px-5 min-[601px]:px-12"
+        className="sticky top-0 z-[100] flex h-14 items-center justify-between gap-4 border-b border-spotlight-sand bg-spotlight-cream px-5 min-[601px]:px-12"
         aria-label="Main"
       >
-        <Link href="/" className="no-underline">
+        <Link href="/" className="relative z-[2] shrink-0 no-underline">
           <span className="font-serif text-xl tracking-[0.04em] text-spotlight-navy">
             <span className="font-bold">LC</span>
             <em className="font-normal italic text-spotlight-teal">Spotlight</em>
           </span>
         </Link>
 
-        <ul className="m-0 hidden list-none items-center gap-8 p-0 min-[601px]:flex">
+        <ul className="m-0 hidden min-h-0 min-w-0 flex-1 list-none flex-wrap items-center justify-end gap-x-6 gap-y-2 p-0 min-[601px]:flex">
           {navItems.map(({ href, label }) => {
             const active = pathname === href;
             return (
-              <li key={href}>
+              <li key={href} className="shrink-0">
                 <Link
                   href={href}
                   className={`text-[11px] font-normal uppercase tracking-[0.12em] no-underline transition-opacity ${
@@ -66,32 +66,32 @@ export function Navbar() {
               </li>
             );
           })}
+          <li className="shrink-0">
+            <Link
+              href="/submit-story"
+              prefetch={true}
+              className="inline-flex items-center justify-center rounded-sm bg-spotlight-gold px-[14px] py-2 text-[10px] font-medium uppercase tracking-[0.14em] text-spotlight-navy no-underline transition-colors hover:bg-spotlight-gold-dark"
+            >
+              Submit a Story
+            </Link>
+          </li>
         </ul>
 
-        <div className="flex items-center gap-5">
-          <button
-            type="button"
-            className="hidden cursor-pointer bg-spotlight-gold px-[18px] py-2 text-[10px] font-medium uppercase tracking-[0.14em] text-spotlight-navy transition-colors hover:bg-spotlight-gold-dark min-[601px]:inline-block"
-          >
-            Submit a Story
-          </button>
-
-          <button
-            type="button"
-            className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-spotlight-navy/15 min-[601px]:hidden"
-            onClick={() => setMobileOpen((o) => !o)}
-            aria-expanded={mobileOpen}
-            aria-controls="spotlight-mobile-nav"
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          >
-            <span
-              className={`absolute left-2 block h-0.5 w-5 bg-spotlight-navy/80 transition-all duration-200 ${mobileOpen ? "top-1/2 -translate-y-1/2 rotate-45" : "top-[13px]"}`}
-            />
-            <span
-              className={`absolute left-2 top-[19px] block h-0.5 w-5 bg-spotlight-navy/80 transition-all duration-200 ${mobileOpen ? "top-1/2 -translate-y-1/2 -rotate-45" : ""}`}
-            />
-          </button>
-        </div>
+        <button
+          type="button"
+          className="relative z-[2] flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-spotlight-navy/15 min-[601px]:hidden"
+          onClick={() => setMobileOpen((o) => !o)}
+          aria-expanded={mobileOpen}
+          aria-controls="spotlight-mobile-nav"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+        >
+          <span
+            className={`absolute left-2 block h-0.5 w-5 bg-spotlight-navy/80 transition-all duration-200 ${mobileOpen ? "top-1/2 -translate-y-1/2 rotate-45" : "top-[13px]"}`}
+          />
+          <span
+            className={`absolute left-2 top-[19px] block h-0.5 w-5 bg-spotlight-navy/80 transition-all duration-200 ${mobileOpen ? "top-1/2 -translate-y-1/2 -rotate-45" : ""}`}
+          />
+        </button>
       </nav>
 
       <div
@@ -130,12 +130,13 @@ export function Navbar() {
             })}
           </ul>
           <div className="p-4">
-            <button
-              type="button"
-              className="w-full cursor-pointer bg-spotlight-gold px-3.5 py-3 text-[10px] font-medium uppercase tracking-[0.14em] text-spotlight-navy hover:bg-spotlight-gold-dark"
+            <Link
+              href="/submit-story"
+              className="block w-full bg-spotlight-gold px-3.5 py-3 text-center text-[10px] font-medium uppercase tracking-[0.14em] text-spotlight-navy no-underline hover:bg-spotlight-gold-dark"
+              onClick={() => setMobileOpen(false)}
             >
               Submit a Story
-            </button>
+            </Link>
           </div>
         </div>
       </div>

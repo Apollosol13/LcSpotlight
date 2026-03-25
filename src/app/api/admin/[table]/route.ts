@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseServer } from "@/lib/supabase-auth-server";
 import { supabaseAdmin } from "@/lib/supabase-server";
 
-const ALLOWED_TABLES = ["events", "news", "openings", "things_to_do"];
+const ALLOWED_TABLES = ["events", "news", "openings", "things_to_do", "story_submissions"];
 
 type RouteContext = { params: Promise<{ table: string }> };
 

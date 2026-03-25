@@ -17,7 +17,7 @@ const columns = [
       { label: "Submit an Event", href: "#" },
       { label: "List a Business", href: "#" },
       { label: "Advertise", href: "#" },
-      { label: "Submit a Tip", href: "#" },
+      { label: "Submit a Story", href: "/submit-story" },
     ],
   },
   {

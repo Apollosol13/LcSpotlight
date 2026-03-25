@@ -11,14 +11,16 @@ async function getCount(table: string) {
 }
 
 export default async function AdminDashboard() {
-  const [events, news, openings, thingsToDo] = await Promise.all([
+  const [events, news, openings, thingsToDo, storySubmissions] = await Promise.all([
     getCount("events"),
     getCount("news"),
     getCount("openings"),
     getCount("things_to_do"),
+    getCount("story_submissions"),
   ]);
 
   const cards = [
+    { label: "Story submissions", count: storySubmissions, href: "/admin/story-submissions" },
     { label: "Events", count: events, href: "/admin/events" },
     { label: "News", count: news, href: "/admin/news" },
     { label: "Openings", count: openings, href: "/admin/openings" },
@@ -32,7 +34,7 @@ export default async function AdminDashboard() {
         Manage your LCSpotlight content
       </p>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {cards.map((card) => (
           <a
             key={card.label}
