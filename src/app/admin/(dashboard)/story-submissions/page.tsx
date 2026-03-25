@@ -23,6 +23,7 @@ export default function AdminStorySubmissionsPage() {
       title="Story submissions"
       fields={fields}
       columns={columns}
+      detailBasePath="/admin/story-submissions"
     />
   );
 }

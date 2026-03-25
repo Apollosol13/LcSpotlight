@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
 
 export interface FieldDef {
@@ -11,16 +12,18 @@ export interface FieldDef {
   required?: boolean;
 }
 
+type Row = Record<string, unknown> & { id: string };
+
 interface AdminCrudProps {
   table: string;
   title: string;
   fields: FieldDef[];
   columns: string[];
+  /** Base path for an “Open” link per row: `{detailBasePath}/{row.id}`. */
+  detailBasePath?: string;
 }
 
-type Row = Record<string, unknown> & { id: string };
-
-export function AdminCrud({ table, title, fields, columns }: AdminCrudProps) {
+export function AdminCrud({ table, title, fields, columns, detailBasePath }: AdminCrudProps) {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -240,7 +243,15 @@ export function AdminCrud({ table, title, fields, columns }: AdminCrudProps) {
                     </td>
                   ))}
                   <td className="px-4 py-3">
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      {detailBasePath ? (
+                        <Link
+                          href={`${detailBasePath.replace(/\/$/, "")}/${row.id}`}
+                          className="rounded px-2.5 py-1 text-xs text-white/80 no-underline transition hover:bg-white/10"
+                        >
+                          Open
+                        </Link>
+                      ) : null}
                       <button
                         onClick={() => openEdit(row)}
                         className="rounded px-2.5 py-1 text-xs text-spotlight-gold transition hover:bg-spotlight-gold/10"
