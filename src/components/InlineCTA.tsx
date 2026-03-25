@@ -36,7 +36,7 @@ export function InlineCTA() {
   }
 
   return (
-    <section className="border-b border-[rgba(12,27,51,0.1)] bg-spotlight-sand">
+    <section className="border-b border-[rgba(17,34,80,0.1)] bg-spotlight-sand">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-5 px-5 py-10 min-[601px]:px-10 min-[768px]:flex-row min-[768px]:justify-between min-[768px]:gap-8">
         <div className="text-center min-[768px]:text-left">
           <h3 className="font-serif text-xl font-normal text-spotlight-navy">
@@ -57,7 +57,7 @@ export function InlineCTA() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="min-w-0 flex-1 rounded-l border border-r-0 border-[rgba(12,27,51,0.15)] bg-white px-4 py-2.5 text-sm text-spotlight-navy placeholder:text-spotlight-text-muted focus:border-spotlight-gold focus:outline-none"
+              className="min-w-0 flex-1 rounded-l border border-r-0 border-[rgba(17,34,80,0.15)] bg-white px-4 py-2.5 text-sm text-spotlight-navy placeholder:text-spotlight-text-muted focus:border-spotlight-gold focus:outline-none"
             />
             <button
               type="submit"

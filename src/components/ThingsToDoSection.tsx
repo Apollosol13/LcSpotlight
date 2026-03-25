@@ -9,7 +9,7 @@ export async function ThingsToDoSection() {
     .limit(6);
   return (
     <section className="mx-auto w-full max-w-[1200px] px-5 py-16 min-[601px]:px-10">
-      <div className="mb-9 flex items-baseline justify-between border-b border-[rgba(12,27,51,0.1)] pb-4">
+      <div className="mb-9 flex items-baseline justify-between border-b border-[rgba(17,34,80,0.1)] pb-4">
         <div>
           <p className="mb-2 text-[10px] font-medium uppercase tracking-[3px] text-spotlight-text-muted">
             Deals &amp; Discounts
@@ -30,7 +30,7 @@ export async function ThingsToDoSection() {
         {(deals ?? []).map((d) => (
           <div
             key={d.id}
-            className="group relative cursor-pointer overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white p-6 transition-colors hover:border-spotlight-teal/50"
+            className="group relative cursor-pointer overflow-hidden rounded border border-[rgba(17,34,80,0.1)] bg-white p-6 transition-colors hover:border-spotlight-teal/50"
           >
             <div className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-spotlight-teal transition-transform group-hover:scale-x-100" />
 

@@ -24,8 +24,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-black">
-      <aside className="sticky top-0 flex h-screen w-56 shrink-0 flex-col border-r border-white/5 bg-[#0a0a0a]">
+    <div className="flex min-h-screen bg-spotlight-navy">
+      <aside className="sticky top-0 flex h-screen w-56 shrink-0 flex-col border-r border-white/5 bg-spotlight-navy-mid">
         <div className="border-b border-white/5 px-5 py-5">
           <Link href="/" className="font-serif text-lg text-white no-underline">
             LC<span className="text-spotlight-gold">Spotlight</span>

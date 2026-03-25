@@ -1,23 +1,35 @@
 @import "tailwindcss";
 
+/* Luxury palette (reference swatches)
+   Royal Blue #112250 — primary brand / dark surfaces
+   Sapphire #3C507D — accents, ticker, badges, interactive blue
+   Quicksand #E0C58F — gold accent, CTAs on dark
+   Swan Wing #F5F0E9 — page background
+   Shellstone #D9CBC2 — muted bands, icon wells, borders */
+
 :root {
-  --navy: #111111;
-  --navy-mid: #1a1a1a;
-  /* Champagne gold — primary accent */
-  --gold: #bfa06a;
-  --gold-light: #d4bc8c;
-  --sand: #f5efe3;
-  --cream: #f5efe3;
+  --royal-blue: #112250;
+  --sapphire: #3c507d;
+  --quicksand: #e0c58f;
+  --swan-wing: #f5f0e9;
+  --shellstone: #d9cbc2;
+
+  --navy: var(--royal-blue);
+  --navy-mid: #1a2f5c;
+  --gold: var(--quicksand);
+  --gold-light: #ebd8b5;
+  --sand: var(--shellstone);
+  --cream: var(--swan-wing);
   --white: #ffffff;
-  /* Deep teal — structural accents, badges, ticker */
-  --teal: #1a3a3a;
-  --teal-light: #234848;
-  --coral: #d4614a;
-  --text-dark: #111111;
-  --text-mid: #5c564c;
-  --text-muted: #888074;
-  --border: rgba(17, 17, 17, 0.08);
-  --border-gold: rgba(191, 160, 106, 0.35);
+  --teal: var(--sapphire);
+  --teal-light: #526899;
+  /* Warm accent for “new” / urgency — not in swatch deck; harmonizes with blues */
+  --coral: #b85c50;
+  --text-dark: var(--royal-blue);
+  --text-mid: #5a6478;
+  --text-muted: #7a8294;
+  --border: rgba(17, 34, 80, 0.12);
+  --border-gold: rgba(224, 197, 143, 0.45);
 }
 
 @theme inline {

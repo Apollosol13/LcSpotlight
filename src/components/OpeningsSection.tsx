@@ -9,7 +9,7 @@ export async function OpeningsSection() {
     .limit(4);
   return (
     <section className="mx-auto w-full max-w-[1200px] px-5 py-16 min-[601px]:px-10">
-      <div className="mb-9 flex items-baseline justify-between border-b border-[rgba(12,27,51,0.1)] pb-4">
+      <div className="mb-9 flex items-baseline justify-between border-b border-[rgba(17,34,80,0.1)] pb-4">
         <div>
           <p className="mb-2 text-[10px] font-medium uppercase tracking-[3px] text-spotlight-text-muted">
             Just Arrived
@@ -30,7 +30,7 @@ export async function OpeningsSection() {
         {(openings ?? []).map((o) => (
           <div
             key={o.id}
-            className="relative cursor-pointer rounded border border-[rgba(12,27,51,0.1)] bg-white p-6 transition-transform hover:-translate-y-0.5"
+            className="relative cursor-pointer rounded border border-[rgba(17,34,80,0.1)] bg-white p-6 transition-transform hover:-translate-y-0.5"
           >
             <span className="absolute right-4 top-4 rounded-[2px] bg-spotlight-coral px-2 py-[3px] text-[9px] font-medium uppercase tracking-[1px] text-white">
               New

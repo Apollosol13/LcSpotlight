@@ -9,7 +9,7 @@ const fields: FieldDef[] = [
   { key: "location", label: "Location", placeholder: "Shelter Cove Marina" },
   { key: "price", label: "Price", placeholder: "From $45 · General Admission" },
   { key: "cta", label: "Button Text", placeholder: "Get Tickets", defaultValue: "Learn More" },
-  { key: "bg", label: "Background Color", type: "color", defaultValue: "#1E3A5F" },
+  { key: "bg", label: "Background Color", type: "color", defaultValue: "#3C507D" },
 ];
 
 const columns = ["name", "category", "day", "month", "location", "source"];

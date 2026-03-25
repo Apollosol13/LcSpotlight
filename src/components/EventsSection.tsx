@@ -9,7 +9,7 @@ export async function EventsSection() {
     .limit(3);
   return (
     <section className="mx-auto w-full max-w-[1200px] px-5 py-16 min-[601px]:px-10">
-      <div className="mb-9 flex items-baseline justify-between border-b border-[rgba(12,27,51,0.1)] pb-4">
+      <div className="mb-9 flex items-baseline justify-between border-b border-[rgba(17,34,80,0.1)] pb-4">
         <div>
           <p className="mb-2 text-[10px] font-medium uppercase tracking-[3px] text-spotlight-text-muted">
             What&apos;s On
@@ -31,13 +31,13 @@ export async function EventsSection() {
           <Link
             key={e.id}
             href="/events"
-            className="overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white no-underline transition-all hover:-translate-y-[3px] hover:shadow-[0_12px_40px_rgba(12,27,51,0.1)]"
+            className="overflow-hidden rounded border border-[rgba(17,34,80,0.1)] bg-white no-underline transition-all hover:-translate-y-[3px] hover:shadow-[0_12px_40px_rgba(17,34,80,0.1)]"
           >
             <div
               className="relative flex h-[180px] items-center justify-center overflow-hidden"
-              style={{ background: e.bg ?? "#1E3A5F" }}
+              style={{ background: e.bg ?? "#3C507D" }}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.7)] to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(17,34,80,0.7)] to-transparent" />
               <div className="absolute left-3.5 top-3.5 z-[1] rounded-[2px] bg-spotlight-teal px-2.5 py-1.5 text-center leading-tight text-spotlight-gold">
                 <span className="block font-serif text-[22px] font-semibold">
                   {e.day}
@@ -46,7 +46,7 @@ export async function EventsSection() {
                   {e.month}
                 </span>
               </div>
-              <span className="absolute right-3.5 top-3.5 z-[1] rounded-[2px] bg-[rgba(12,27,51,0.8)] px-2.5 py-1 text-[10px] uppercase tracking-[1px] text-white/90">
+              <span className="absolute right-3.5 top-3.5 z-[1] rounded-[2px] bg-[rgba(17,34,80,0.8)] px-2.5 py-1 text-[10px] uppercase tracking-[1px] text-white/90">
                 {e.category}
               </span>
             </div>

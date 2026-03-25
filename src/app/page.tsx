@@ -21,15 +21,15 @@ export default function Home() {
       <Suspense>
         <EventsSection />
       </Suspense>
-      <hr className="m-0 border-0 border-t border-[rgba(12,27,51,0.1)]" />
+      <hr className="m-0 border-0 border-t border-[rgba(17,34,80,0.1)]" />
       <Suspense>
         <OpeningsSection />
       </Suspense>
-      <hr className="m-0 border-0 border-t border-[rgba(12,27,51,0.1)]" />
+      <hr className="m-0 border-0 border-t border-[rgba(17,34,80,0.1)]" />
       <Suspense>
         <NewsSection />
       </Suspense>
-      <hr className="m-0 border-0 border-t border-[rgba(12,27,51,0.1)]" />
+      <hr className="m-0 border-0 border-t border-[rgba(17,34,80,0.1)]" />
       <Suspense>
         <ThingsToDoSection />
       </Suspense>

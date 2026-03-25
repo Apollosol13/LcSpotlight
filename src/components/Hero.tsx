@@ -61,7 +61,7 @@ export function Hero() {
                 <span
                   className={`rounded-[2px] px-2 py-0.5 text-[11px] font-medium tracking-[0.5px] ${
                     s.up
-                      ? "bg-spotlight-teal/40 text-[#c5d4d2]"
+                      ? "bg-spotlight-teal/40 text-[#b8c9e0]"
                       : "bg-spotlight-coral/20 text-spotlight-coral"
                   }`}
                 >

@@ -3,7 +3,7 @@ import Link from "next/link";
 export function TicketingBanner() {
   return (
     <section className="mx-auto max-w-[1200px] px-5 min-[601px]:px-10">
-      <div className="mt-12 grid items-center gap-10 rounded border border-[rgba(12,27,51,0.1)] bg-spotlight-sand p-10 min-[901px]:grid-cols-[1fr_auto]">
+      <div className="mt-12 grid items-center gap-10 rounded border border-[rgba(17,34,80,0.1)] bg-spotlight-sand p-10 min-[901px]:grid-cols-[1fr_auto]">
         <div>
           <h2 className="mb-2 font-serif text-[28px] font-normal text-spotlight-navy">
             Buy tickets to local events in seconds

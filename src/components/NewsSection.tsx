@@ -24,7 +24,7 @@ export async function NewsSection() {
   const sidebarItems = (allNews ?? []).filter((n) => n.id !== featured?.id).slice(0, 4);
   return (
     <section className="mx-auto w-full max-w-[1200px] px-5 py-16 min-[601px]:px-10">
-      <div className="mb-9 flex items-baseline justify-between border-b border-[rgba(12,27,51,0.1)] pb-4">
+      <div className="mb-9 flex items-baseline justify-between border-b border-[rgba(17,34,80,0.1)] pb-4">
         <div>
           <p className="mb-2 text-[10px] font-medium uppercase tracking-[3px] text-spotlight-text-muted">
             Community
@@ -47,7 +47,7 @@ export async function NewsSection() {
             href={featured.source_url ?? "/news"}
             target={featured.source_url ? "_blank" : undefined}
             rel={featured.source_url ? "noopener noreferrer" : undefined}
-            className="overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white no-underline transition-shadow hover:shadow-[0_8px_32px_rgba(12,27,51,0.08)]"
+            className="overflow-hidden rounded border border-[rgba(17,34,80,0.1)] bg-white no-underline transition-shadow hover:shadow-[0_8px_32px_rgba(17,34,80,0.08)]"
           >
             <div className="relative h-[280px] overflow-hidden bg-[#14324A]">
               {featured.image_bg?.startsWith("http") ? (
@@ -57,7 +57,7 @@ export async function NewsSection() {
                   className="h-full w-full object-cover"
                 />
               ) : null}
-              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.6)] to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(17,34,80,0.6)] to-transparent" />
             </div>
             <div className="p-7">
               <span className="mb-2.5 inline-block border-b border-[var(--border-gold)] pb-1 text-[10px] font-medium uppercase tracking-[2px] text-spotlight-gold">
@@ -87,7 +87,7 @@ export async function NewsSection() {
               href={item.source_url ?? "/news"}
               target={item.source_url ? "_blank" : undefined}
               rel={item.source_url ? "noopener noreferrer" : undefined}
-              className="flex items-start gap-4 rounded border border-[rgba(12,27,51,0.1)] bg-white p-5 no-underline transition-colors hover:border-spotlight-gold"
+              className="flex items-start gap-4 rounded border border-[rgba(17,34,80,0.1)] bg-white p-5 no-underline transition-colors hover:border-spotlight-gold"
             >
               <div className="flex size-10 shrink-0 items-center justify-center rounded bg-spotlight-sand text-xs font-semibold uppercase text-spotlight-text-muted">
                 {item.category?.[0] ?? "N"}

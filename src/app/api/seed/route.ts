@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-server";
 
 const eventsData = [
-  { day: "05", month: "Apr", category: "Music", bg: "#1E3A5F", name: "Hilton Head Jazz & Wine Festival", location: "Shelter Cove Marina", time: "6:00 PM", price: "From $45 · General Admission", cta: "Get Tickets", source: "manual" },
+  { day: "05", month: "Apr", category: "Music", bg: "#3C507D", name: "Hilton Head Jazz & Wine Festival", location: "Shelter Cove Marina", time: "6:00 PM", price: "From $45 · General Admission", cta: "Get Tickets", source: "manual" },
   { day: "12", month: "Apr", category: "Outdoors", bg: "#1A3A2A", name: "Coastal Discovery Museum Plein Air", location: "Sea Pines Forest", time: "9:00 AM", price: "Free Entry", cta: "Learn More", source: "manual" },
   { day: "19", month: "Apr", category: "Food & Drink", bg: "#3A1A2A", name: "Savannah Food & Wine Experience", location: "Forsyth Park, Savannah", time: "4:00 PM", price: "From $75 · Tasting Pass", cta: "Get Tickets", source: "manual" },
 ];

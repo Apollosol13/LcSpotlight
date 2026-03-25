@@ -117,7 +117,7 @@ export function AdminCrud({ table, title, fields, columns }: AdminCrudProps) {
         </div>
         <button
           onClick={openNew}
-          className="rounded-md bg-spotlight-gold px-4 py-2 text-sm font-semibold text-black transition hover:bg-spotlight-gold-light"
+          className="rounded-md bg-spotlight-gold px-4 py-2 text-sm font-semibold text-spotlight-navy transition hover:bg-spotlight-gold-light"
         >
           + Add New
         </button>
@@ -156,7 +156,7 @@ export function AdminCrud({ table, title, fields, columns }: AdminCrudProps) {
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
-                      value={(formData[f.key] as string) ?? "#1E3A5F"}
+                      value={(formData[f.key] as string) ?? "#3C507D"}
                       onChange={(e) => updateField(f.key, e.target.value)}
                       className="h-9 w-12 cursor-pointer rounded border border-white/10 bg-transparent"
                     />
@@ -188,7 +188,7 @@ export function AdminCrud({ table, title, fields, columns }: AdminCrudProps) {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="rounded-md bg-spotlight-gold px-5 py-2 text-sm font-semibold text-black transition hover:bg-spotlight-gold-light disabled:opacity-50"
+              className="rounded-md bg-spotlight-gold px-5 py-2 text-sm font-semibold text-spotlight-navy transition hover:bg-spotlight-gold-light disabled:opacity-50"
             >
               {saving ? "Saving..." : editing ? "Update" : "Create"}
             </button>

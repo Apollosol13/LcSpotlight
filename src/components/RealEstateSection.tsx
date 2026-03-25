@@ -105,7 +105,7 @@ export function RealEstateSection() {
                 <p
                   className={`flex items-center gap-1 text-[13px] ${
                     isUp
-                      ? "text-[#c5d4d2]"
+                      ? "text-[#b8c9e0]"
                       : isDown
                         ? "text-spotlight-coral"
                         : "text-white/50"
