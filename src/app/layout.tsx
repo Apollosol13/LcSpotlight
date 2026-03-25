@@ -23,7 +23,7 @@ const bebasNeue = Bebas_Neue({
 });
 
 export const metadata: Metadata = {
-  title: "Spotlight — Lowcountry",
+  title: "Lowcountry Spotlight",
   description:
     "Your local guide to Hilton Head Island, Bluffton, Beaufort, and Savannah — events, openings, news, and more.",
 };

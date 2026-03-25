@@ -27,8 +27,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen bg-spotlight-navy">
       <aside className="sticky top-0 flex h-screen w-56 shrink-0 flex-col border-r border-white/5 bg-spotlight-navy-mid">
         <div className="border-b border-white/5 px-5 py-5">
-          <Link href="/" className="font-serif text-lg text-white no-underline">
-            LC<span className="text-spotlight-gold">Spotlight</span>
+          <Link href="/" className="block no-underline">
+            <span className="block text-[9px] font-semibold uppercase tracking-[0.22em] text-white">
+              Lowcountry
+            </span>
+            <span className="mt-0.5 block font-serif text-xl italic text-spotlight-gold">
+              Spotlight
+            </span>
           </Link>
           <p className="mt-0.5 text-[10px] uppercase tracking-widest text-white/40">Admin</p>
         </div>

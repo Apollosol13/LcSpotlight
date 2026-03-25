@@ -38,9 +38,14 @@ export function Footer() {
         <div className="mb-12 grid gap-10 min-[601px]:grid-cols-2 min-[901px]:grid-cols-[1.5fr_1fr_1fr_1fr]">
           {/* Brand col */}
           <div>
-            <p className="mb-4 font-display text-[32px] tracking-[3px] text-spotlight-gold">
-              SPOTLIGHT
-            </p>
+            <div className="mb-4">
+              <span className="block font-serif text-[11px] font-semibold uppercase tracking-[0.24em] text-white">
+                Lowcountry
+              </span>
+              <span className="mt-1 block font-serif text-[clamp(1.75rem,4vw,2rem)] font-normal italic leading-none text-spotlight-gold">
+                Spotlight
+              </span>
+            </div>
             <p className="max-w-[240px] text-[13px] font-light leading-[1.7] text-white/40">
               Your daily guide to life on Hilton Head Island, Bluffton,
               Beaufort, and Savannah.

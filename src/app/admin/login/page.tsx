@@ -36,8 +36,13 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-spotlight-navy">
       <div className="w-full max-w-sm rounded-lg border border-white/10 bg-spotlight-navy-mid p-8 shadow-2xl">
         <div className="mb-8 text-center">
-          <h1 className="font-serif text-2xl text-white">
-            LC<span className="text-spotlight-gold">Spotlight</span>
+          <h1 className="text-white">
+            <span className="block text-[10px] font-semibold uppercase tracking-[0.22em]">
+              Lowcountry
+            </span>
+            <span className="mt-1 block font-serif text-2xl italic text-spotlight-gold">
+              Spotlight
+            </span>
           </h1>
           <p className="mt-2 text-sm text-white/50">Admin Panel</p>
         </div>

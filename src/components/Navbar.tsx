@@ -37,19 +37,19 @@ export function Navbar() {
   return (
     <>
       <nav
-        className="sticky top-0 z-[100] flex h-[60px] items-center justify-between border-b border-spotlight-gold/25 bg-spotlight-navy px-5 min-[601px]:px-10"
+        className="sticky top-0 z-[100] flex min-h-[60px] items-center justify-between border-b border-spotlight-gold/25 bg-spotlight-navy px-5 py-2 min-[601px]:px-10"
         aria-label="Main"
       >
         <Link
           href="/"
-          className="font-display flex items-center gap-2.5 text-[28px] tracking-[3px] text-spotlight-gold no-underline"
+          className="flex flex-col gap-0.5 leading-none no-underline"
         >
-          SPOTLIGHT
-          <span
-            className="mt-[-2px] inline-block size-2 shrink-0 rounded-full bg-spotlight-gold"
-            style={{ animation: "spotlight-pulse-dot 2s ease-in-out infinite" }}
-            aria-hidden
-          />
+          <span className="font-serif text-[10px] font-semibold uppercase tracking-[0.28em] text-white min-[601px]:text-[11px]">
+            Lowcountry
+          </span>
+          <span className="font-serif text-[1.35rem] font-normal italic text-spotlight-gold min-[601px]:text-[1.5rem]">
+            Spotlight
+          </span>
         </Link>
 
         <ul className="m-0 hidden list-none items-stretch gap-0 p-0 min-[601px]:flex">

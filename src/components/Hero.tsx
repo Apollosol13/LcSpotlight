@@ -1,31 +1,42 @@
 import Link from "next/link";
 
-const stats = [
-  { label: "HHI Median Price", value: "$748K", change: "+4.2%", up: true },
-  { label: "Bluffton Median", value: "$465K", change: "+2.8%", up: true },
-  { label: "Days on Market", value: "38", change: "−5", up: false },
-  { label: "New Listings (HHI)", value: "142", change: "+12", up: true },
-];
+function editionLabel() {
+  const d = new Date();
+  const month = d.toLocaleDateString("en-US", { month: "long" });
+  const year = d.getFullYear();
+  return `Daily edition · ${month} ${year}`.toUpperCase();
+}
 
 export function Hero() {
   return (
-    <section className="overflow-hidden bg-spotlight-navy px-5 pb-[70px] pt-20 min-[601px]:px-10">
-      <div className="mx-auto grid max-w-[1200px] items-center gap-10 min-[901px]:grid-cols-[1fr_380px] min-[901px]:gap-[60px]">
-        {/* Left */}
+    <section className="relative overflow-hidden bg-spotlight-navy px-5 pb-16 pt-[4.5rem] min-[601px]:px-10 min-[601px]:pb-20 min-[601px]:pt-24">
+      <div
+        className="pointer-events-none absolute -bottom-20 -right-12 hidden size-[min(72vw,320px)] rounded-full border border-white/[0.06] min-[901px]:block"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute bottom-6 right-10 hidden size-[200px] rounded-full border border-white/[0.045] min-[901px]:block"
+        aria-hidden
+      />
+
+      <div className="relative mx-auto grid max-w-[1200px] gap-12 min-[901px]:grid-cols-[1fr_min(380px,100%)] min-[901px]:items-start min-[901px]:gap-14">
         <div>
-          <p className="mb-5 text-[11px] font-medium uppercase tracking-[3px] text-spotlight-gold">
-            Hilton Head Island · Bluffton · Beaufort · Savannah
+          <p className="mb-6 text-[10px] font-medium uppercase tracking-[0.22em] text-spotlight-gold">
+            {editionLabel()}
           </p>
-          <h1 className="mb-5 font-serif text-[40px] font-normal leading-[1.1] text-white min-[601px]:text-[64px]">
-            Your <em className="italic text-spotlight-gold">local guide</em>
-            <br />
-            to the Lowcountry
+          <h1 className="text-balance">
+            <span className="block font-serif text-[clamp(2.35rem,6.2vw,3.85rem)] font-semibold uppercase tracking-[0.05em] leading-[1.02] text-white">
+              Lowcountry
+            </span>
+            <span className="mt-2 block font-serif text-[clamp(1.85rem,4.8vw,3rem)] font-normal italic leading-[1.08] text-spotlight-gold min-[601px]:mt-3">
+              Spotlight
+            </span>
           </h1>
-          <p className="mb-9 max-w-[480px] text-base font-light leading-[1.7] text-white/60">
+          <p className="mb-10 mt-8 max-w-[28rem] text-[15px] font-light leading-[1.75] text-[#9cb0c4]">
             Events, new openings, things to do, and what&apos;s happening across
-            the Lowcountry — all in one place, updated daily.
+            Hilton Head Island — all in one place, updated daily.
           </p>
-          <div className="flex gap-3">
+          <div className="mb-12 flex flex-wrap gap-3">
             <Link
               href="/events"
               className="inline-block rounded-[2px] bg-spotlight-gold px-7 py-[13px] text-[13px] font-medium uppercase tracking-[0.5px] text-spotlight-navy transition-colors hover:bg-spotlight-gold-light"
@@ -34,42 +45,58 @@ export function Hero() {
             </Link>
             <button
               type="button"
-              className="rounded-[2px] border border-white/20 bg-transparent px-7 py-[13px] text-[13px] font-normal uppercase tracking-[0.5px] text-white/80 transition-colors hover:border-spotlight-gold hover:text-spotlight-gold"
+              className="rounded-[2px] border border-white/25 bg-transparent px-7 py-[13px] text-[13px] font-normal uppercase tracking-[0.5px] text-white/85 transition-colors hover:border-spotlight-gold hover:text-spotlight-gold"
             >
               Get the Newsletter
             </button>
           </div>
+          <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-white/35">
+            Hilton Head · Bluffton · Beaufort · Savannah
+          </p>
         </div>
 
-        {/* Right panel */}
-        <div className="hidden rounded border border-spotlight-gold/25 bg-white/5 p-8 min-[901px]:block">
-          <p className="mb-6 text-[11px] font-medium uppercase tracking-[2px] text-spotlight-gold">
-            Market Snapshot — March 2026
-          </p>
-          {stats.map((s) => (
-            <div
-              key={s.label}
-              className="flex items-center justify-between border-b border-white/[0.06] py-3.5 last:border-b-0"
-            >
-              <span className="text-[13px] font-light text-white/60">
-                {s.label}
-              </span>
-              <div className="flex items-center gap-2.5">
-                <span className="font-serif text-[22px] font-normal text-white">
-                  {s.value}
-                </span>
-                <span
-                  className={`rounded-[2px] px-2 py-0.5 text-[11px] font-medium tracking-[0.5px] ${
-                    s.up
-                      ? "bg-spotlight-teal/40 text-[#b8c9e0]"
-                      : "bg-spotlight-coral/20 text-spotlight-coral"
-                  }`}
-                >
-                  {s.change}
-                </span>
-              </div>
-            </div>
-          ))}
+        <div className="flex flex-col gap-4">
+          <Link
+            href="/real-estate"
+            className="group relative overflow-hidden rounded border border-white/10 bg-spotlight-teal p-7 no-underline transition hover:border-spotlight-gold/35 min-[901px]:p-8"
+          >
+            <span className="absolute right-5 top-5 text-lg leading-none text-white/30 transition group-hover:text-spotlight-gold">
+              ↗
+            </span>
+            <p className="mb-4 pr-10 text-[10px] font-medium uppercase tracking-[0.2em] text-spotlight-gold">
+              Market snapshot
+            </p>
+            <p className="font-serif text-[1.35rem] font-normal leading-snug text-white min-[901px]:text-[1.5rem]">
+              HHI median hits{" "}
+              <span className="text-spotlight-gold">$748K</span> — up 4.2%
+              year over year.
+            </p>
+            <p className="mt-4 text-xs font-light text-white/50">
+              {new Date().toLocaleDateString("en-US", {
+                month: "long",
+                year: "numeric",
+              })}{" "}
+              · Real estate
+            </p>
+          </Link>
+
+          <Link
+            href="/events"
+            className="group relative rounded border border-[rgba(17,34,80,0.12)] bg-white p-7 no-underline shadow-[0_1px_0_rgba(17,34,80,0.04)] transition hover:border-spotlight-gold/35 min-[901px]:p-8"
+          >
+            <span className="absolute right-5 top-5 text-lg leading-none text-spotlight-text-muted transition group-hover:text-spotlight-gold">
+              ↗
+            </span>
+            <p className="mb-3 pr-10 text-[10px] font-medium uppercase tracking-[0.2em] text-spotlight-text-muted">
+              Featured event
+            </p>
+            <p className="font-serif text-[1.35rem] font-normal leading-snug text-spotlight-navy min-[901px]:text-[1.45rem]">
+              Jazz &amp; Wine Festival returns to Shelter Cove Marina.
+            </p>
+            <p className="mt-3 text-xs text-spotlight-text-muted">
+              April 5 · From $45
+            </p>
+          </Link>
         </div>
       </div>
     </section>
