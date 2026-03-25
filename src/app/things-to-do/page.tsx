@@ -30,7 +30,6 @@ export default async function ThingsToDoPage() {
             className="group relative overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white p-6 transition-colors hover:border-spotlight-teal"
           >
             <div className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-spotlight-teal transition-transform group-hover:scale-x-100" />
-            {d.icon && <span className="mb-3 block text-[28px]">{d.icon}</span>}
             <span className="mb-3.5 inline-flex items-center rounded-[2px] bg-[rgba(30,123,114,0.1)] px-3 py-1 text-[13px] font-medium text-spotlight-teal">
               {d.badge}
             </span>

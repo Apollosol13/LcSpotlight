@@ -1,10 +1,10 @@
 const items = [
-  "🎸 Jazz & Wine Festival — April 5",
-  "🍽️ New Opening: The Marsh House Brasserie",
-  "🏖️ 30% Off Kayak Tours This Weekend",
-  "🏡 Beaufort Market Hits 3-Year Low Inventory",
-  "🎭 Community Playhouse Spring Season Tickets On Sale",
-  "🍦 Sweet Perks Ice Cream Opens on Coligny",
+  "Jazz & Wine Festival — April 5",
+  "New Opening: The Marsh House Brasserie",
+  "30% Off Kayak Tours This Weekend",
+  "Beaufort Market Hits 3-Year Low Inventory",
+  "Community Playhouse Spring Season Tickets On Sale",
+  "Sweet Perks Ice Cream Opens on Coligny",
 ];
 
 function TickerRow() {

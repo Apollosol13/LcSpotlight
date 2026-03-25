@@ -37,7 +37,7 @@ export async function NewsSection() {
           href="/news"
           className="text-xs font-medium uppercase tracking-[1px] text-spotlight-gold no-underline transition-colors hover:underline"
         >
-          All Stories →
+          All stories
         </Link>
       </div>
 

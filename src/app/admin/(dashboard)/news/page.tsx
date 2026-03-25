@@ -7,7 +7,6 @@ const fields: FieldDef[] = [
   { key: "description", label: "Description", type: "textarea", placeholder: "Article summary..." },
   { key: "author", label: "Author", placeholder: "Town of HHI" },
   { key: "read_time", label: "Read Time", placeholder: "4 min read" },
-  { key: "icon", label: "Icon", placeholder: "Emoji or symbol" },
   { key: "image_bg", label: "Header Color", type: "color", defaultValue: "#14324A" },
   { key: "featured", label: "Featured", type: "boolean", defaultValue: false },
   { key: "source_url", label: "Source URL", placeholder: "https://..." },

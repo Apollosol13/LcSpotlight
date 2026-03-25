@@ -22,7 +22,7 @@ export async function OpeningsSection() {
           href="/openings"
           className="text-xs font-medium uppercase tracking-[1px] text-spotlight-gold no-underline transition-colors hover:underline"
         >
-          See All →
+          See all
         </Link>
       </div>
 
@@ -35,8 +35,8 @@ export async function OpeningsSection() {
             <span className="absolute right-4 top-4 rounded-[2px] bg-spotlight-coral px-2 py-[3px] text-[9px] font-medium uppercase tracking-[1px] text-white">
               New
             </span>
-            <div className="mb-4 flex size-12 items-center justify-center rounded bg-spotlight-sand text-[22px]">
-              {o.icon}
+            <div className="mb-4 flex size-12 items-center justify-center rounded bg-spotlight-sand text-xs font-semibold uppercase tracking-wide text-spotlight-text-muted">
+              {(o.type?.replace(/[^A-Za-z]/g, "").charAt(0) || o.name?.charAt(0) || "?").toUpperCase()}
             </div>
             <h3 className="mb-1 font-serif text-base font-normal leading-tight text-spotlight-navy">
               {o.name}
@@ -44,9 +44,7 @@ export async function OpeningsSection() {
             <p className="mb-3 text-xs uppercase tracking-[0.5px] text-spotlight-text-muted">
               {o.type}
             </p>
-            <p className="text-xs font-medium text-spotlight-teal">
-              📍 {o.location}
-            </p>
+            <p className="text-xs font-medium text-spotlight-teal">{o.location}</p>
           </div>
         ))}
       </div>

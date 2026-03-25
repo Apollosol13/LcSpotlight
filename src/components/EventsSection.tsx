@@ -22,7 +22,7 @@ export async function EventsSection() {
           href="/events"
           className="text-xs font-medium uppercase tracking-[1px] text-spotlight-gold no-underline transition-colors hover:underline"
         >
-          View All Events →
+          View all events
         </Link>
       </div>
 
@@ -56,8 +56,8 @@ export async function EventsSection() {
                 {e.name}
               </h3>
               <div className="mb-3.5 flex flex-wrap gap-4 text-xs text-spotlight-text-muted">
-                {e.location && <span>📍 {e.location}</span>}
-                {e.time && <span>🕕 {e.time}</span>}
+                {e.location && <span>{e.location}</span>}
+                {e.time && <span>{e.time}</span>}
               </div>
               {e.price && (
                 <p className="text-[13px] font-medium text-spotlight-teal">

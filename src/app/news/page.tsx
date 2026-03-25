@@ -74,7 +74,7 @@ export default async function NewsPage() {
                 {article.author && <span>By {article.author}</span>}
                 {article.date && <span>{article.date}</span>}
                 {article.source_url && (
-                  <span className="text-spotlight-gold">Read full article &rarr;</span>
+                  <span className="text-spotlight-gold">Read full article</span>
                 )}
               </div>
             </div>

@@ -16,10 +16,10 @@ const markets: Record<
   MarketKey,
   { price: string; priceChg: string; dom: string; domChg: string; listings: string; listChg: string; ratio: string; ratioChg: string }
 > = {
-  hhi: { price: "$748K", priceChg: "↑ +4.2% YoY", dom: "38", domChg: "↓ 5 days faster", listings: "142", listChg: "↑ +12 this month", ratio: "98.4%", ratioChg: "↑ Strong demand" },
-  bluffton: { price: "$465K", priceChg: "↑ +2.8% YoY", dom: "44", domChg: "→ Stable", listings: "98", listChg: "↑ +7 this month", ratio: "97.1%", ratioChg: "↑ Healthy market" },
-  beaufort: { price: "$312K", priceChg: "↑ +5.1% YoY", dom: "51", domChg: "↑ 3 days slower", listings: "64", listChg: "↓ Low inventory", ratio: "96.8%", ratioChg: "→ Balanced" },
-  savannah: { price: "$398K", priceChg: "↑ +6.4% YoY", dom: "35", domChg: "↓ 8 days faster", listings: "211", listChg: "↑ +28 this month", ratio: "99.2%", ratioChg: "↑ Very competitive" },
+  hhi: { price: "$748K", priceChg: "+4.2% YoY", dom: "38", domChg: "5 days faster", listings: "142", listChg: "+12 this month", ratio: "98.4%", ratioChg: "Strong demand" },
+  bluffton: { price: "$465K", priceChg: "+2.8% YoY", dom: "44", domChg: "Stable", listings: "98", listChg: "+7 this month", ratio: "97.1%", ratioChg: "Healthy market" },
+  beaufort: { price: "$312K", priceChg: "+5.1% YoY", dom: "51", domChg: "3 days slower", listings: "64", listChg: "Low inventory", ratio: "96.8%", ratioChg: "Balanced" },
+  savannah: { price: "$398K", priceChg: "+6.4% YoY", dom: "35", domChg: "8 days faster", listings: "211", listChg: "+28 this month", ratio: "99.2%", ratioChg: "Very competitive" },
 };
 
 const statCards: { key: keyof (typeof markets)["hhi"]; chgKey: keyof (typeof markets)["hhi"]; label: string }[] = [
@@ -30,9 +30,9 @@ const statCards: { key: keyof (typeof markets)["hhi"]; chgKey: keyof (typeof mar
 ];
 
 const listings = [
-  { emoji: "🏡", type: "Single Family", price: "$1,250,000", address: "47 Calibogue Cay Rd, HHI", specs: ["4 bed", "3 bath", "2,840 sqft"] },
-  { emoji: "🏘️", type: "Townhome", price: "$549,000", address: "12 Marshview Court, HHI", specs: ["3 bed", "2.5 bath", "1,920 sqft"] },
-  { emoji: "🏖️", type: "Condo", price: "$389,000", address: "Sea Pines Villa #204, HHI", specs: ["2 bed", "2 bath", "1,100 sqft"] },
+  { type: "Single Family", price: "$1,250,000", address: "47 Calibogue Cay Rd, HHI", specs: ["4 bed", "3 bath", "2,840 sqft"] },
+  { type: "Townhome", price: "$549,000", address: "12 Marshview Court, HHI", specs: ["3 bed", "2.5 bath", "1,920 sqft"] },
+  { type: "Condo", price: "$389,000", address: "Sea Pines Villa #204, HHI", specs: ["2 bed", "2 bath", "1,100 sqft"] },
 ];
 
 export function RealEstateSection() {
@@ -54,7 +54,7 @@ export function RealEstateSection() {
             href="/real-estate"
             className="text-xs font-medium uppercase tracking-[1px] text-spotlight-gold no-underline transition-colors hover:underline"
           >
-            Full Reports →
+            Full reports
           </Link>
         </div>
 
@@ -81,8 +81,16 @@ export function RealEstateSection() {
           {statCards.map((s) => {
             const value = m[s.key];
             const change = m[s.chgKey];
-            const isUp = change.startsWith("↑");
-            const isDown = change.startsWith("↓");
+            const c = change.toLowerCase();
+            const isUp =
+              change.startsWith("+") ||
+              c.includes("faster") ||
+              c.includes("strong") ||
+              c.includes("competitive") ||
+              c.includes("healthy market");
+            const isDown =
+              c.includes("slower") ||
+              (c.includes("inventory") && c.includes("low"));
             return (
               <div
                 key={s.label}
@@ -117,9 +125,8 @@ export function RealEstateSection() {
               key={l.address}
               className="cursor-pointer overflow-hidden rounded border border-white/[0.08] bg-white/[0.04] transition-colors hover:border-[rgba(201,168,76,0.4)]"
             >
-              <div className="relative flex h-40 items-center justify-center bg-white/5 text-[40px] opacity-30">
-                {l.emoji}
-                <span className="absolute bottom-3 left-3 rounded-[2px] bg-spotlight-gold px-2 py-[3px] text-[10px] font-medium uppercase tracking-[1px] text-spotlight-navy opacity-100">
+              <div className="relative flex h-40 items-center justify-center bg-white/5">
+                <span className="absolute bottom-3 left-3 rounded-[2px] bg-spotlight-gold px-2 py-[3px] text-[10px] font-medium uppercase tracking-[1px] text-spotlight-navy">
                   {l.type}
                 </span>
               </div>

@@ -49,8 +49,8 @@ export default async function EventsPage() {
                 {e.name}
               </h2>
               <div className="mb-3 flex flex-wrap gap-4 text-xs text-spotlight-text-muted">
-                {e.location && <span>📍 {e.location}</span>}
-                {e.time && <span>🕕 {e.time}</span>}
+                {e.location && <span>{e.location}</span>}
+                {e.time && <span>{e.time}</span>}
               </div>
               {e.price && (
                 <p className="text-[13px] font-medium text-spotlight-teal">{e.price}</p>
