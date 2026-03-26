@@ -47,7 +47,14 @@ export default function AdminNewsPage() {
           </li>
         </ul>
       </div>
-      <AdminCrud table="news" title="News" fields={fields} columns={columns} />
+      <AdminCrud
+        table="news"
+        title="News"
+        fields={fields}
+        columns={columns}
+        searchKeys={["title", "category", "date", "author", "description", "source_url", "source"]}
+        searchPlaceholder="Search headlines, category, outlet, summary, URL…"
+      />
     </div>
   );
 }

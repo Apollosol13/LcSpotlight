@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 
 export interface FieldDef {
   key: string;
@@ -23,10 +23,22 @@ interface AdminCrudProps {
   columns: string[];
   /** Base path for an “Open” link per row: `{detailBasePath}/{row.id}`. */
   detailBasePath?: string;
+  /** When set, shows a search field; rows match if any listed field contains the query (case-insensitive). */
+  searchKeys?: string[];
+  searchPlaceholder?: string;
 }
 
-export function AdminCrud({ table, title, fields, columns, detailBasePath }: AdminCrudProps) {
+export function AdminCrud({
+  table,
+  title,
+  fields,
+  columns,
+  detailBasePath,
+  searchKeys,
+  searchPlaceholder = "Search…",
+}: AdminCrudProps) {
   const [rows, setRows] = useState<Row[]>([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Row | null>(null);
@@ -120,18 +132,51 @@ export function AdminCrud({ table, title, fields, columns, detailBasePath }: Adm
     setFormData((prev) => ({ ...prev, [key]: value }));
   }
 
+  const filteredRows = useMemo(() => {
+    if (!searchKeys?.length || !search.trim()) return rows;
+    const q = search.trim().toLowerCase();
+    return rows.filter((row) =>
+      searchKeys.some((key) => {
+        const v = row[key];
+        if (v == null) return false;
+        return String(v).toLowerCase().includes(q);
+      }),
+    );
+  }, [rows, search, searchKeys]);
+
+  const displayRows = searchKeys?.length ? filteredRows : rows;
+
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-semibold text-white">
             {title}
           </h1>
-          <p className="mt-1 text-sm text-white/40">{rows.length} items</p>
+          <p className="mt-1 text-sm text-white/40">
+            {search.trim() && searchKeys?.length
+              ? `${displayRows.length} of ${rows.length} items`
+              : `${rows.length} items`}
+          </p>
+          {searchKeys?.length ? (
+            <div className="mt-4 max-w-md">
+              <label htmlFor={`admin-crud-search-${table}`} className="sr-only">
+                Search {title.toLowerCase()}
+              </label>
+              <input
+                id={`admin-crud-search-${table}`}
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={searchPlaceholder}
+                className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 outline-none focus:border-spotlight-gold"
+              />
+            </div>
+          ) : null}
         </div>
         <button
           onClick={openNew}
-          className="rounded-md bg-spotlight-gold px-4 py-2 text-sm font-semibold text-black transition hover:bg-spotlight-gold-light"
+          className="shrink-0 rounded-md bg-spotlight-gold px-4 py-2 text-sm font-semibold text-black transition hover:bg-spotlight-gold-light"
         >
           + Add New
         </button>
@@ -240,6 +285,17 @@ export function AdminCrud({ table, title, fields, columns, detailBasePath }: Adm
             Add your first one
           </button>
         </div>
+      ) : displayRows.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-white/10 py-12 text-center">
+          <p className="text-sm text-white/40">No items match “{search.trim()}”. Clear the search or try other keywords.</p>
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            className="mt-3 text-sm font-medium text-spotlight-gold hover:underline"
+          >
+            Clear search
+          </button>
+        </div>
       ) : (
         <div className="overflow-hidden rounded-lg border border-white/10">
           <table className="w-full text-left text-sm">
@@ -256,7 +312,7 @@ export function AdminCrud({ table, title, fields, columns, detailBasePath }: Adm
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {rows.map((row) => (
+              {displayRows.map((row) => (
                 <tr key={row.id} className="transition hover:bg-white/[0.02]">
                   {columns.map((col) => (
                     <td key={col} className="max-w-[200px] truncate px-4 py-3 text-white/70">
