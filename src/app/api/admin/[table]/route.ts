@@ -1,10 +1,27 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createSupabaseServer } from "@/lib/supabase-auth-server";
 import { supabaseAdmin } from "@/lib/supabase-server";
 
 const ALLOWED_TABLES = ["events", "news", "openings", "things_to_do", "story_submissions"];
 
 type RouteContext = { params: Promise<{ table: string }> };
+
+function revalidatePublicForTable(table: string) {
+  if (table === "news") {
+    revalidatePath("/");
+    revalidatePath("/news");
+  } else if (table === "events") {
+    revalidatePath("/");
+    revalidatePath("/events");
+  } else if (table === "openings") {
+    revalidatePath("/");
+    revalidatePath("/openings");
+  } else if (table === "things_to_do") {
+    revalidatePath("/");
+    revalidatePath("/things-to-do");
+  }
+}
 
 async function requireAuth() {
   const supabase = await createSupabaseServer();
@@ -45,6 +62,7 @@ export async function POST(req: NextRequest, ctx: RouteContext) {
     const { data, error } = await supabase.from(table).insert(body).select().single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    revalidatePublicForTable(table);
     return NextResponse.json(data, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -67,6 +85,7 @@ export async function PUT(req: NextRequest, ctx: RouteContext) {
     const { data, error } = await supabase.from(table).update(rest).eq("id", id).select().single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    revalidatePublicForTable(table);
     return NextResponse.json(data);
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -88,6 +107,7 @@ export async function DELETE(req: NextRequest, ctx: RouteContext) {
     const { error } = await supabase.from(table).delete().eq("id", id);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    revalidatePublicForTable(table);
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
