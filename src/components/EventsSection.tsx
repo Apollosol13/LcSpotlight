@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import type { EventRow } from "@/lib/events/types";
+import { eventDetailHref, isExternalEventHref } from "@/lib/events/event-link";
 
 function imageBackground(category: string | null | undefined, bg: string | null | undefined) {
   if (bg) return bg;
@@ -23,14 +25,65 @@ function isFreePrice(price: string | null | undefined) {
   return /\bfree\b/i.test(price);
 }
 
+function eventLinkProps(e: Pick<EventRow, "source_url">) {
+  const href = eventDetailHref(e);
+  const ext = isExternalEventHref(href);
+  return {
+    href,
+    ...(ext ? { target: "_blank" as const, rel: "noopener noreferrer" as const } : {}),
+  };
+}
+
+function EventHeroVisual({
+  e,
+  className,
+  minH,
+}: {
+  e: Pick<EventRow, "category" | "bg" | "image_url">;
+  className?: string;
+  minH: string;
+}) {
+  const hasImg = Boolean(e.image_url?.trim());
+  return (
+    <div className={`relative overflow-hidden ${className ?? ""}`}>
+      <div
+        className={`relative flex items-start justify-end p-4 transition-transform duration-300 group-hover:scale-[1.03] ${minH}`}
+      >
+        {hasImg ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={e.image_url!}
+              alt=""
+              className="absolute inset-0 z-0 h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 z-[1] bg-gradient-to-t from-[rgba(17,34,80,0.5)] to-transparent" />
+          </>
+        ) : (
+          <div
+            className="absolute inset-0 z-0"
+            style={{ background: imageBackground(e.category, e.bg) }}
+          />
+        )}
+        {e.category && (
+          <span className="relative z-[2] border border-spotlight-cream/20 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-cream/60">
+            {e.category}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export async function EventsSection() {
   const { data: events } = await supabase
     .from("events")
     .select("*")
+    .order("start_at", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: true })
     .limit(4);
 
-  const list = events ?? [];
+  const list = (events ?? []) as EventRow[];
   const [featured, second, third, fourth] = list;
 
   return (
@@ -59,19 +112,15 @@ export async function EventsSection() {
           <div className="grid grid-cols-1 gap-0.5 lg:grid-cols-[1.4fr_1fr_1fr] lg:grid-rows-[auto_auto]">
             {featured && (
               <Link
-                href="/events"
+                {...eventLinkProps(featured)}
                 className="group relative overflow-hidden bg-white transition-transform hover:-translate-y-0.5 lg:row-span-2"
               >
                 <div className="relative overflow-hidden">
-                  <div
-                    className="relative flex h-[220px] items-start justify-end p-4 transition-transform duration-300 group-hover:scale-[1.03] lg:h-[300px]"
-                    style={{ background: imageBackground(featured.category, featured.bg) }}
-                  >
-                    <span className="border border-spotlight-cream/20 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-cream/60">
-                      {featured.category}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-4 left-4 min-w-[52px] bg-spotlight-gold px-3 py-2 text-center text-spotlight-navy">
+                  <EventHeroVisual
+                    e={featured}
+                    minH="min-h-[220px] lg:min-h-[300px]"
+                  />
+                  <div className="absolute bottom-4 left-4 z-[3] min-w-[52px] bg-spotlight-gold px-3 py-2 text-center text-spotlight-navy">
                     <span className="block font-serif text-[26px] font-bold leading-none">
                       {featured.day}
                     </span>
@@ -96,35 +145,27 @@ export async function EventsSection() {
                       {featured.price}
                     </p>
                   )}
+                  {isExternalEventHref(eventDetailHref(featured)) && (
+                    <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.14em] text-spotlight-teal/80">
+                      Open listing ↗
+                    </p>
+                  )}
                 </div>
               </Link>
             )}
 
-            {second && (
-              <EventCardSmall e={second} className="lg:col-start-2 lg:row-start-1" />
-            )}
-            {third && (
-              <EventCardSmall e={third} className="lg:col-start-3 lg:row-start-1" />
-            )}
+            {second && <EventCardSmall e={second} className="lg:col-start-2 lg:row-start-1" />}
+            {third && <EventCardSmall e={third} className="lg:col-start-3 lg:row-start-1" />}
 
             {fourth && (
               <Link
-                href="/events"
+                {...eventLinkProps(fourth)}
                 className="group relative overflow-hidden bg-white transition-transform hover:-translate-y-0.5 lg:col-span-2 lg:col-start-2 lg:row-start-2"
               >
                 <div className="grid lg:grid-cols-2">
                   <div className="relative h-full min-h-[140px]">
-                    <div
-                      className="flex h-[140px] items-start justify-end p-4 transition-transform duration-300 group-hover:scale-[1.03] lg:h-full lg:min-h-[140px]"
-                      style={{
-                        background: imageBackground(fourth.category, fourth.bg),
-                      }}
-                    >
-                      <span className="border border-spotlight-cream/20 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-cream/60">
-                        {fourth.category}
-                      </span>
-                    </div>
-                    <div className="absolute left-4 top-3 min-w-[52px] bg-spotlight-gold px-3 py-2 text-center text-spotlight-navy">
+                    <EventHeroVisual e={fourth} minH="h-[140px] min-h-[140px] lg:h-full lg:min-h-[140px]" />
+                    <div className="absolute left-4 top-3 z-[3] min-w-[52px] bg-spotlight-gold px-3 py-2 text-center text-spotlight-navy">
                       <span className="block font-serif text-[26px] font-bold leading-none">
                         {fourth.day}
                       </span>
@@ -160,38 +201,15 @@ export async function EventsSection() {
   );
 }
 
-function EventCardSmall({
-  e,
-  className,
-}: {
-  e: {
-    id: string;
-    name: string;
-    category: string;
-    day: string;
-    month: string;
-    location: string | null;
-    time: string | null;
-    price: string | null;
-    bg: string | null;
-  };
-  className?: string;
-}) {
+function EventCardSmall({ e, className }: { e: EventRow; className?: string }) {
   return (
     <Link
-      href="/events"
+      {...eventLinkProps(e)}
       className={`group relative overflow-hidden bg-white transition-transform hover:-translate-y-0.5 ${className ?? ""}`}
     >
       <div className="relative overflow-hidden">
-        <div
-          className="relative flex h-[220px] items-start justify-end p-4 transition-transform duration-300 group-hover:scale-[1.03]"
-          style={{ background: imageBackground(e.category, e.bg) }}
-        >
-          <span className="border border-spotlight-cream/20 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-cream/60">
-            {e.category}
-          </span>
-        </div>
-        <div className="absolute bottom-4 left-4 min-w-[52px] bg-spotlight-gold px-3 py-2 text-center text-spotlight-navy">
+        <EventHeroVisual e={e} minH="h-[220px]" />
+        <div className="absolute bottom-4 left-4 z-[3] min-w-[52px] bg-spotlight-gold px-3 py-2 text-center text-spotlight-navy">
           <span className="block font-serif text-[26px] font-bold leading-none">{e.day}</span>
           <span className="mt-0.5 block text-[9px] font-medium uppercase tracking-[0.1em]">
             {e.month}

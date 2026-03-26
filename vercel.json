@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/real-estate",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/events",
+      "schedule": "0 */6 * * *"
     }
   ]
 }

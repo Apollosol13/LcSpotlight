@@ -1,5 +1,6 @@
 import { XMLParser } from "fast-xml-parser";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { dedupeKeyFromDayMonth, insertEventIfNew } from "@/lib/events/insert-event";
 
 const FEED_URL = "https://www.townofbluffton.sc.gov/RSSFeed.aspx?ModID=58&CID=All-0";
 
@@ -13,16 +14,20 @@ interface CalendarItem {
   "calendarEvent:Location"?: string;
 }
 
-function parseEventDate(dateStr: string): { day: string; month: string } {
+function parseEventDate(dateStr: string): { day: string; month: string; start: Date | null } {
   try {
     const cleaned = dateStr.trim();
     const d = new Date(cleaned);
+    if (Number.isNaN(d.getTime())) {
+      return { day: "??", month: "???", start: null };
+    }
     return {
       day: String(d.getDate()).padStart(2, "0"),
       month: d.toLocaleDateString("en-US", { month: "short" }),
+      start: d,
     };
   } catch {
-    return { day: "??", month: "???" };
+    return { day: "??", month: "???", start: null };
   }
 }
 
@@ -49,38 +54,35 @@ export async function scrapeBlufftonEvents(supabase: SupabaseClient) {
   for (const item of items) {
     if (item.title.toLowerCase().includes("cancelled")) continue;
 
-    const { data: existing } = await supabase
-      .from("events")
-      .select("id")
-      .eq("name", item.title)
-      .maybeSingle();
-
-    if (existing) {
-      skipped++;
-      continue;
-    }
-
     const eventDates = item["calendarEvent:EventDates"] ?? "";
     const eventTimes = item["calendarEvent:EventTimes"] ?? "";
     const location = item["calendarEvent:Location"] ?? "Bluffton, SC";
-    const { day, month } = parseEventDate(eventDates);
+    const { day, month, start } = parseEventDate(eventDates);
     const time = extractTime(eventTimes);
+    const link = item.link?.trim() || null;
 
-    const { error } = await supabase.from("events").insert({
+    const dedupe_key = dedupeKeyFromDayMonth(item.title, day, month, location || "Bluffton, SC");
+
+    const r = await insertEventIfNew(supabase, {
       name: item.title,
       day,
       month,
       time,
       location: location || "Bluffton, SC",
       category: "Community",
+      price: "Free",
       bg: "#1A3A2A",
       icon: null,
-      price: "Free",
       cta: "Learn More",
       source: "rss:bluffton",
+      source_url: link,
+      image_url: null,
+      start_at: start ? start.toISOString() : null,
+      dedupe_key,
     });
 
-    if (!error) inserted++;
+    if (r.inserted) inserted++;
+    else skipped++;
   }
 
   return { total: items.length, inserted, skipped };

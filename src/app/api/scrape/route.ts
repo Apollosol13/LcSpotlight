@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-server";
 import { scrapeIslandNews } from "@/lib/scrapers/island-news";
-import { scrapeBlufftonEvents } from "@/lib/scrapers/bluffton-events";
+import { runEventIngest } from "@/lib/events/run-ingest";
 import { scrapeGoogleNews } from "@/lib/scrapers/google-news";
 import { scrapeRedfinToSupabase } from "@/lib/scrapers/redfin";
 import { thingsToDoSeedData } from "@/lib/seed-data/things-to-do";
@@ -23,9 +23,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    results.blufftonEvents = await scrapeBlufftonEvents(supabaseAdmin);
+    results.eventsIngest = await runEventIngest(supabaseAdmin);
   } catch (err) {
-    results.blufftonEvents = { error: String(err) };
+    results.eventsIngest = { error: String(err) };
   }
 
   try {
