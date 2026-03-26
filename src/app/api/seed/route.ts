@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-server";
-import { thingsToDoSeedData } from "@/lib/seed-data/things-to-do";
+import { replaceThingsToDoFromSeed } from "@/lib/seed-data/replace-things-to-do";
 
 const eventsData = [
   { day: "05", month: "Apr", category: "Music", bg: "#1E3A5F", icon: null, name: "Hilton Head Jazz & Wine Festival", location: "Shelter Cove Marina", time: "6:00 PM", price: "From $45 · General Admission", cta: "Get Tickets", source: "manual" },
@@ -35,10 +35,12 @@ export async function POST() {
   const { error: openingsErr } = await supabaseAdmin.from("openings").upsert(openingsData, { onConflict: "name" });
   results.openings = openingsErr ? openingsErr.message : `${openingsData.length} rows`;
 
-  const { error: thingsErr } = await supabaseAdmin
-    .from("things_to_do")
-    .upsert(thingsToDoSeedData, { onConflict: "title" });
-  results.things_to_do = thingsErr ? thingsErr.message : `${thingsToDoSeedData.length} rows`;
+  const thingsRes = await replaceThingsToDoFromSeed(supabaseAdmin);
+  results.things_to_do = thingsRes.ok
+    ? `deleted ${thingsRes.deleted}, inserted ${thingsRes.inserted}${
+        thingsRes.verifiedCount != null ? `, count=${thingsRes.verifiedCount}` : ""
+      }`
+    : `${thingsRes.stage}: ${thingsRes.error}`;
 
   return NextResponse.json({ seeded: results });
 }

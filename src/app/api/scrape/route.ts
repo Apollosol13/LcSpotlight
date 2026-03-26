@@ -4,7 +4,7 @@ import { scrapeIslandNews } from "@/lib/scrapers/island-news";
 import { scrapeBlufftonEvents } from "@/lib/scrapers/bluffton-events";
 import { scrapeGoogleNews } from "@/lib/scrapers/google-news";
 import { scrapeRedfinToSupabase } from "@/lib/scrapers/redfin";
-import { thingsToDoSeedData } from "@/lib/seed-data/things-to-do";
+import { replaceThingsToDoFromSeed } from "@/lib/seed-data/replace-things-to-do";
 
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
@@ -41,12 +41,15 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { error: tdErr } = await supabaseAdmin
-      .from("things_to_do")
-      .upsert(thingsToDoSeedData, { onConflict: "title" });
-    results.thingsToDo = tdErr
-      ? { error: tdErr.message }
-      : { upserted: thingsToDoSeedData.length };
+    const tdRes = await replaceThingsToDoFromSeed(supabaseAdmin);
+    results.thingsToDo = tdRes.ok
+      ? {
+          replaced: true,
+          deleted: tdRes.deleted,
+          inserted: tdRes.inserted,
+          verifiedCount: tdRes.verifiedCount,
+        }
+      : { stage: tdRes.stage, error: tdRes.error };
   } catch (err) {
     results.thingsToDo = { error: String(err) };
   }
