@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NewsArticleHeroImage } from "@/components/NewsArticleHeroImage";
 import { supabase } from "@/lib/supabase";
 
 export const revalidate = 300;
@@ -46,21 +47,17 @@ export default async function NewsPage() {
             rel={article.source_url ? "noopener noreferrer" : undefined}
             className="group overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white no-underline transition-shadow hover:shadow-[0_8px_32px_rgba(12,27,51,0.08)]"
           >
-            <div className="relative h-[160px] overflow-hidden bg-[#14324A]">
-              {article.image_bg?.startsWith("http") ? (
-                <img
-                  src={article.image_bg}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              ) : null}
-              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.7)] to-transparent" />
+            <NewsArticleHeroImage
+              imageBg={article.image_bg}
+              variant="card"
+              heightClass="h-[160px]"
+            >
               {article.category && (
                 <span className="absolute right-3 top-3 z-[1] rounded-[2px] bg-[rgba(12,27,51,0.8)] px-2.5 py-1 text-[10px] uppercase tracking-[1px] text-white/90">
                   {article.category}
                 </span>
               )}
-            </div>
+            </NewsArticleHeroImage>
             <div className="p-5">
               <h2 className="mb-2 font-serif text-lg font-normal leading-tight text-spotlight-navy group-hover:text-spotlight-gold">
                 {decodeEntities(article.title)}

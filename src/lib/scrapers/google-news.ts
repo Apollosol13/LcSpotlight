@@ -14,7 +14,7 @@ interface GoogleNewsItem {
   title: string;
   link: string;
   pubDate: string;
-  source?: string | { "#text": string };
+  source?: string | { "#text": string; "@_url"?: string };
   description?: string;
 }
 
@@ -38,6 +38,16 @@ function extractSource(item: GoogleNewsItem): string | null {
   if (!item.source) return null;
   if (typeof item.source === "string") return item.source;
   return item.source["#text"] ?? null;
+}
+
+/** RSS &lt;source url="https://publisher.com"&gt; — use for og:image, not the Google News link. */
+function extractPublisherUrl(item: GoogleNewsItem): string | null {
+  const s = item.source;
+  if (s && typeof s === "object" && "@_url" in s) {
+    const url = (s as { "@_url"?: string })["@_url"];
+    if (typeof url === "string" && /^https?:\/\//i.test(url)) return url;
+  }
+  return null;
 }
 
 function formatDate(pubDate: string): string {
@@ -122,7 +132,8 @@ export async function scrapeGoogleNews(supabase: SupabaseClient) {
           publishedAt = new Date(item.pubDate).toISOString();
         } catch { /* fall back to auto */ }
 
-        const ogImage = await fetchOgImage(item.link);
+        const publisherUrl = extractPublisherUrl(item);
+        const ogImage = publisherUrl ? await fetchOgImage(publisherUrl) : null;
 
         const { error } = await supabase.from("news").insert({
           title,

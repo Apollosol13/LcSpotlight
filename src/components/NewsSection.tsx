@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NewsArticleHeroImage, NewsThumbSquare } from "@/components/NewsArticleHeroImage";
 import { supabase } from "@/lib/supabase";
 
 function decode(str: string) {
@@ -90,9 +91,10 @@ export async function NewsSection() {
               rel={item.source_url ? "noopener noreferrer" : undefined}
               className="flex items-start gap-4 rounded border border-[rgba(17,34,80,0.1)] bg-white p-5 no-underline transition-colors hover:border-spotlight-gold"
             >
-              <div className="flex size-10 shrink-0 items-center justify-center rounded bg-spotlight-sand text-xs font-semibold uppercase text-spotlight-text-muted">
-                {item.category?.[0] ?? "N"}
-              </div>
+              <NewsThumbSquare
+                imageBg={item.image_bg}
+                label={item.category ?? item.title ?? "N"}
+              />
               <div>
                 <h4 className="mb-1.5 font-serif text-[15px] font-normal leading-[1.4] text-spotlight-navy">
                   {decode(item.title)}

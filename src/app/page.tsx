@@ -30,7 +30,7 @@ export default function Home() {
         <ThingsToDoSection />
       </Suspense>
       <Suspense>
-        <RealEstateSection />
+        <RealEstateSection showListings={false} />
       </Suspense>
       <TicketingBanner />
     </>

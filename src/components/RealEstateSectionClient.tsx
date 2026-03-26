@@ -58,6 +58,8 @@ type Props = {
   markets: Record<RealEstateMarketKey, { stats: RealEstateStatsCard | null; listings: RealEstateListingCard[] }>;
   /** Hide on `/real-estate` where this section is the full page */
   showFullReportsLink?: boolean;
+  /** Homepage: stats + tabs only; full listing cards on `/real-estate` */
+  showListings?: boolean;
 };
 
 function parsePriceBound(raw: string): number | null {
@@ -67,7 +69,11 @@ function parsePriceBound(raw: string): number | null {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
-export function RealEstateSectionClient({ markets, showFullReportsLink = true }: Props) {
+export function RealEstateSectionClient({
+  markets,
+  showFullReportsLink = true,
+  showListings = true,
+}: Props) {
   const tabs = REAL_ESTATE_MARKETS.map((m) => ({ key: m.key, label: m.label }));
   const [active, setActive] = useState<RealEstateMarketKey>("hhi");
   const [sortOrder, setSortOrder] = useState<SortOrder>("high-low");
@@ -85,6 +91,7 @@ export function RealEstateSectionClient({ markets, showFullReportsLink = true }:
   const listings = m.listings.length ? m.listings : [];
 
   const visibleListings = useMemo(() => {
+    if (!showListings) return [];
     if (!listings.length) return PLACEHOLDER_LISTINGS;
 
     let minB = parsePriceBound(minPriceInput);
@@ -109,7 +116,7 @@ export function RealEstateSectionClient({ markets, showFullReportsLink = true }:
     });
 
     return out;
-  }, [listings, minPriceInput, maxPriceInput, sortOrder]);
+  }, [showListings, listings, minPriceInput, maxPriceInput, sortOrder]);
 
   const hasPriceFilters =
     parsePriceBound(minPriceInput) != null || parsePriceBound(maxPriceInput) != null;
@@ -129,8 +136,17 @@ export function RealEstateSectionClient({ markets, showFullReportsLink = true }:
               Real estate <em className="font-normal italic text-spotlight-teal">Snapshot</em>
             </h2>
             <p className="mt-2 max-w-xl text-[11px] font-light leading-relaxed tracking-[0.03em] text-spotlight-text-muted">
-              Listing sample and stats from Redfin (for-sale inventory). Figures update on a schedule and may
-              differ from official MLS.
+              {showListings ? (
+                <>
+                  Listing sample and stats from Redfin (for-sale inventory). Figures update on a schedule and may
+                  differ from official MLS.
+                </>
+              ) : (
+                <>
+                  Market snapshot from Redfin (for-sale sample). Browse sortable listings with photos on the full
+                  report — figures may differ from official MLS.
+                </>
+              )}
             </p>
           </div>
           {showFullReportsLink ? (
@@ -181,7 +197,19 @@ export function RealEstateSectionClient({ markets, showFullReportsLink = true }:
           })}
         </div>
 
-        {listings.length > 0 ? (
+        {!showListings && showFullReportsLink ? (
+          <p className="mt-6 text-[12px] font-light leading-relaxed text-spotlight-text-mid">
+            <Link
+              href="/real-estate"
+              className="border-b border-spotlight-gold-dark font-medium text-spotlight-navy no-underline hover:text-spotlight-teal"
+            >
+              Open the full real estate report
+            </Link>{" "}
+            for listings, filters, and Redfin links.
+          </p>
+        ) : null}
+
+        {showListings && listings.length > 0 ? (
           <div className="mt-8 flex flex-col gap-5 border-t border-spotlight-navy/10 pt-6 min-[601px]:flex-row min-[601px]:flex-wrap min-[601px]:items-end min-[601px]:justify-between">
             <div>
               <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55">
@@ -266,35 +294,37 @@ export function RealEstateSectionClient({ markets, showFullReportsLink = true }:
           </div>
         ) : null}
 
-        <div className="mt-8 border-t border-spotlight-navy/10 pt-8">
-          <p className="mb-1 text-[9px] font-medium uppercase tracking-[0.2em] text-spotlight-teal/55">
-            Listings
-          </p>
-          <p className="mb-6 text-[13px] font-light text-spotlight-text-mid">
-            {!listings.length
-              ? "No listings loaded for this market yet. Run the scraper or wait for the next sync."
-              : hasPriceFilters
-                ? `Showing ${visibleListings.length} of ${listings.length} homes that match your price range. Open a card for the full Redfin listing.`
-                : `${listings.length} homes in this sample — use sort and price filters above, then scroll to browse. Open a card for the full Redfin listing.`}
-          </p>
-          {!listings.length ? (
-            <div className="flex flex-col gap-2">
-              {PLACEHOLDER_LISTINGS.map((l) => (
-                <ListingCard key={l.id} listing={l} />
-              ))}
-            </div>
-          ) : visibleListings.length === 0 ? (
-            <p className="rounded-sm border border-spotlight-navy/10 bg-white px-5 py-8 text-center text-[13px] font-light text-spotlight-text-mid">
-              No homes match your price range. Try widening min/max or reset filters.
+        {showListings ? (
+          <div className="mt-8 border-t border-spotlight-navy/10 pt-8">
+            <p className="mb-1 text-[9px] font-medium uppercase tracking-[0.2em] text-spotlight-teal/55">
+              Listings
             </p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {visibleListings.map((l) => (
-                <ListingCard key={l.id} listing={l} />
-              ))}
-            </div>
-          )}
-        </div>
+            <p className="mb-6 text-[13px] font-light text-spotlight-text-mid">
+              {!listings.length
+                ? "No listings loaded for this market yet. Run the scraper or wait for the next sync."
+                : hasPriceFilters
+                  ? `Showing ${visibleListings.length} of ${listings.length} homes that match your price range. Open a card for the full Redfin listing.`
+                  : `${listings.length} homes in this sample — use sort and price filters above, then scroll to browse. Open a card for the full Redfin listing.`}
+            </p>
+            {!listings.length ? (
+              <div className="flex flex-col gap-2">
+                {PLACEHOLDER_LISTINGS.map((l) => (
+                  <ListingCard key={l.id} listing={l} />
+                ))}
+              </div>
+            ) : visibleListings.length === 0 ? (
+              <p className="rounded-sm border border-spotlight-navy/10 bg-white px-5 py-8 text-center text-[13px] font-light text-spotlight-text-mid">
+                No homes match your price range. Try widening min/max or reset filters.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {visibleListings.map((l) => (
+                  <ListingCard key={l.id} listing={l} />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : null}
       </div>
     </section>
   );

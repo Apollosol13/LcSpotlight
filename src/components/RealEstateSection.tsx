@@ -46,13 +46,16 @@ function rowToStats(row: Record<string, unknown>): RealEstateStatsCard {
 
 type RealEstateSectionProps = {
   showFullReportsLink?: boolean;
-  /** Cap rows loaded per market (scraper stores up to ~350 each). */
+  /** Cap rows loaded per market (scraper stores up to ~350 each). Only used when showListings is true. */
   maxListingsPerMarket?: number;
+  /** Homepage: stats only. Full listings on `/real-estate`. */
+  showListings?: boolean;
 };
 
 export async function RealEstateSection({
   showFullReportsLink = true,
   maxListingsPerMarket = 48,
+  showListings = true,
 }: RealEstateSectionProps = {}) {
   const keys = REAL_ESTATE_MARKETS.map((m) => m.key);
   const { data: statRows } = await supabase.from("real_estate_stats").select("*").in("market_key", keys);
@@ -71,31 +74,35 @@ export async function RealEstateSection({
   >;
 
   for (const m of REAL_ESTATE_MARKETS) {
-    const { data: listingRows } = await supabase
-      .from("real_estate_listings")
-      .select(
-        "id, property_type, price, beds, baths, sqft, address_line, city, state, redfin_path, photo_url",
-      )
-      .eq("market_key", m.key)
-      .not("price", "is", null)
-      .gt("price", 0)
-      .order("price", { ascending: false })
-      .limit(maxListingsPerMarket);
+    let listings: RealEstateListingCard[] = [];
+    if (showListings) {
+      const { data: listingRows } = await supabase
+        .from("real_estate_listings")
+        .select(
+          "id, property_type, price, beds, baths, sqft, address_line, city, state, redfin_path, photo_url",
+        )
+        .eq("market_key", m.key)
+        .not("price", "is", null)
+        .gt("price", 0)
+        .order("price", { ascending: false })
+        .limit(maxListingsPerMarket);
 
-    const listings: RealEstateListingCard[] = (listingRows ?? []).map((r) => {
-      const addr =
-        [r.address_line, r.city, r.state].filter(Boolean).join(", ") || "Address on Redfin";
-      return {
-        id: r.id,
-        property_type: r.property_type,
-        price_amount: typeof r.price === "number" ? r.price : null,
-        price_display: formatMoney(r.price),
-        address: addr,
-        detail: listingDetail(r.beds, r.baths, r.sqft),
-        href: redfinUrl(r.redfin_path),
-        photo_url: typeof r.photo_url === "string" && r.photo_url.startsWith("http") ? r.photo_url : null,
-      };
-    });
+      listings = (listingRows ?? []).map((r) => {
+        const addr =
+          [r.address_line, r.city, r.state].filter(Boolean).join(", ") || "Address on Redfin";
+        return {
+          id: r.id,
+          property_type: r.property_type,
+          price_amount: typeof r.price === "number" ? r.price : null,
+          price_display: formatMoney(r.price),
+          address: addr,
+          detail: listingDetail(r.beds, r.baths, r.sqft),
+          href: redfinUrl(r.redfin_path),
+          photo_url:
+            typeof r.photo_url === "string" && r.photo_url.startsWith("http") ? r.photo_url : null,
+        };
+      });
+    }
 
     markets[m.key] = {
       stats: statsByKey.get(m.key) ?? null,
@@ -103,5 +110,11 @@ export async function RealEstateSection({
     };
   }
 
-  return <RealEstateSectionClient markets={markets} showFullReportsLink={showFullReportsLink} />;
+  return (
+    <RealEstateSectionClient
+      markets={markets}
+      showFullReportsLink={showFullReportsLink}
+      showListings={showListings}
+    />
+  );
 }

@@ -13,7 +13,7 @@ export const revalidate = 300;
 export default function RealEstatePage() {
   return (
     <Suspense>
-      <RealEstateSection showFullReportsLink={false} maxListingsPerMarket={500} />
+      <RealEstateSection showFullReportsLink={false} showListings maxListingsPerMarket={500} />
     </Suspense>
   );
 }
