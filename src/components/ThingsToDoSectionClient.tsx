@@ -1,19 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { REAL_ESTATE_MARKETS, type RealEstateMarketKey } from "@/lib/real-estate-markets";
-import { titleInitial } from "@/lib/text-initial";
+import type { ThingsToDoRow } from "@/lib/things-to-do-types";
 
-export type ThingsToDoRow = {
-  id: string;
-  market_key?: string | null;
-  badge: string | null;
-  title: string | null;
-  description: string | null;
-  venue: string | null;
-  expires: string | null;
-};
+export type { ThingsToDoRow };
 
 type Variant = "home" | "page";
 
@@ -24,6 +16,15 @@ type Props = {
   showAllLink?: boolean;
 };
 
+const ALL = "All";
+
+function websiteHref(w: string | null): string | null {
+  if (!w?.trim()) return null;
+  const t = w.trim();
+  if (/^https?:\/\//i.test(t)) return t;
+  return `https://${t}`;
+}
+
 export function ThingsToDoSectionClient({
   dealsByMarket,
   variant,
@@ -31,7 +32,33 @@ export function ThingsToDoSectionClient({
 }: Props) {
   const tabs = REAL_ESTATE_MARKETS.map((m) => ({ key: m.key, label: m.label }));
   const [active, setActive] = useState<RealEstateMarketKey>("hhi");
+  const [activeCategory, setActiveCategory] = useState(ALL);
+
   const deals = dealsByMarket[active] ?? [];
+
+  const categoryOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const d of deals) {
+      const c = d.category?.trim();
+      if (c) set.add(c);
+    }
+    return [ALL, ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+  }, [deals]);
+
+  const visible = useMemo(() => {
+    if (activeCategory === ALL) return deals;
+    return deals.filter((d) => (d.category ?? "").trim() === activeCategory);
+  }, [deals, activeCategory]);
+
+  const selectMarket = (k: RealEstateMarketKey) => {
+    setActive(k);
+    setActiveCategory(ALL);
+  };
+
+  const cardClass =
+    variant === "home"
+      ? "group relative border border-spotlight-navy/[0.06] bg-white p-6 transition-colors hover:border-spotlight-teal/40 min-[601px]:p-6"
+      : "group relative overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white p-6 transition-colors hover:border-spotlight-teal";
 
   return (
     <section
@@ -51,7 +78,7 @@ export function ThingsToDoSectionClient({
                   : "mb-2 text-[10px] font-medium uppercase tracking-[3px] text-spotlight-text-muted"
               }
             >
-              Deals &amp; discounts
+              Local guide
             </p>
             {variant === "home" ? (
               <h2 className="font-serif text-[clamp(2rem,5vw,3rem)] font-bold leading-none text-spotlight-navy">
@@ -70,8 +97,8 @@ export function ThingsToDoSectionClient({
               }
             >
               {variant === "home"
-                ? "Offers and experiences by area — Hilton Head, Bluffton, Beaufort, and Savannah."
-                : "Activities, offers, and experiences across the Lowcountry."}
+                ? "Activities and places by area — Hilton Head, Bluffton, Beaufort, and Savannah."
+                : "A curated directory of things to do across the Lowcountry."}
             </p>
           </div>
           {variant === "home" && showAllLink ? (
@@ -79,7 +106,7 @@ export function ThingsToDoSectionClient({
               href="/things-to-do"
               className="inline-flex items-center gap-2 self-start border-b border-spotlight-gold-dark pb-1 text-[10px] font-normal uppercase tracking-[0.16em] text-spotlight-gold-dark no-underline min-[601px]:self-auto"
             >
-              All deals →
+              See all →
             </Link>
           ) : null}
         </div>
@@ -89,7 +116,7 @@ export function ThingsToDoSectionClient({
             <button
               key={t.key}
               type="button"
-              onClick={() => setActive(t.key)}
+              onClick={() => selectMarket(t.key)}
               className={`-mb-px border-b-2 px-4 py-3 text-[10px] font-normal uppercase tracking-[0.14em] transition-colors min-[601px]:px-6 ${
                 active === t.key
                   ? "border-spotlight-gold text-spotlight-navy"
@@ -101,16 +128,36 @@ export function ThingsToDoSectionClient({
           ))}
         </div>
 
+        <div className="mb-6 flex flex-wrap gap-2">
+          {categoryOptions.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setActiveCategory(c)}
+              className={`rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                activeCategory === c
+                  ? "border-spotlight-gold bg-spotlight-gold/15 text-spotlight-navy"
+                  : "border-spotlight-navy/15 bg-white text-spotlight-teal/80 hover:border-spotlight-teal/40 hover:text-spotlight-navy"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+
         {variant === "home" ? (
           <div className="grid grid-cols-1 gap-0.5 min-[601px]:grid-cols-2 min-[901px]:grid-cols-3">
-            {deals.map((d) => (
-              <article
-                key={d.id}
-                className="group relative border border-spotlight-navy/[0.06] bg-white p-6 transition-colors hover:border-spotlight-teal/40 min-[601px]:p-6"
-              >
-                <span className="mb-3 inline-flex items-center border border-spotlight-teal/20 bg-spotlight-teal/10 px-2.5 py-1 text-[11px] font-medium text-spotlight-teal">
-                  {d.badge}
-                </span>
+            {visible.map((d) => (
+              <article key={d.id} className={cardClass}>
+                <div className="mb-3 flex items-start justify-between gap-2">
+                  {d.category ? (
+                    <span className="inline-flex max-w-[85%] items-center border border-spotlight-teal/20 bg-spotlight-teal/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-spotlight-teal">
+                      {d.category}
+                    </span>
+                  ) : (
+                    <span />
+                  )}
+                </div>
                 <h3 className="mb-1.5 font-serif text-lg font-bold text-spotlight-navy">{d.title}</h3>
                 {d.description ? (
                   <p className="mb-3 text-[13px] font-light tracking-[0.03em] text-[#8a96a8]">{d.description}</p>
@@ -118,24 +165,31 @@ export function ThingsToDoSectionClient({
                 {d.venue ? (
                   <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-spotlight-teal">{d.venue}</p>
                 ) : null}
-                {d.expires ? <p className="mt-1 text-[11px] text-spotlight-coral">{d.expires}</p> : null}
+                {websiteHref(d.website) ? (
+                  <a
+                    href={websiteHref(d.website)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex text-[11px] font-medium text-spotlight-gold-dark no-underline hover:underline"
+                  >
+                    Visit website →
+                  </a>
+                ) : null}
               </article>
             ))}
           </div>
         ) : (
           <div className="grid gap-5 min-[601px]:grid-cols-2 min-[901px]:grid-cols-3">
-            {deals.map((d) => (
-              <div
-                key={d.id}
-                className="group relative overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white p-6 transition-colors hover:border-spotlight-teal"
-              >
+            {visible.map((d) => (
+              <div key={d.id} className={cardClass}>
                 <div className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-spotlight-teal transition-transform group-hover:scale-x-100" />
-                <div className="mb-3 flex size-11 items-center justify-center rounded bg-spotlight-sand text-xs font-semibold uppercase text-spotlight-text-muted">
-                  {titleInitial(d.title)}
+                <div className="mb-3 flex items-start justify-between gap-2">
+                  {d.category ? (
+                    <span className="inline-flex max-w-[90%] rounded-[2px] bg-[rgba(30,123,114,0.1)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-spotlight-teal">
+                      {d.category}
+                    </span>
+                  ) : null}
                 </div>
-                <span className="mb-3.5 inline-flex items-center rounded-[2px] bg-[rgba(30,123,114,0.1)] px-3 py-1 text-[13px] font-medium text-spotlight-teal">
-                  {d.badge}
-                </span>
                 <h2 className="mb-1.5 font-serif text-[17px] font-normal text-spotlight-navy">{d.title}</h2>
                 {d.description ? (
                   <p className="mb-3.5 text-[13px] font-light text-spotlight-text-muted">{d.description}</p>
@@ -143,13 +197,22 @@ export function ThingsToDoSectionClient({
                 {d.venue ? (
                   <p className="text-xs font-medium uppercase tracking-[0.5px] text-spotlight-text-mid">{d.venue}</p>
                 ) : null}
-                {d.expires ? <p className="mt-1 text-[11px] text-spotlight-coral">{d.expires}</p> : null}
+                {websiteHref(d.website) ? (
+                  <a
+                    href={websiteHref(d.website)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex text-xs font-medium text-spotlight-gold no-underline hover:underline"
+                  >
+                    Visit website →
+                  </a>
+                ) : null}
               </div>
             ))}
           </div>
         )}
 
-        {deals.length === 0 ? (
+        {visible.length === 0 ? (
           <p
             className={
               variant === "home"
@@ -157,7 +220,7 @@ export function ThingsToDoSectionClient({
                 : "py-20 text-center text-sm text-spotlight-text-muted"
             }
           >
-            No deals in this area yet. Try another tab or add items in admin.
+            No activities in this category yet. Try another filter or add items in admin.
           </p>
         ) : null}
 

@@ -1,27 +1,13 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import type { EventRow } from "@/lib/events/types";
-import { eventDetailHref, isExternalEventHref } from "@/lib/events/event-link";
 
 export const revalidate = 300;
-
-function eventLinkProps(e: Pick<EventRow, "source_url">) {
-  const href = eventDetailHref(e);
-  const ext = isExternalEventHref(href);
-  return {
-    href,
-    ...(ext ? { target: "_blank" as const, rel: "noopener noreferrer" as const } : {}),
-  };
-}
 
 export default async function EventsPage() {
   const { data: events } = await supabase
     .from("events")
     .select("*")
-    .order("start_at", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
-
-  const rows = (events ?? []) as EventRow[];
 
   return (
     <main className="mx-auto w-full max-w-[1200px] flex-1 px-5 py-16 min-[601px]:px-10">
@@ -33,37 +19,21 @@ export default async function EventsPage() {
           Upcoming <em className="italic text-spotlight-gold">Events</em>
         </h1>
         <p className="mt-3 text-sm text-spotlight-text-mid">
-          Events across the Lowcountry. Cards with a link open the official listing when available.
+          Events across the Lowcountry.
         </p>
       </div>
 
       <div className="grid gap-6 min-[601px]:grid-cols-2 min-[901px]:grid-cols-3">
-        {rows.map((e) => (
-          <Link
+        {(events ?? []).map((e) => (
+          <div
             key={e.id}
-            {...eventLinkProps(e)}
-            className="block overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white transition-all hover:-translate-y-[3px] hover:shadow-[0_12px_40px_rgba(12,27,51,0.1)]"
+            className="overflow-hidden rounded border border-[rgba(12,27,51,0.1)] bg-white transition-all hover:-translate-y-[3px] hover:shadow-[0_12px_40px_rgba(12,27,51,0.1)]"
           >
-            <div className="relative flex h-[160px] items-center justify-center overflow-hidden">
-              {e.image_url ? (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={e.image_url}
-                    alt=""
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.7)] to-transparent" />
-                </>
-              ) : (
-                <>
-                  <div
-                    className="absolute inset-0"
-                    style={{ background: e.bg ?? "#1E3A5F" }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.7)] to-transparent" />
-                </>
-              )}
+            <div
+              className="relative flex h-[160px] items-center justify-center overflow-hidden"
+              style={{ background: e.bg ?? "#1E3A5F" }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.7)] to-transparent" />
               <div className="absolute left-3.5 top-3.5 z-[1] rounded-[2px] bg-spotlight-gold px-2.5 py-1.5 text-center leading-tight text-spotlight-navy">
                 <span className="block font-serif text-[22px] font-semibold">{e.day}</span>
                 <span className="block text-[10px] font-medium uppercase tracking-[1px]">{e.month}</span>
@@ -85,17 +55,12 @@ export default async function EventsPage() {
               {e.price && (
                 <p className="text-[13px] font-medium text-spotlight-teal">{e.price}</p>
               )}
-              {isExternalEventHref(eventDetailHref(e)) && (
-                <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.5px] text-spotlight-teal/90">
-                  View details ↗
-                </p>
-              )}
             </div>
-          </Link>
+          </div>
         ))}
       </div>
 
-      {rows.length === 0 && (
+      {(!events || events.length === 0) && (
         <p className="py-20 text-center text-sm text-spotlight-text-muted">
           No events yet. Check back soon.
         </p>

@@ -12,15 +12,14 @@ const fields: FieldDef[] = [
     defaultValue: "hhi",
     required: true,
   },
-  { key: "title", label: "Title", placeholder: "Dolphin Kayak Tour", required: true },
-  { key: "badge", label: "Badge / Deal", placeholder: "30% OFF, BOGO, FREE...", required: true },
-  { key: "description", label: "Description", type: "textarea", placeholder: "2-hour guided kayak tour..." },
-  { key: "venue", label: "Venue", placeholder: "Outside Hilton Head" },
-  { key: "expires", label: "Expires / Schedule", placeholder: "Expires Apr 30" },
-  { key: "icon", label: "Icon", placeholder: "Optional (unused in UI)" },
+  { key: "category", label: "Category", placeholder: "Beaches & Parks, Food & Drink…", required: true },
+  { key: "title", label: "Title", placeholder: "Coligny Beach Park", required: true },
+  { key: "description", label: "Description", type: "textarea", placeholder: "Short description…" },
+  { key: "venue", label: "Venue / location", placeholder: "Coligny Beach, HHI" },
+  { key: "website", label: "Website URL", placeholder: "https://…" },
 ];
 
-const columns = ["market_key", "title", "badge", "venue", "expires", "source"];
+const columns = ["market_key", "category", "title", "venue", "source"];
 
 export default function AdminThingsToDoPage() {
   return (
