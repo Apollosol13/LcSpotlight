@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, DM_Sans, Playfair_Display } from "next/font/google";
+import { CloudflareWebAnalytics } from "@/components/CloudflareWebAnalytics";
 import { PublicShell } from "@/components/PublicShell";
 import "./globals.css";
 
@@ -39,6 +40,7 @@ export default function RootLayout({
       className={`${playfair.variable} ${dmSans.variable} ${bebasNeue.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
+        <CloudflareWebAnalytics />
         <PublicShell>{children}</PublicShell>
       </body>
     </html>

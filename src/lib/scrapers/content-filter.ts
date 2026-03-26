@@ -26,6 +26,19 @@ const BLOCKED_KEYWORDS = [
   "trafficking", "carjacking", "kidnap",
   "explosion", "electrocut", "hazmat",
   "tornado damage", "hurricane damage",
+  // Political protest / national-movement stories (poor fit for a local community guide)
+  "protest", "protests", "protester", "protesters",
+  "demonstration", "demonstrations", "demonstrator", "demonstrators",
+];
+
+/** Multi-word matches (lowercased text must include the phrase). */
+const BLOCKED_PHRASES = [
+  "no kings",
+  "no king's",
+  "civil disobedience",
+  "mass protest",
+  "planned protest",
+  "protests planned",
 ];
 
 const BLOCKED_CATEGORIES = [
@@ -36,6 +49,10 @@ const BLOCKED_CATEGORIES = [
 
 export function isContentClean(title: string, description: string, categories: string[]): boolean {
   const text = `${title} ${description}`.toLowerCase();
+
+  for (const phrase of BLOCKED_PHRASES) {
+    if (text.includes(phrase)) return false;
+  }
 
   for (const keyword of BLOCKED_KEYWORDS) {
     if (text.includes(keyword)) return false;
