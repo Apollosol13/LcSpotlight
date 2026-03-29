@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const tabs: { href: string; label: string; exact?: boolean }[] = [
   { href: "/admin", label: "Overview", exact: true },
   { href: "/admin/story-submissions", label: "Story submissions" },
+  { href: "/admin/event-submissions", label: "Event submissions" },
   { href: "/admin/events", label: "Events" },
   { href: "/admin/news", label: "News" },
   { href: "/admin/openings", label: "Openings" },

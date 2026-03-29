@@ -3,7 +3,14 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServer } from "@/lib/supabase-auth-server";
 import { supabaseAdmin } from "@/lib/supabase-server";
 
-const ALLOWED_TABLES = ["events", "news", "openings", "things_to_do", "story_submissions"];
+const ALLOWED_TABLES = [
+  "events",
+  "news",
+  "openings",
+  "things_to_do",
+  "story_submissions",
+  "event_submissions",
+];
 
 type RouteContext = { params: Promise<{ table: string }> };
 
@@ -20,6 +27,8 @@ function revalidatePublicForTable(table: string) {
   } else if (table === "things_to_do") {
     revalidatePath("/");
     revalidatePath("/things-to-do");
+  } else if (table === "event_submissions") {
+    revalidatePath("/events");
   }
 }
 
