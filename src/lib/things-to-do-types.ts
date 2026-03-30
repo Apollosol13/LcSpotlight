@@ -8,4 +8,5 @@ export type ThingsToDoRow = {
   website: string | null;
   source?: string | null;
   owner_user_id?: string | null;
+  image_url?: string | null;
 };

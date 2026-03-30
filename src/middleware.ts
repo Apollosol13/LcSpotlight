@@ -7,6 +7,12 @@ import {
 import { getPortalAccess } from "@/lib/portal-role";
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  if (pathname === "/admin/login" || pathname === "/business/login") {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -34,11 +40,9 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname;
   const isAdminRoute = pathname.startsWith("/admin");
   const isBusinessRoute = pathname.startsWith("/business");
-  const isAdminLogin = pathname === "/admin/login";
-  const isBusinessLogin = pathname === "/business/login";
+  const isLogin = pathname === "/login";
 
   const redirect = (path: string) => {
     const url = request.nextUrl.clone();
@@ -47,20 +51,17 @@ export async function middleware(request: NextRequest) {
   };
 
   if (!user) {
-    if (isAdminRoute && !isAdminLogin) return redirect("/admin/login");
-    if (isBusinessRoute && !isBusinessLogin) return redirect("/business/login");
+    if (isAdminRoute) return redirect("/login");
+    if (isBusinessRoute) return redirect("/login");
+    if (isLogin) return supabaseResponse;
     return supabaseResponse;
   }
 
   const access = await getPortalAccess(supabase, user.id);
 
-  if (isAdminLogin) {
+  if (isLogin) {
     if (access.isPartnerOnly) return redirect("/business");
     return redirect("/admin");
-  }
-
-  if (isBusinessLogin) {
-    return redirect("/business");
   }
 
   if (isAdminRoute && access.isPartnerOnly) return redirect("/business");
@@ -69,5 +70,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/business/:path*"],
+  matcher: ["/login", "/admin/:path*", "/business/:path*"],
 };

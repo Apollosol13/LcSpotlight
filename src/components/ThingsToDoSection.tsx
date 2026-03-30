@@ -22,7 +22,7 @@ function emptyByMarket(): Record<RealEstateMarketKey, ThingsToDoRow[]> {
 export async function ThingsToDoSection() {
   const { data: rows } = await supabase
     .from("things_to_do")
-    .select("id, market_key, category, title, description, venue, website")
+    .select("id, market_key, category, title, description, venue, website, image_url")
     .order("created_at", { ascending: false });
 
   const by = emptyByMarket();

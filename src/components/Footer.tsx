@@ -19,7 +19,7 @@ const columns = [
       { label: "List a Business", href: "#" },
       { label: "Advertise", href: "#" },
       { label: "Submit a Story", href: "/submit-story" },
-      { label: "Business portal", href: "/business/login" },
+      { label: "Business portal", href: "/login" },
     ],
   },
   {

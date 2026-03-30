@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { createSupabaseBrowser } from "@/lib/supabase-browser";
+
+const PARTNER_LISTINGS_BUCKET = "partner-listings";
 
 export interface FieldDef {
   key: string;
   label: string;
-  type?: "text" | "textarea" | "color" | "boolean" | "select" | "date";
+  type?: "text" | "textarea" | "color" | "boolean" | "select" | "date" | "image";
   placeholder?: string;
   defaultValue?: string | boolean;
   required?: boolean;
@@ -48,6 +51,7 @@ export function AdminCrud({
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
 
   const fetchRows = useCallback(async () => {
     setLoading(true);
@@ -69,7 +73,8 @@ export function AdminCrud({
     fields.forEach((f) => {
       if (f.defaultValue !== undefined) defaults[f.key] = f.defaultValue;
       else if (f.type === "select" && f.options?.[0]) defaults[f.key] = f.options[0].value;
-      else defaults[f.key] = f.type === "boolean" ? false : "";
+      else defaults[f.key] =
+        f.type === "boolean" ? false : f.type === "image" ? "" : "";
     });
     setFormData(defaults);
     setShowForm(true);
@@ -135,6 +140,35 @@ export function AdminCrud({
     setFormData((prev) => ({ ...prev, [key]: value }));
   }
 
+  async function uploadListingImage(fieldKey: string, file: File | null) {
+    if (!file) return;
+    setError("");
+    setUploadingField(fieldKey);
+    try {
+      const supabase = createSupabaseBrowser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        setError("Sign in to upload images.");
+        return;
+      }
+      const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `${user.id}/${table}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from(PARTNER_LISTINGS_BUCKET)
+        .upload(path, file, { contentType: file.type || "image/jpeg", upsert: false });
+      if (upErr) {
+        setError(upErr.message);
+        return;
+      }
+      const { data } = supabase.storage.from(PARTNER_LISTINGS_BUCKET).getPublicUrl(path);
+      updateField(fieldKey, data.publicUrl);
+    } finally {
+      setUploadingField(null);
+    }
+  }
+
   const filteredRows = useMemo(() => {
     if (!searchKeys?.length || !search.trim()) return rows;
     const q = search.trim().toLowerCase();
@@ -192,7 +226,10 @@ export function AdminCrud({
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {fields.map((f) => (
-              <div key={f.key} className={f.type === "textarea" ? "sm:col-span-2" : ""}>
+              <div
+                key={f.key}
+                className={f.type === "textarea" || f.type === "image" ? "sm:col-span-2" : ""}
+              >
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/50">
                   {f.label}
                 </label>
@@ -233,6 +270,47 @@ export function AdminCrud({
                     onChange={(e) => updateField(f.key, e.target.value)}
                     className="w-full rounded border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-spotlight-gold"
                   />
+                ) : f.type === "image" ? (
+                  <div className="space-y-3">
+                    {(formData[f.key] as string)?.trim() ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={(formData[f.key] as string).trim()}
+                        alt=""
+                        className="max-h-44 max-w-full rounded border border-white/10 object-cover"
+                      />
+                    ) : null}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      disabled={uploadingField === f.key}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null;
+                        e.target.value = "";
+                        void uploadListingImage(f.key, file);
+                      }}
+                      className="w-full text-xs text-white/60 file:mr-3 file:rounded file:border-0 file:bg-spotlight-gold/20 file:px-3 file:py-1.5 file:text-spotlight-gold"
+                    />
+                    {uploadingField === f.key ? (
+                      <p className="text-xs text-white/40">Uploading…</p>
+                    ) : null}
+                    <input
+                      type="text"
+                      value={(formData[f.key] as string) ?? ""}
+                      onChange={(e) => updateField(f.key, e.target.value)}
+                      placeholder="Or paste image URL"
+                      className="w-full rounded border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/25 outline-none focus:border-spotlight-gold"
+                    />
+                    {(formData[f.key] as string)?.trim() ? (
+                      <button
+                        type="button"
+                        onClick={() => updateField(f.key, "")}
+                        className="text-xs text-red-400 hover:underline"
+                      >
+                        Clear image
+                      </button>
+                    ) : null}
+                  </div>
                 ) : f.type === "color" ? (
                   <div className="flex items-center gap-2">
                     <input

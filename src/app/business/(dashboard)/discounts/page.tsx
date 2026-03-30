@@ -26,6 +26,12 @@ const fields: FieldDef[] = [
     placeholder: "Restrictions, expiration rules, etc.",
   },
   { key: "redeem_url", label: "Redeem link", placeholder: "https://…" },
+  {
+    key: "image_url",
+    label: "Offer image",
+    type: "image",
+    placeholder: "Upload or paste URL",
+  },
   { key: "expires_on", label: "Expires (optional)", type: "date" },
   {
     key: "is_active",

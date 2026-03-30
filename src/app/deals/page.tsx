@@ -17,6 +17,7 @@ type DiscountRow = {
   terms: string | null;
   redeem_url: string | null;
   expires_on: string | null;
+  image_url: string | null;
 };
 
 const marketLabel = (key: string) =>
@@ -26,7 +27,7 @@ export default async function DealsPage() {
   const supabase = await createSupabaseServer();
   const { data: rows } = await supabase
     .from("business_discounts")
-    .select("id, market_key, title, description, terms, redeem_url, expires_on")
+    .select("id, market_key, title, description, terms, redeem_url, expires_on, image_url")
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
@@ -59,8 +60,8 @@ export default async function DealsPage() {
 
         <p className="mt-10 text-sm text-spotlight-text-muted">
           List your business?{" "}
-          <Link href="/business/login" className="text-spotlight-teal no-underline hover:underline">
-            Business sign-in
+          <Link href="/login" className="text-spotlight-teal no-underline hover:underline">
+            Partner sign-in
           </Link>
         </p>
 
@@ -82,7 +83,15 @@ export default async function DealsPage() {
                       <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-spotlight-text-muted">
                         {marketLabel(d.market_key)}
                       </p>
-                      <h3 className="mt-1 font-serif text-xl text-spotlight-navy">{d.title}</h3>
+                      {d.image_url?.trim() ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={d.image_url.trim()}
+                          alt=""
+                          className="mt-3 max-h-52 w-full rounded object-cover"
+                        />
+                      ) : null}
+                      <h3 className="mt-3 font-serif text-xl text-spotlight-navy">{d.title}</h3>
                       {d.description ? (
                         <p className="mt-3 text-sm leading-relaxed text-spotlight-text-mid">
                           {d.description}

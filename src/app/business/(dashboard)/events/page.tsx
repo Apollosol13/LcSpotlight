@@ -11,6 +11,12 @@ const fields: FieldDef[] = [
   { key: "cta", label: "Button Text", placeholder: "Get Tickets", defaultValue: "Learn More" },
   { key: "icon", label: "Icon", placeholder: "Optional (unused in UI)" },
   { key: "bg", label: "Background Color", type: "color", defaultValue: "#1E3A5F" },
+  {
+    key: "image_url",
+    label: "Hero image",
+    type: "image",
+    placeholder: "Upload or paste image URL",
+  },
 ];
 
 const columns = ["name", "category", "day", "month", "location", "price"];
