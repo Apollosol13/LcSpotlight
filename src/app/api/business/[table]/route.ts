@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServer } from "@/lib/supabase-auth-server";
-import { getPortalAccess } from "@/lib/portal-role";
+import { canAccessBusinessPortal, getPortalAccess } from "@/lib/portal-role";
 import { supabaseAdmin } from "@/lib/supabase-server";
 
 const ALLOWED_TABLES = ["events", "things_to_do", "business_discounts"] as const;
@@ -50,6 +50,9 @@ async function requireBusinessPortalUser(): Promise<BusinessPortalContext> {
   } = await auth.auth.getUser();
   if (!user) throw new Error("Unauthorized");
   const access = await getPortalAccess(auth, user.id);
+  if (!canAccessBusinessPortal(access)) {
+    throw new Reject(403, "No portal access");
+  }
   return { user, db: supabaseAdmin, access };
 }
 

@@ -20,6 +20,7 @@ const siteAdminNav: { title: string; items: { href: string; label: string }[] } 
   title: "Site admin",
   items: [
     { href: "/admin", label: "Dashboard" },
+    { href: "/admin/invite-business", label: "Invite business" },
     { href: "/admin/story-submissions", label: "Story submissions" },
     { href: "/admin/event-submissions", label: "Event submissions" },
     { href: "/admin/events", label: "Events (all)" },
@@ -124,7 +125,7 @@ export function PortalShell({ children, showAdminSubNav = false }: PortalShellPr
         .eq("user_id", user.id)
         .maybeSingle();
       if (cancelled) return;
-      setIsStaff(data?.role !== "business");
+      setIsStaff(data?.role === "admin");
     })();
     return () => {
       cancelled = true;
@@ -139,7 +140,8 @@ export function PortalShell({ children, showAdminSubNav = false }: PortalShellPr
   }
 
   const closeMobile = () => setMobileNavOpen(false);
-  const homeHref = isStaff === false ? "/business" : "/admin";
+  const homeHref =
+    isStaff === true ? "/admin" : isStaff === false ? "/business" : "/admin";
   const subtitle =
     isStaff === null ? "…" : isStaff ? "Staff portal" : "Business portal";
 

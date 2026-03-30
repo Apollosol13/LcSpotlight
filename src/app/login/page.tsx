@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import { useRouter } from "next/navigation";
 
@@ -9,8 +9,34 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sessionWithoutRole, setSessionWithoutRole] = useState(false);
   const router = useRouter();
   const supabase = createSupabaseBrowser();
+
+  useEffect(() => {
+    let cancelled = false;
+    const client = createSupabaseBrowser();
+    (async () => {
+      const {
+        data: { user },
+      } = await client.auth.getUser();
+      if (cancelled || !user) return;
+      const { data: roleRow } = await client
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const role = roleRow?.role;
+      if (role === "business" || role === "admin") {
+        router.replace(role === "business" ? "/business" : "/admin");
+        return;
+      }
+      setSessionWithoutRole(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -45,7 +71,7 @@ export default function LoginPage() {
       .maybeSingle();
 
     const role = roleRow?.role;
-    const allowed = role === "business" || role === "admin" || role === undefined;
+    const allowed = role === "business" || role === "admin";
 
     if (!allowed) {
       await supabase.auth.signOut();
@@ -71,6 +97,27 @@ export default function LoginPage() {
             One login. Staff see site admin + your listings; partners see listings only.
           </p>
         </div>
+
+        {sessionWithoutRole ? (
+          <div className="mb-5 space-y-3 rounded border border-amber-500/25 bg-amber-500/10 px-3 py-3 text-sm text-amber-200/90">
+            <p>
+              You are signed in, but this account is not assigned a partner or staff role yet.
+            </p>
+            <button
+              type="button"
+              onClick={() =>
+                void (async () => {
+                  await supabase.auth.signOut();
+                  setSessionWithoutRole(false);
+                  router.refresh();
+                })()
+              }
+              className="w-full rounded border border-white/15 bg-white/5 py-2 text-xs font-medium text-white transition hover:bg-white/10"
+            >
+              Sign out
+            </button>
+          </div>
+        ) : null}
 
         <form onSubmit={(e) => void handleLogin(e)} className="space-y-5">
           <div>

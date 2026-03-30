@@ -61,10 +61,22 @@ export async function middleware(request: NextRequest) {
 
   if (isLogin) {
     if (access.isPartnerOnly) return redirect("/business");
-    return redirect("/admin");
+    if (access.isStaff) return redirect("/admin");
+    return supabaseResponse;
   }
 
-  if (isAdminRoute && access.isPartnerOnly) return redirect("/business");
+  if (isAdminRoute) {
+    if (!access.isStaff) {
+      if (access.isPartnerOnly) return redirect("/business");
+      return redirect("/login");
+    }
+  }
+
+  if (isBusinessRoute) {
+    if (!access.isStaff && !access.isPartnerOnly) {
+      return redirect("/login");
+    }
+  }
 
   return supabaseResponse;
 }
