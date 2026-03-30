@@ -48,7 +48,7 @@ export async function EventsSection() {
               >
                 <div className="relative overflow-hidden">
                   <div
-                    className="relative flex h-[220px] items-start justify-end p-4 transition-transform duration-300 group-hover:scale-[1.03] lg:h-[300px]"
+                    className="relative flex h-[220px] items-start justify-end p-4 lg:h-[300px]"
                     style={eventHeroStyle(featured.image_url, featured.category, featured.bg)}
                   >
                     <span className="border border-spotlight-cream/20 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-cream/60">
@@ -99,7 +99,7 @@ export async function EventsSection() {
                 <div className="grid lg:grid-cols-2">
                   <div className="relative h-full min-h-[140px]">
                     <div
-                      className="flex h-[140px] items-start justify-end p-4 transition-transform duration-300 group-hover:scale-[1.03] lg:h-full lg:min-h-[140px]"
+                      className="flex h-[140px] items-start justify-end p-4 lg:h-full lg:min-h-[140px]"
                       style={eventHeroStyle(fourth.image_url, fourth.category, fourth.bg)}
                     >
                       <span className="border border-spotlight-cream/20 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-cream/60">
@@ -167,7 +167,7 @@ function EventCardSmall({
     >
       <div className="relative overflow-hidden">
         <div
-          className="relative flex h-[220px] items-start justify-end p-4 transition-transform duration-300 group-hover:scale-[1.03]"
+          className="relative flex h-[220px] items-start justify-end p-4"
           style={eventHeroStyle(e.image_url, e.category, e.bg)}
         >
           <span className="border border-spotlight-cream/20 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-cream/60">

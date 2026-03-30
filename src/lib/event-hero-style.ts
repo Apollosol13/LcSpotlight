@@ -1,5 +1,8 @@
 import type { CSSProperties } from "react";
 
+/** Fills letterboxing when photo uses `background-size: contain`. */
+const IMAGE_PLACEHOLDER_BG = "#0c1829";
+
 /** Card hero background when no photo: solid `bg` or category tint gradients (matches homepage). */
 export function gradientFallback(
   category: string | null | undefined,
@@ -21,7 +24,7 @@ export function gradientFallback(
   return "linear-gradient(135deg,#112250,#1E3A6E)";
 }
 
-/** Hero strip: optional cover photo with gradient overlay, else color/gradient fallback. */
+/** Hero strip: photo scaled to fit inside the box (no aggressive crop), else gradient fallback. */
 export function eventHeroStyle(
   imageUrl: string | null | undefined,
   category: string | null | undefined,
@@ -30,9 +33,11 @@ export function eventHeroStyle(
   const trimmed = imageUrl?.trim();
   if (trimmed) {
     return {
-      backgroundImage: `linear-gradient(to top, rgba(12,27,51,0.75), rgba(12,27,51,0.12)), url(${trimmed})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
+      backgroundColor: IMAGE_PLACEHOLDER_BG,
+      backgroundImage: `linear-gradient(to top, rgba(12,27,51,0.42), transparent 58%), url(${JSON.stringify(trimmed)})`,
+      backgroundSize: "100% 100%, contain",
+      backgroundPosition: "center, center",
+      backgroundRepeat: "no-repeat, no-repeat",
     };
   }
   return { background: gradientFallback(category, bg) };
