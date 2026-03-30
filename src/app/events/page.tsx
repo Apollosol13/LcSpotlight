@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { eventHeroStyle } from "@/lib/event-hero-style";
 import { supabase } from "@/lib/supabase";
 
 export const revalidate = 300;
@@ -39,9 +40,9 @@ export default async function EventsPage() {
           >
             <div
               className="relative flex h-[160px] items-center justify-center overflow-hidden"
-              style={{ background: e.bg ?? "#1E3A5F" }}
+              style={eventHeroStyle(e.image_url, e.category, e.bg ?? "#1E3A5F")}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.7)] to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,27,51,0.45)] to-transparent" />
               <div className="absolute left-3.5 top-3.5 z-[1] rounded-[2px] bg-spotlight-gold px-2.5 py-1.5 text-center leading-tight text-spotlight-navy">
                 <span className="block font-serif text-[22px] font-semibold">{e.day}</span>
                 <span className="block text-[10px] font-medium uppercase tracking-[1px]">{e.month}</span>

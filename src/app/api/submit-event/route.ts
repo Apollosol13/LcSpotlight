@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isPublicEventSubmissionImageUrl } from "@/lib/event-submissions-storage";
 import { supabaseAdmin } from "@/lib/supabase-server";
 
 const MAX_ORG = 200;
@@ -12,6 +13,7 @@ const MAX_PRICE = 120;
 const MAX_CTA = 80;
 const MAX_BG = 32;
 const MAX_DETAILS = 4000;
+const MAX_IMAGE_URL = 2000;
 
 const HEX_BG = /^#[0-9A-Fa-f]{6}$/;
 
@@ -47,6 +49,10 @@ export async function POST(request: Request) {
         : null;
     const details =
       typeof body.details === "string" ? body.details.trim() : "";
+    const image_url =
+      typeof body.image_url === "string" && body.image_url.trim()
+        ? body.image_url.trim()
+        : null;
 
     if (!org_name || org_name.length > MAX_ORG) {
       return NextResponse.json(
@@ -114,6 +120,14 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+    if (image_url) {
+      if (image_url.length > MAX_IMAGE_URL || !isPublicEventSubmissionImageUrl(image_url)) {
+        return NextResponse.json(
+          { error: "Add an image by choosing a file on this form, or leave image empty." },
+          { status: 400 },
+        );
+      }
+    }
 
     const { error } = await supabaseAdmin.from("event_submissions").insert({
       org_name,
@@ -128,6 +142,7 @@ export async function POST(request: Request) {
       cta,
       bg,
       icon,
+      image_url,
       details: details || null,
       status: "pending",
       staff_notes: null,

@@ -1,22 +1,6 @@
 import Link from "next/link";
+import { eventHeroStyle } from "@/lib/event-hero-style";
 import { supabase } from "@/lib/supabase";
-
-function imageBackground(category: string | null | undefined, bg: string | null | undefined) {
-  if (bg) return bg;
-  const c = (category || "").toLowerCase();
-  if (c.includes("outdoor") || c.includes("nature") || c.includes("coastal"))
-    return "linear-gradient(135deg,#1A3A2A,#2D5A3D)";
-  if (
-    c.includes("food") ||
-    c.includes("drink") ||
-    c.includes("wine") ||
-    c.includes("tasting")
-  )
-    return "linear-gradient(135deg,#2A1A2E,#4A2060)";
-  if (c.includes("well") || c.includes("health") || c.includes("walk"))
-    return "linear-gradient(135deg,#1A2A3A,#2A4060)";
-  return "linear-gradient(135deg,#112250,#1E3A6E)";
-}
 
 function isFreePrice(price: string | null | undefined) {
   if (!price) return false;
@@ -65,7 +49,7 @@ export async function EventsSection() {
                 <div className="relative overflow-hidden">
                   <div
                     className="relative flex h-[220px] items-start justify-end p-4 transition-transform duration-300 group-hover:scale-[1.03] lg:h-[300px]"
-                    style={{ background: imageBackground(featured.category, featured.bg) }}
+                    style={eventHeroStyle(featured.image_url, featured.category, featured.bg)}
                   >
                     <span className="border border-spotlight-cream/20 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-cream/60">
                       {featured.category}
@@ -116,9 +100,7 @@ export async function EventsSection() {
                   <div className="relative h-full min-h-[140px]">
                     <div
                       className="flex h-[140px] items-start justify-end p-4 transition-transform duration-300 group-hover:scale-[1.03] lg:h-full lg:min-h-[140px]"
-                      style={{
-                        background: imageBackground(fourth.category, fourth.bg),
-                      }}
+                      style={eventHeroStyle(fourth.image_url, fourth.category, fourth.bg)}
                     >
                       <span className="border border-spotlight-cream/20 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-cream/60">
                         {fourth.category}
@@ -167,13 +149,14 @@ function EventCardSmall({
   e: {
     id: string;
     name: string;
-    category: string;
+    category: string | null;
     day: string;
     month: string;
     location: string | null;
     time: string | null;
     price: string | null;
     bg: string | null;
+    image_url?: string | null;
   };
   className?: string;
 }) {
@@ -185,7 +168,7 @@ function EventCardSmall({
       <div className="relative overflow-hidden">
         <div
           className="relative flex h-[220px] items-start justify-end p-4 transition-transform duration-300 group-hover:scale-[1.03]"
-          style={{ background: imageBackground(e.category, e.bg) }}
+          style={eventHeroStyle(e.image_url, e.category, e.bg)}
         >
           <span className="border border-spotlight-cream/20 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-cream/60">
             {e.category}

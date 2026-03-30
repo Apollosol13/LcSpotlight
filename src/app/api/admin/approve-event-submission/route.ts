@@ -57,6 +57,7 @@ export async function POST(request: Request) {
         cta: sub.cta ?? "Learn More",
         bg: sub.bg ?? "#1E3A5F",
         icon: sub.icon,
+        image_url: sub.image_url ?? null,
         source: sourceLabel,
       })
       .select("id")

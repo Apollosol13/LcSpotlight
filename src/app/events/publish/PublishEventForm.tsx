@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function normalizeHex(raw: string): string {
   const t = raw.trim();
@@ -23,8 +23,20 @@ export function PublishEventForm() {
   const [cta, setCta] = useState("Learn More");
   const [bg, setBg] = useState("#1E3A5F");
   const [details, setDetails] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!imageFile) {
+      setImagePreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(imageFile);
+    setImagePreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imageFile]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,6 +51,28 @@ export function PublishEventForm() {
     setMessage("");
 
     try {
+      let image_url: string | null = null;
+      if (imageFile) {
+        const fd = new FormData();
+        fd.set("file", imageFile);
+        const up = await fetch("/api/submit-event/upload-image", {
+          method: "POST",
+          body: fd,
+        });
+        const upData = await up.json();
+        if (!up.ok) {
+          setStatus("error");
+          setMessage(upData.error || "Could not upload image.");
+          return;
+        }
+        image_url = typeof upData.url === "string" ? upData.url : null;
+        if (!image_url) {
+          setStatus("error");
+          setMessage("Upload succeeded but no image URL was returned.");
+          return;
+        }
+      }
+
       const res = await fetch("/api/submit-event", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,6 +89,7 @@ export function PublishEventForm() {
           cta: cta.trim() || "Learn More",
           bg: hex,
           details,
+          image_url,
         }),
       });
       const data = await res.json();
@@ -78,6 +113,7 @@ export function PublishEventForm() {
       setCta("Learn More");
       setBg("#1E3A5F");
       setDetails("");
+      setImageFile(null);
     } catch {
       setStatus("error");
       setMessage("Network error. Please try again.");
@@ -149,6 +185,50 @@ export function PublishEventForm() {
           onChange={(e) => setName(e.target.value)}
           className="w-full border border-spotlight-sand bg-spotlight-cream px-4 py-3 text-sm text-spotlight-ink outline-none focus:border-spotlight-teal/40"
         />
+      </div>
+      <div>
+        <label
+          htmlFor="evt-image"
+          className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.12em] text-spotlight-text-muted"
+        >
+          Event image <span className="font-normal normal-case text-spotlight-text-muted/80">(optional)</span>
+        </label>
+        <p className="mb-2 text-[12px] font-light leading-snug text-spotlight-text-muted">
+          JPEG, PNG, WebP, or GIF · max 5 MB. Shown on the calendar card when your event is approved.
+        </p>
+        <input
+          id="evt-image"
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="w-full cursor-pointer border border-spotlight-sand bg-spotlight-cream px-3 py-2.5 text-sm text-spotlight-ink file:mr-3 file:cursor-pointer file:border-0 file:bg-spotlight-navy file:px-3 file:py-1.5 file:text-[11px] file:font-medium file:uppercase file:tracking-wide file:text-spotlight-gold"
+          onChange={(e) => {
+            const f = e.target.files?.[0] ?? null;
+            setImageFile(f);
+          }}
+        />
+        {imagePreview ? (
+          <div className="mt-3 overflow-hidden rounded border border-spotlight-sand bg-spotlight-cream/50">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imagePreview}
+              alt=""
+              className="h-36 w-full object-cover"
+            />
+            <div className="flex justify-end border-t border-spotlight-sand bg-white/40 px-2 py-1.5">
+              <button
+                type="button"
+                className="text-[11px] font-medium text-spotlight-teal no-underline hover:underline"
+                onClick={() => {
+                  setImageFile(null);
+                  const input = document.getElementById("evt-image") as HTMLInputElement | null;
+                  if (input) input.value = "";
+                }}
+              >
+                Remove image
+              </button>
+            </div>
+          </div>
+        ) : null}
       </div>
       <div>
         <label
