@@ -56,8 +56,10 @@ export default function InviteBusinessPage() {
     <>
       <h1 className="mb-1 text-2xl font-semibold text-white">Invite business partner</h1>
       <p className="mb-8 max-w-xl text-sm text-white/40">
-        Sends a Supabase invite for new emails. If the address already exists in Auth, we assign the
-        partner role and—when{" "}
+        Sends a Supabase invite for new emails. Invite and magic links land on{" "}
+        <code className="rounded bg-white/10 px-1 text-white/70">/auth/complete-invite</code> so
+        partners set a password, then go to their dashboard. Add that URL to Supabase Auth → Redirect
+        URLs. If an address already exists in Auth, we assign the partner role and—when{" "}
         <code className="rounded bg-white/10 px-1 text-white/70">RESEND_API_KEY</code> is
         set—email a magic link.
       </p>

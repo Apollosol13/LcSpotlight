@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { Resend } from "resend";
 import { createSupabaseServer } from "@/lib/supabase-auth-server";
 import { getEffectivePortalRole } from "@/lib/portal-role";
+import { authCompleteInviteUrl } from "@/lib/auth-redirect-paths";
 import { getSiteUrlFromRequest } from "@/lib/site-url";
 import { supabaseAdmin } from "@/lib/supabase-server";
 
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     const siteUrl = getSiteUrlFromRequest(req);
-    const redirectTo = `${siteUrl}/login`;
+    const redirectTo = authCompleteInviteUrl(siteUrl);
 
     let inviteUserId: string | null = null;
     let existingAuthUser = false;

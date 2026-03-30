@@ -96,6 +96,9 @@ export default function LoginPage() {
           <p className="mt-2 text-xs text-white/35">
             One login. Staff see site admin + your listings; partners see listings only.
           </p>
+          <p className="mt-2 text-xs text-white/30">
+            Invited as a partner? Use the link in your email (you&apos;ll set your password there).
+          </p>
         </div>
 
         {sessionWithoutRole ? (
