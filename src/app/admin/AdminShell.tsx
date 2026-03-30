@@ -119,13 +119,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       >
         <div className="border-b border-white/5 px-5 py-5 pt-[max(1.25rem,env(safe-area-inset-top))] md:pt-5">
           <Link
-            href="/"
+            href="/admin"
             className="font-serif text-lg text-white no-underline"
             onClick={() => setMobileNavOpen(false)}
           >
             LC<span className="text-spotlight-gold">Spotlight</span>
           </Link>
           <p className="mt-0.5 text-[10px] uppercase tracking-widest text-white/40">Admin</p>
+          <Link
+            href="/"
+            className="mt-2 inline-block text-[11px] text-white/35 no-underline transition hover:text-spotlight-gold"
+            onClick={() => setMobileNavOpen(false)}
+          >
+            View public site →
+          </Link>
         </div>
 
         <nav className="flex-1 space-y-6 overflow-y-auto overscroll-contain px-3 py-4">
