@@ -34,15 +34,15 @@ export default async function AdminDashboard() {
         Manage your LCSpotlight content
       </p>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {cards.map((card) => (
           <a
             key={card.label}
             href={card.href}
-            className="rounded-lg border border-white/10 bg-white/[0.03] p-5 no-underline transition hover:border-spotlight-gold/30 hover:bg-white/[0.05]"
+            className="rounded-lg border border-white/10 bg-white/[0.03] p-6 no-underline transition active:scale-[0.99] hover:border-spotlight-gold/30 hover:bg-white/[0.05] min-[480px]:p-5"
           >
-            <p className="text-3xl font-bold text-white">{card.count}</p>
-            <p className="mt-1 text-sm text-white/50">{card.label}</p>
+            <p className="text-3xl font-bold tabular-nums text-white">{card.count}</p>
+            <p className="mt-2 text-sm leading-snug text-white/50 min-[480px]:mt-1">{card.label}</p>
           </a>
         ))}
       </div>
