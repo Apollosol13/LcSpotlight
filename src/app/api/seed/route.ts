@@ -1,63 +1,11 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-server";
-import { thingsToDoSeedData } from "@/lib/seed-data/things-to-do";
-import { buildDedupeKey, dateKeyFromDayMonth } from "@/lib/events/dedupe";
+import { replaceThingsToDoFromSeed } from "@/lib/seed-data/replace-things-to-do";
 
 const eventsData = [
-  {
-    day: "05",
-    month: "Apr",
-    category: "Music",
-    bg: "#1E3A5F",
-    icon: null,
-    name: "Hilton Head Jazz & Wine Festival",
-    location: "Shelter Cove Marina",
-    time: "6:00 PM",
-    price: "From $45 · General Admission",
-    cta: "Get Tickets",
-    source: "manual",
-    dedupe_key: buildDedupeKey(
-      "Hilton Head Jazz & Wine Festival",
-      dateKeyFromDayMonth("05", "Apr"),
-      "Shelter Cove Marina",
-    ),
-  },
-  {
-    day: "12",
-    month: "Apr",
-    category: "Outdoors",
-    bg: "#1A3A2A",
-    icon: null,
-    name: "Coastal Discovery Museum Plein Air",
-    location: "Sea Pines Forest",
-    time: "9:00 AM",
-    price: "Free Entry",
-    cta: "Learn More",
-    source: "manual",
-    dedupe_key: buildDedupeKey(
-      "Coastal Discovery Museum Plein Air",
-      dateKeyFromDayMonth("12", "Apr"),
-      "Sea Pines Forest",
-    ),
-  },
-  {
-    day: "19",
-    month: "Apr",
-    category: "Food & Drink",
-    bg: "#3A1A2A",
-    icon: null,
-    name: "Savannah Food & Wine Experience",
-    location: "Forsyth Park, Savannah",
-    time: "4:00 PM",
-    price: "From $75 · Tasting Pass",
-    cta: "Get Tickets",
-    source: "manual",
-    dedupe_key: buildDedupeKey(
-      "Savannah Food & Wine Experience",
-      dateKeyFromDayMonth("19", "Apr"),
-      "Forsyth Park, Savannah",
-    ),
-  },
+  { day: "05", month: "Apr", category: "Music", bg: "#1E3A5F", icon: null, name: "Hilton Head Jazz & Wine Festival", location: "Shelter Cove Marina", time: "6:00 PM", price: "From $45 · General Admission", cta: "Get Tickets", source: "manual" },
+  { day: "12", month: "Apr", category: "Outdoors", bg: "#1A3A2A", icon: null, name: "Coastal Discovery Museum Plein Air", location: "Sea Pines Forest", time: "9:00 AM", price: "Free Entry", cta: "Learn More", source: "manual" },
+  { day: "19", month: "Apr", category: "Food & Drink", bg: "#3A1A2A", icon: null, name: "Savannah Food & Wine Experience", location: "Forsyth Park, Savannah", time: "4:00 PM", price: "From $75 · Tasting Pass", cta: "Get Tickets", source: "manual" },
 ];
 
 const newsData = [
@@ -87,10 +35,12 @@ export async function POST() {
   const { error: openingsErr } = await supabaseAdmin.from("openings").upsert(openingsData, { onConflict: "name" });
   results.openings = openingsErr ? openingsErr.message : `${openingsData.length} rows`;
 
-  const { error: thingsErr } = await supabaseAdmin
-    .from("things_to_do")
-    .upsert(thingsToDoSeedData, { onConflict: "title" });
-  results.things_to_do = thingsErr ? thingsErr.message : `${thingsToDoSeedData.length} rows`;
+  const thingsRes = await replaceThingsToDoFromSeed(supabaseAdmin);
+  results.things_to_do = thingsRes.ok
+    ? `deleted ${thingsRes.deleted}, inserted ${thingsRes.inserted}${
+        thingsRes.verifiedCount != null ? `, count=${thingsRes.verifiedCount}` : ""
+      }`
+    : `${thingsRes.stage}: ${thingsRes.error}`;
 
   return NextResponse.json({ seeded: results });
 }

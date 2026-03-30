@@ -4,6 +4,7 @@ import {
   getPublicSupabaseAnonKey,
   getPublicSupabaseUrl,
 } from "@/lib/supabase-env";
+import { getEffectivePortalRole } from "@/lib/portal-role";
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -33,24 +34,42 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
-  const isLoginPage = request.nextUrl.pathname === "/admin/login";
+  const pathname = request.nextUrl.pathname;
+  const isAdminRoute = pathname.startsWith("/admin");
+  const isBusinessRoute = pathname.startsWith("/business");
+  const isAdminLogin = pathname === "/admin/login";
+  const isBusinessLogin = pathname === "/business/login";
 
-  if (isAdminRoute && !isLoginPage && !user) {
+  const redirect = (path: string) => {
     const url = request.nextUrl.clone();
-    url.pathname = "/admin/login";
+    url.pathname = path;
     return NextResponse.redirect(url);
+  };
+
+  if (!user) {
+    if (isAdminRoute && !isAdminLogin) return redirect("/admin/login");
+    if (isBusinessRoute && !isBusinessLogin) return redirect("/business/login");
+    return supabaseResponse;
   }
 
-  if (isLoginPage && user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin";
-    return NextResponse.redirect(url);
+  const role = await getEffectivePortalRole(supabase, user.id);
+
+  if (isAdminLogin) {
+    if (role === "business") return redirect("/business");
+    return redirect("/admin");
   }
+
+  if (isBusinessLogin) {
+    if (role === "admin") return redirect("/admin");
+    return redirect("/business");
+  }
+
+  if (isAdminRoute && role === "business") return redirect("/business");
+  if (isBusinessRoute && role === "admin") return redirect("/admin");
 
   return supabaseResponse;
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/business/:path*"],
 };

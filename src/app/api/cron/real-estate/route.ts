@@ -3,8 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase-server";
 import { scrapeRedfinToSupabase } from "@/lib/scrapers/redfin";
 
 /**
- * Vercel Cron: set CRON_SECRET in project env; Vercel sends Authorization: Bearer <CRON_SECRET>.
- * Schedule hourly in vercel.json (e.g. "0 * * * *").
+ * GET with Authorization: Bearer <CRON_SECRET>. Configure CRON_SECRET in Railway (or local .env).
  */
 export async function GET(req: NextRequest) {
   const auth = req.headers.get("authorization");

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 268 40" role="img" aria-label="LCSpotlight">
+  <text
+    x="0"
+    y="30"
+    fill="#112250"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="28"
+    letter-spacing="0.04em"
+  >
+    <tspan font-weight="700">LC</tspan>
+    <tspan font-weight="400" font-style="italic">Spotlight</tspan>
+  </text>
+</svg>

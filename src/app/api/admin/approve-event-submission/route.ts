@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServer } from "@/lib/supabase-auth-server";
+import { getEffectivePortalRole } from "@/lib/portal-role";
 import { supabaseAdmin } from "@/lib/supabase-server";
 
 export async function POST(request: Request) {
@@ -11,6 +12,10 @@ export async function POST(request: Request) {
     } = await supabaseAuth.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if ((await getEffectivePortalRole(supabaseAuth, user.id)) !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const body = await request.json();
@@ -57,7 +62,6 @@ export async function POST(request: Request) {
         cta: sub.cta ?? "Learn More",
         bg: sub.bg ?? "#1E3A5F",
         icon: sub.icon,
-        image_url: sub.image_url ?? null,
         source: sourceLabel,
       })
       .select("id")

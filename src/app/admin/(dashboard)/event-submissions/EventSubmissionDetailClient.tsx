@@ -18,7 +18,6 @@ export type EventSubmissionRow = {
   price: string | null;
   cta: string | null;
   bg: string | null;
-  image_url?: string | null;
   icon: string | null;
   details: string | null;
   status: string;
@@ -67,7 +66,6 @@ export function EventSubmissionDetailClient({ row }: { row: EventSubmissionRow }
         price: row.price,
         cta: row.cta,
         bg: row.bg,
-        image_url: row.image_url ?? null,
         icon: row.icon,
         details: row.details,
         status,
@@ -206,20 +204,6 @@ export function EventSubmissionDetailClient({ row }: { row: EventSubmissionRow }
           </p>
         ) : null}
       </div>
-
-      {row.image_url ? (
-        <div className="mb-10">
-          <h2 className="mb-3 text-xs font-medium uppercase tracking-wider text-white/40">Submitted image</h2>
-          <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.03]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={row.image_url}
-              alt=""
-              className="max-h-64 w-full object-cover object-center"
-            />
-          </div>
-        </div>
-      ) : null}
 
       {row.details ? (
         <div className="mb-10">

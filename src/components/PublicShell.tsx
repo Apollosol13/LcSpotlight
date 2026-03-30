@@ -6,9 +6,9 @@ import { Footer } from "./Footer";
 
 export function PublicShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith("/admin");
+  const isPortal = pathname.startsWith("/admin") || pathname.startsWith("/business");
 
-  if (isAdmin) {
+  if (isPortal) {
     return <>{children}</>;
   }
 

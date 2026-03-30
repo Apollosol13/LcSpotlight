@@ -12,7 +12,6 @@ const fields: FieldDef[] = [
   { key: "price", label: "Price", placeholder: "Free · From $45" },
   { key: "cta", label: "Button text", placeholder: "Learn More", defaultValue: "Learn More" },
   { key: "bg", label: "Background", type: "color", defaultValue: "#1E3A5F" },
-  { key: "image_url", label: "Image URL", placeholder: "Hero image (from submitter upload)" },
   { key: "icon", label: "Icon", placeholder: "Optional" },
   { key: "details", label: "Details", type: "textarea", placeholder: "Submitter notes" },
   {

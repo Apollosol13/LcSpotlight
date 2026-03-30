@@ -7,6 +7,7 @@ const columns = [
       { label: "Upcoming Events", href: "/events" },
       { label: "New Openings", href: "/openings" },
       { label: "Things To Do", href: "/things-to-do" },
+      { label: "Deals", href: "/deals" },
       { label: "Real Estate", href: "/real-estate" },
       { label: "Buy Tickets", href: "/ticketing" },
     ],
@@ -18,6 +19,7 @@ const columns = [
       { label: "List a Business", href: "#" },
       { label: "Advertise", href: "#" },
       { label: "Submit a Story", href: "/submit-story" },
+      { label: "Business portal", href: "/business/login" },
     ],
   },
   {

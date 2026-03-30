@@ -17,4 +17,5 @@ export type EventRow = {
   image_url?: string | null;
   start_at?: string | null;
   dedupe_key?: string | null;
+  owner_user_id?: string | null;
 };

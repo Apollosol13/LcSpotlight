@@ -13,19 +13,20 @@ const fields: FieldDef[] = [
     required: true,
   },
   { key: "category", label: "Category", placeholder: "Beaches & Parks, Food & Drink…", required: true },
-  { key: "title", label: "Title", placeholder: "Coligny Beach Park", required: true },
+  { key: "title", label: "Title", placeholder: "Your listing title", required: true },
   { key: "description", label: "Description", type: "textarea", placeholder: "Short description…" },
-  { key: "venue", label: "Venue / location", placeholder: "Coligny Beach, HHI" },
+  { key: "venue", label: "Venue / location", placeholder: "Street, city" },
   { key: "website", label: "Website URL", placeholder: "https://…" },
 ];
 
-const columns = ["market_key", "category", "title", "venue", "source"];
+const columns = ["market_key", "category", "title", "venue"];
 
-export default function AdminThingsToDoPage() {
+export default function BusinessThingsToDoPage() {
   return (
     <AdminCrud
+      apiBase="/api/business"
       table="things_to_do"
-      title="Things To Do"
+      title="Your Things To Do"
       fields={fields}
       columns={columns}
     />

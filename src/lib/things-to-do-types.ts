@@ -6,4 +6,6 @@ export type ThingsToDoRow = {
   description: string | null;
   venue: string | null;
   website: string | null;
+  source?: string | null;
+  owner_user_id?: string | null;
 };

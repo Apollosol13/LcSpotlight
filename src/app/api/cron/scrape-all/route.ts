@@ -6,11 +6,10 @@ import { scrapeGoogleNews } from "@/lib/scrapers/google-news";
 import { scrapeRedfinToSupabase } from "@/lib/scrapers/redfin";
 import { replaceThingsToDoFromSeed } from "@/lib/seed-data/replace-things-to-do";
 
-export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  const expectedKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!authHeader || authHeader !== `Bearer ${expectedKey}`) {
+export async function GET(req: NextRequest) {
+  const auth = req.headers.get("authorization");
+  const secret = process.env.CRON_SECRET;
+  if (!secret || auth !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

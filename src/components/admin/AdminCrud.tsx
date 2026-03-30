@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 export interface FieldDef {
   key: string;
   label: string;
-  type?: "text" | "textarea" | "color" | "boolean" | "select";
+  type?: "text" | "textarea" | "color" | "boolean" | "select" | "date";
   placeholder?: string;
   defaultValue?: string | boolean;
   required?: boolean;
@@ -26,6 +26,8 @@ interface AdminCrudProps {
   /** When set, shows a search field; rows match if any listed field contains the query (case-insensitive). */
   searchKeys?: string[];
   searchPlaceholder?: string;
+  /** @default "/api/admin" */
+  apiBase?: string;
 }
 
 export function AdminCrud({
@@ -36,6 +38,7 @@ export function AdminCrud({
   detailBasePath,
   searchKeys,
   searchPlaceholder = "Search…",
+  apiBase = "/api/admin",
 }: AdminCrudProps) {
   const [rows, setRows] = useState<Row[]>([]);
   const [search, setSearch] = useState("");
@@ -48,13 +51,13 @@ export function AdminCrud({
 
   const fetchRows = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/admin/${table}`);
+    const res = await fetch(`${apiBase}/${table}`);
     if (res.ok) {
       const data = await res.json();
       setRows(data);
     }
     setLoading(false);
-  }, [table]);
+  }, [apiBase, table]);
 
   useEffect(() => {
     fetchRows();
@@ -99,7 +102,7 @@ export function AdminCrud({
     const method = editing ? "PUT" : "POST";
     const body = editing ? { ...formData, id: editing.id } : formData;
 
-    const res = await fetch(`/api/admin/${table}`, {
+    const res = await fetch(`${apiBase}/${table}`, {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -120,7 +123,7 @@ export function AdminCrud({
   async function handleDelete(id: string) {
     if (!confirm("Delete this item?")) return;
 
-    await fetch(`/api/admin/${table}`, {
+    await fetch(`${apiBase}/${table}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
@@ -223,6 +226,13 @@ export function AdminCrud({
                     />
                     {f.label}
                   </label>
+                ) : f.type === "date" ? (
+                  <input
+                    type="date"
+                    value={(formData[f.key] as string) ?? ""}
+                    onChange={(e) => updateField(f.key, e.target.value)}
+                    className="w-full rounded border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-spotlight-gold"
+                  />
                 ) : f.type === "color" ? (
                   <div className="flex items-center gap-2">
                     <input

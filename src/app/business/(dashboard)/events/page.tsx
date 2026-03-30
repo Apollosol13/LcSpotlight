@@ -13,13 +13,14 @@ const fields: FieldDef[] = [
   { key: "bg", label: "Background Color", type: "color", defaultValue: "#1E3A5F" },
 ];
 
-const columns = ["name", "category", "day", "month", "location", "source"];
+const columns = ["name", "category", "day", "month", "location", "price"];
 
-export default function AdminEventsPage() {
+export default function BusinessEventsPage() {
   return (
     <AdminCrud
+      apiBase="/api/business"
       table="events"
-      title="Events"
+      title="Your Events"
       fields={fields}
       columns={columns}
     />

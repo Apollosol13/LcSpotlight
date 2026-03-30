@@ -1,10 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-server";
-import { runEventIngest } from "@/lib/events/run-ingest";
+import { scrapeBlufftonEvents } from "@/lib/scrapers/bluffton-events";
+import { scrapeGoogleNews } from "@/lib/scrapers/google-news";
 
-/**
- * Vercel Cron: set CRON_SECRET; schedule e.g. every 6 hours in vercel.json.
- */
 export async function GET(req: NextRequest) {
   const auth = req.headers.get("authorization");
   const secret = process.env.CRON_SECRET;
@@ -12,13 +10,19 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const results: Record<string, unknown> = {};
+
   try {
-    const result = await runEventIngest(supabaseAdmin);
-    return NextResponse.json({ ok: true, ...result });
+    results.blufftonEvents = await scrapeBlufftonEvents(supabaseAdmin);
   } catch (err) {
-    return NextResponse.json(
-      { ok: false, error: err instanceof Error ? err.message : String(err) },
-      { status: 500 },
-    );
+    results.blufftonEvents = { error: String(err) };
   }
+
+  try {
+    results.googleNews = await scrapeGoogleNews(supabaseAdmin);
+  } catch (err) {
+    results.googleNews = { error: String(err) };
+  }
+
+  return NextResponse.json({ scraped: results });
 }

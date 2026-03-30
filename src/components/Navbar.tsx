@@ -9,6 +9,7 @@ const navItems = [
   { href: "/openings", label: "New Openings" },
   { href: "/news", label: "News" },
   { href: "/things-to-do", label: "Things To Do" },
+  { href: "/deals", label: "Deals" },
   { href: "/real-estate", label: "Real Estate" },
   { href: "/ticketing", label: "Tickets" },
 ] as const;
@@ -40,11 +41,33 @@ export function Navbar() {
         className="sticky top-0 z-[100] flex h-14 items-center justify-between gap-4 border-b border-spotlight-sand bg-spotlight-cream px-5 min-[601px]:px-12"
         aria-label="Main"
       >
-        <Link href="/" className="relative z-[2] shrink-0 no-underline">
-          <span className="font-serif text-xl tracking-[0.04em] text-spotlight-navy">
-            <span className="font-bold">LC</span>
-            <em className="font-normal italic text-spotlight-teal">Spotlight</em>
-          </span>
+        <Link
+          href="/"
+          className="relative z-[2] flex shrink-0 items-center text-spotlight-navy no-underline"
+        >
+          <svg
+            className="h-8 w-auto min-[601px]:h-9"
+            viewBox="0 0 268 40"
+            role="img"
+            aria-label="LCSpotlight"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <text
+              x="0"
+              y="30"
+              fill="currentColor"
+              style={{
+                fontFamily: "var(--font-playfair), ui-serif, Georgia, serif",
+                fontSize: "28px",
+                letterSpacing: "0.04em",
+              }}
+            >
+              <tspan fontWeight={700}>LC</tspan>
+              <tspan fontWeight={400} fontStyle="italic">
+                Spotlight
+              </tspan>
+            </text>
+          </svg>
         </Link>
 
         <ul className="m-0 hidden min-h-0 min-w-0 flex-1 list-none flex-wrap items-center justify-end gap-x-6 gap-y-2 p-0 min-[601px]:flex">
