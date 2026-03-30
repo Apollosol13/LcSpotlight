@@ -3,9 +3,27 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { exchangePkceCodeOnce } from "@/lib/exchange-pkce-once";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 
 type Phase = "loading" | "ready" | "error" | "redirecting";
+
+function parseOAuthErrorFromHash(): string | null {
+  if (typeof window === "undefined") return null;
+  const h = window.location.hash;
+  if (!h || h.length < 2) return null;
+  const q = new URLSearchParams(h.slice(1));
+  return q.get("error_description") || q.get("error");
+}
+
+function formatOAuthError(raw: string): string {
+  const normalized = raw.replace(/\+/g, " ");
+  try {
+    return decodeURIComponent(normalized);
+  } catch {
+    return normalized;
+  }
+}
 
 export default function CompleteInvitePage() {
   const router = useRouter();
@@ -22,15 +40,35 @@ export default function CompleteInvitePage() {
     let cancelled = false;
     const client = createSupabaseBrowser();
 
-    async function resolveSession(): Promise<boolean> {
+    function applySessionFromUser(u: { email?: string | null }): void {
+      if (cancelled) return;
+      setEmail(u.email ?? null);
+      setPhase("ready");
+    }
+
+    async function revealSession(): Promise<boolean> {
       const {
         data: { session },
       } = await client.auth.getSession();
-      if (cancelled) return false;
       if (session?.user) {
-        setEmail(session.user.email ?? null);
-        setPhase("ready");
+        applySessionFromUser(session.user);
         return true;
+      }
+      const {
+        data: { user },
+      } = await client.auth.getUser();
+      if (user) {
+        applySessionFromUser(user);
+        return true;
+      }
+      return false;
+    }
+
+    async function waitForSession(maxAttempts = 16, delayMs = 200): Promise<boolean> {
+      for (let i = 0; i < maxAttempts; i++) {
+        if (cancelled) return false;
+        if (await revealSession()) return true;
+        await new Promise((r) => setTimeout(r, delayMs));
       }
       return false;
     }
@@ -43,20 +81,21 @@ export default function CompleteInvitePage() {
         session?.user &&
         (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION")
       ) {
-        setEmail(session.user.email ?? null);
-        setPhase("ready");
+        applySessionFromUser(session.user);
       }
     });
 
     void (async () => {
-      if (await resolveSession()) return;
+      if (await revealSession()) return;
 
       if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search);
-        const errDesc = params.get("error_description") || params.get("error");
+        const inviteHadCode = params.has("code");
+        const fromHash = parseOAuthErrorFromHash();
+        const errDesc = params.get("error_description") || params.get("error") || fromHash;
         if (errDesc) {
           if (!cancelled) {
-            setErrorMessage(errDesc);
+            setErrorMessage(formatOAuthError(errDesc));
             setPhase("error");
           }
           return;
@@ -64,28 +103,34 @@ export default function CompleteInvitePage() {
 
         const code = params.get("code");
         if (code) {
-          const { error } = await client.auth.exchangeCodeForSession(code);
-          if (cancelled) return;
+          const { error } = await exchangePkceCodeOnce(client, code);
           if (error) {
-            setErrorMessage(error.message);
-            setPhase("error");
+            if (!cancelled) {
+              setErrorMessage(error.message);
+              setPhase("error");
+            }
             return;
           }
-          if (await resolveSession()) return;
+          if (await waitForSession()) return;
+        } else {
+          await new Promise((r) => setTimeout(r, 300));
+          if (await waitForSession(10, 250)) return;
         }
+
+        if (!cancelled) {
+          setErrorMessage(
+            !inviteHadCode
+              ? "Open this page from the invitation link in your email (it contains a one-time code). If you bookmarked this page, that won’t work. You can also try Sign in below if you already finished setup."
+              : "We couldn’t finish signing you in (the link may have expired or been used twice). Ask for a new invite or sign in if you already set up your account.",
+          );
+          setPhase("error");
+        }
+        return;
       }
-
-      await new Promise((r) => setTimeout(r, 400));
-      if (cancelled) return;
-      if (await resolveSession()) return;
-
-      await new Promise((r) => setTimeout(r, 400));
-      if (cancelled) return;
-      if (await resolveSession()) return;
 
       if (!cancelled) {
         setErrorMessage(
-          "This link is invalid, expired, or was already used. Ask your contact for a new invite, or sign in if you already have an account.",
+          "Open this page from the invitation link in your email, or go to Sign in if you already have an account.",
         );
         setPhase("error");
       }
