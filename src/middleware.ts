@@ -4,7 +4,7 @@ import {
   getPublicSupabaseAnonKey,
   getPublicSupabaseUrl,
 } from "@/lib/supabase-env";
-import { getEffectivePortalRole } from "@/lib/portal-role";
+import { getPortalAccess } from "@/lib/portal-role";
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -52,20 +52,18 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse;
   }
 
-  const role = await getEffectivePortalRole(supabase, user.id);
+  const access = await getPortalAccess(supabase, user.id);
 
   if (isAdminLogin) {
-    if (role === "business") return redirect("/business");
+    if (access.isPartnerOnly) return redirect("/business");
     return redirect("/admin");
   }
 
   if (isBusinessLogin) {
-    if (role === "admin") return redirect("/admin");
     return redirect("/business");
   }
 
-  if (isAdminRoute && role === "business") return redirect("/business");
-  if (isBusinessRoute && role === "admin") return redirect("/admin");
+  if (isAdminRoute && access.isPartnerOnly) return redirect("/business");
 
   return supabaseResponse;
 }

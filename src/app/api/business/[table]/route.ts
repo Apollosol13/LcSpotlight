@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServer } from "@/lib/supabase-auth-server";
-import { getEffectivePortalRole } from "@/lib/portal-role";
+import { getPortalAccess } from "@/lib/portal-role";
 import { supabaseAdmin } from "@/lib/supabase-server";
 
 const ALLOWED_TABLES = ["events", "things_to_do", "business_discounts"] as const;
@@ -37,16 +37,20 @@ function handleApiError(e: unknown) {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
 
-async function requireBusinessAccount() {
+type BusinessPortalContext = {
+  user: { id: string };
+  db: typeof supabaseAdmin;
+  access: Awaited<ReturnType<typeof getPortalAccess>>;
+};
+
+async function requireBusinessPortalUser(): Promise<BusinessPortalContext> {
   const auth = await createSupabaseServer();
   const {
     data: { user },
   } = await auth.auth.getUser();
   if (!user) throw new Error("Unauthorized");
-  if ((await getEffectivePortalRole(auth, user.id)) !== "business") {
-    throw new Reject(403, "Forbidden");
-  }
-  return { user, db: supabaseAdmin };
+  const access = await getPortalAccess(auth, user.id);
+  return { user, db: supabaseAdmin, access };
 }
 
 function assertTable(table: string): asserts table is AllowedTable {
@@ -72,17 +76,25 @@ async function assertOwnedRow(
   if (!data) throw new Reject(404, "Not found");
 }
 
+async function assertRowExists(db: SupabaseClient, table: AllowedTable, id: string) {
+  const { data, error } = await db.from(table).select("id").eq("id", id).maybeSingle();
+
+  if (error) throw new Reject(500, error.message);
+  if (!data) throw new Reject(404, "Not found");
+}
+
 export async function GET(_req: NextRequest, ctx: RouteContext) {
   const { table } = await ctx.params;
   try {
     assertTable(table);
-    const { user, db } = await requireBusinessAccount();
+    const { user, db, access } = await requireBusinessPortalUser();
 
-    const { data, error } = await db
-      .from(table)
-      .select("*")
-      .eq("owner_user_id", user.id)
-      .order("created_at", { ascending: false });
+    let q = db.from(table).select("*");
+    if (access.isPartnerOnly) {
+      q = q.eq("owner_user_id", user.id);
+    }
+
+    const { data, error } = await q.order("created_at", { ascending: false });
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);
@@ -95,12 +107,22 @@ export async function POST(req: NextRequest, ctx: RouteContext) {
   const { table } = await ctx.params;
   try {
     assertTable(table);
-    const { user, db } = await requireBusinessAccount();
+    const { user, db, access } = await requireBusinessPortalUser();
     const body = (await req.json()) as Record<string, unknown>;
     delete body.id;
+
+    const suppliedOwner =
+      typeof body.owner_user_id === "string" && body.owner_user_id.length > 0
+        ? body.owner_user_id
+        : undefined;
     delete body.owner_user_id;
 
-    let payload: Record<string, unknown> = { ...body, owner_user_id: user.id };
+    let ownerId = user.id;
+    if (!access.isPartnerOnly && suppliedOwner) {
+      ownerId = suppliedOwner;
+    }
+
+    let payload: Record<string, unknown> = { ...body, owner_user_id: ownerId };
 
     if (table === "events") {
       payload = { ...payload, source: "Partner" };
@@ -109,7 +131,7 @@ export async function POST(req: NextRequest, ctx: RouteContext) {
     } else if (table === "business_discounts") {
       payload = {
         ...payload,
-        owner_user_id: user.id,
+        owner_user_id: ownerId,
         updated_at: new Date().toISOString(),
       };
     }
@@ -128,18 +150,29 @@ export async function PUT(req: NextRequest, ctx: RouteContext) {
   const { table } = await ctx.params;
   try {
     assertTable(table);
-    const { user, db } = await requireBusinessAccount();
+    const { user, db, access } = await requireBusinessPortalUser();
     const body = (await req.json()) as Record<string, unknown>;
     const id = typeof body.id === "string" ? body.id : "";
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
 
-    await assertOwnedRow(db, table, id, user.id);
+    if (access.isPartnerOnly) {
+      await assertOwnedRow(db, table, id, user.id);
+    } else {
+      await assertRowExists(db, table, id);
+    }
 
-    const { id: _i, owner_user_id: _o, ...rest } = body;
-    const patch =
-      table === "business_discounts"
-        ? { ...rest, updated_at: new Date().toISOString() }
-        : rest;
+    const ownerIncoming = body.owner_user_id;
+    const { id: _i, owner_user_id: _drop, ...rest } = body;
+    const patch: Record<string, unknown> = {
+      ...rest,
+      ...(table === "business_discounts"
+        ? { updated_at: new Date().toISOString() }
+        : {}),
+    };
+
+    if (!access.isPartnerOnly && typeof ownerIncoming === "string" && ownerIncoming.length > 0) {
+      patch.owner_user_id = ownerIncoming;
+    }
 
     const { data, error } = await db.from(table).update(patch).eq("id", id).select().single();
 
@@ -155,12 +188,16 @@ export async function DELETE(req: NextRequest, ctx: RouteContext) {
   const { table } = await ctx.params;
   try {
     assertTable(table);
-    const { user, db } = await requireBusinessAccount();
+    const { user, db, access } = await requireBusinessPortalUser();
     const { id } = (await req.json()) as { id?: string };
 
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
 
-    await assertOwnedRow(db, table, id, user.id);
+    if (access.isPartnerOnly) {
+      await assertOwnedRow(db, table, id, user.id);
+    } else {
+      await assertRowExists(db, table, id);
+    }
 
     const { error } = await db.from(table).delete().eq("id", id);
 

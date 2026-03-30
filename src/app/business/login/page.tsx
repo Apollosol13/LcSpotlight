@@ -45,11 +45,13 @@ export default function BusinessLoginPage() {
       .eq("user_id", user.id)
       .maybeSingle();
 
-    if (roleRow?.role !== "business") {
+    const role = roleRow?.role;
+    const canUseBusinessPortal =
+      role === "business" || role === "admin" || role === undefined;
+
+    if (!canUseBusinessPortal) {
       await supabase.auth.signOut();
-      setError(
-        "This account does not have business portal access. Use the admin sign-in if you are staff, or contact LCSpotlight for a business invite.",
-      );
+      setError("This account cannot use the business portal. Contact LCSpotlight for access.");
       setLoading(false);
       return;
     }
