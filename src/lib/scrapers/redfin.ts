@@ -98,19 +98,29 @@ async function fetchHomesForRegion(regionId: number): Promise<RedfinHome[]> {
   return json.payload?.homes ?? [];
 }
 
-/** Primary MLS photo on Redfin CDN (matches paths embedded on listing pages). */
+/**
+ * Primary MLS photo on Redfin CDN (matches paths embedded on listing pages).
+ * GA / Savannah use alphanumeric MLS values (e.g. SA348140) in genMid.{id}_1.jpg;
+ * the mbpaddedwide folder uses (digits-only tail % 1000), three-digit padded.
+ */
 function redfinThumbnailUrl(h: RedfinHome): string | null {
   const ds = typeof h.dataSourceId === "number" ? h.dataSourceId : null;
   const mlsRaw = h.mlsId;
-  let mlsNum: number | null = null;
+  let mlsToken: string | null = null;
   if (mlsRaw && typeof mlsRaw === "object" && mlsRaw !== null && "value" in mlsRaw) {
     const v = (mlsRaw as { value?: unknown }).value;
-    if (typeof v === "string" && /^\d+$/.test(v)) mlsNum = parseInt(v, 10);
-    else if (typeof v === "number" && Number.isFinite(v)) mlsNum = v;
+    if (typeof v === "string" && v.trim()) mlsToken = v.trim();
+    else if (typeof v === "number" && Number.isFinite(v)) mlsToken = String(v);
   }
-  if (ds == null || mlsNum == null) return null;
-  const dir = String(mlsNum % 1000).padStart(3, "0");
-  return `https://ssl.cdn-redfin.com/photo/${ds}/mbpaddedwide/${dir}/genMid.${mlsNum}_1.jpg`;
+  if (ds == null || mlsToken == null) return null;
+
+  const digitsOnly = mlsToken.replace(/\D/g, "");
+  if (!digitsOnly) return null;
+  const bucket = parseInt(digitsOnly, 10);
+  if (!Number.isFinite(bucket)) return null;
+  const dir = String(bucket % 1000).padStart(3, "0");
+
+  return `https://ssl.cdn-redfin.com/photo/${ds}/mbpaddedwide/${dir}/genMid.${mlsToken}_1.jpg`;
 }
 
 function homeToListingRow(
