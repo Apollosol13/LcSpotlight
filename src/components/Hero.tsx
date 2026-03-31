@@ -80,42 +80,38 @@ export function Hero() {
       <div className="grid min-h-0 grid-rows-2 gap-0.5 bg-spotlight-sand">
         <Link
           href="/real-estate"
-          className="group relative flex h-full min-h-[220px] flex-col overflow-hidden bg-spotlight-teal no-underline transition-colors hover:bg-[#2a3d66] lg:min-h-0"
+          className="group relative block h-full min-h-[220px] overflow-hidden no-underline lg:min-h-0"
         >
-          <div className="relative min-h-[130px] w-full shrink-0 basis-[42%] lg:min-h-[140px]">
-            <Image
-              src="/hero-market-snapshot.jpg"
-              alt="Screened porch overlooking Lowcountry water at sunset"
-              fill
-              className="object-cover"
-              sizes="(max-width: 1023px) 100vw, 50vw"
-            />
-            <div
-              className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-spotlight-teal/95"
-              aria-hidden
-            />
-          </div>
-          <div className="relative flex flex-1 flex-col justify-end p-8 pt-5 min-[601px]:p-8 min-[601px]:pt-6">
-            <span className="absolute right-7 top-5 text-lg font-light text-spotlight-gold/50 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100 min-[601px]:top-6">
-              →
-            </span>
-            <div>
-              <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.2em] text-spotlight-gold/75">
-                Market snapshot
-              </p>
-              <p className="mb-3 font-serif text-[clamp(1.35rem,3vw,1.75rem)] font-bold leading-[1.1] text-spotlight-cream">
-                HHI median hits{" "}
-                <span className="text-spotlight-gold">$748K</span> — up 4.2%
-                year over year.
-              </p>
-              <p className="text-[11px] font-light tracking-[0.04em] text-spotlight-cream/50">
-                {new Date().toLocaleDateString("en-US", {
-                  month: "long",
-                  year: "numeric",
-                })}{" "}
-                · Real estate
-              </p>
-            </div>
+          <Image
+            src="/hero-market-snapshot.jpg"
+            alt="Screened porch overlooking Lowcountry water at sunset"
+            fill
+            className="object-cover transition-[filter,transform] duration-300 ease-out group-hover:brightness-[0.92]"
+            sizes="(max-width: 1023px) 100vw, 50vw"
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/82 via-black/35 to-black/15"
+            aria-hidden
+          />
+          <span className="absolute right-7 top-7 z-[2] text-lg font-light text-white/45 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white/70">
+            →
+          </span>
+          <div className="absolute inset-x-0 bottom-0 z-[2] p-8 min-[601px]:p-8">
+            <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.2em] text-spotlight-gold/90">
+              Market snapshot
+            </p>
+            <p className="mb-3 font-serif text-[clamp(1.35rem,3vw,1.75rem)] font-bold leading-[1.1] text-white">
+              HHI median hits{" "}
+              <span className="text-spotlight-gold">$748K</span> — up 4.2%
+              year over year.
+            </p>
+            <p className="text-[11px] font-light tracking-[0.04em] text-white/65">
+              {new Date().toLocaleDateString("en-US", {
+                month: "long",
+                year: "numeric",
+              })}{" "}
+              · Real estate
+            </p>
           </div>
         </Link>
 
