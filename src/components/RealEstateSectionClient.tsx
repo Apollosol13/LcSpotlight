@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { REAL_ESTATE_MARKETS, type RealEstateMarketKey } from "@/lib/real-estate-markets";
 
 export type { RealEstateMarketKey };
@@ -18,6 +18,8 @@ export type RealEstateListingCard = {
   href: string | null;
   photo_url: string | null;
 };
+
+const EMPTY_LISTINGS: RealEstateListingCard[] = [];
 
 export type RealEstateStatsCard = {
   median_price_display: string;
@@ -80,15 +82,16 @@ export function RealEstateSectionClient({
   const [minPriceInput, setMinPriceInput] = useState("");
   const [maxPriceInput, setMaxPriceInput] = useState("");
 
-  useEffect(() => {
+  function selectMarket(key: RealEstateMarketKey) {
+    setActive(key);
     setMinPriceInput("");
     setMaxPriceInput("");
     setSortOrder("high-low");
-  }, [active]);
+  }
 
   const m = markets[active];
   const stats = m.stats ?? emptyStats;
-  const listings = m.listings.length ? m.listings : [];
+  const listings = m.listings.length ? m.listings : EMPTY_LISTINGS;
 
   const visibleListings = useMemo(() => {
     if (!showListings) return [];
@@ -164,7 +167,7 @@ export function RealEstateSectionClient({
             <button
               key={t.key}
               type="button"
-              onClick={() => setActive(t.key)}
+              onClick={() => selectMarket(t.key)}
               className={`-mb-px border-b-2 px-4 py-3 text-[10px] font-normal uppercase tracking-[0.14em] transition-colors min-[601px]:px-6 ${
                 active === t.key
                   ? "border-spotlight-gold text-spotlight-navy"
@@ -319,7 +322,7 @@ export function RealEstateSectionClient({
             ) : (
               <div className="flex flex-col gap-2">
                 {visibleListings.map((l) => (
-                  <ListingCard key={l.id} listing={l} />
+                  <ListingCard key={`${l.id}:${l.photo_url ?? ""}`} listing={l} />
                 ))}
               </div>
             )}
@@ -332,10 +335,6 @@ export function RealEstateSectionClient({
 
 function ListingCard({ listing: l }: { listing: RealEstateListingCard }) {
   const [photoFailed, setPhotoFailed] = useState(false);
-
-  useEffect(() => {
-    setPhotoFailed(false);
-  }, [l.id, l.photo_url]);
 
   const showPhoto = Boolean(l.photo_url) && !photoFailed;
   const photoPlaceholder = (
