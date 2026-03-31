@@ -117,19 +117,30 @@ export function Hero() {
 
         <Link
           href="/events"
-          className="group relative flex h-full min-h-[240px] flex-col justify-end overflow-hidden bg-white p-8 no-underline transition-colors hover:bg-spotlight-cream min-[601px]:p-8 lg:min-h-0"
+          className="group relative block h-full min-h-[220px] overflow-hidden no-underline lg:min-h-0"
         >
-          <span className="absolute right-7 top-7 text-lg font-light text-spotlight-teal/50 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100">
+          <Image
+            src="/hero-featured-event.jpg"
+            alt="Wine and live jazz at an outdoor Lowcountry evening event"
+            fill
+            className="object-cover transition-[filter] duration-300 ease-out group-hover:brightness-[0.92]"
+            sizes="(max-width: 1023px) 100vw, 50vw"
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/82 via-black/35 to-black/15"
+            aria-hidden
+          />
+          <span className="absolute right-7 top-7 z-[2] text-lg font-light text-white/45 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white/70">
             →
           </span>
-          <div>
-            <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.2em] text-spotlight-teal">
+          <div className="absolute inset-x-0 bottom-0 z-[2] p-8 min-[601px]:p-8">
+            <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.2em] text-spotlight-gold/90">
               Featured event
             </p>
-            <p className="mb-3 font-serif text-[clamp(1.35rem,3vw,1.75rem)] font-bold leading-[1.1] text-spotlight-navy">
+            <p className="mb-3 font-serif text-[clamp(1.35rem,3vw,1.75rem)] font-bold leading-[1.1] text-white">
               Jazz &amp; Wine Festival returns to Shelter Cove Marina.
             </p>
-            <p className="text-[11px] font-light tracking-[0.04em] text-spotlight-teal/60">
+            <p className="text-[11px] font-light tracking-[0.04em] text-white/65">
               April 5 · From $45
             </p>
           </div>
