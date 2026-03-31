@@ -109,7 +109,7 @@ function redfinThumbnailUrl(h: RedfinHome): string | null {
     else if (typeof v === "number" && Number.isFinite(v)) mlsNum = v;
   }
   if (ds == null || mlsNum == null) return null;
-  const dir = mlsNum % 1000;
+  const dir = String(mlsNum % 1000).padStart(3, "0");
   return `https://ssl.cdn-redfin.com/photo/${ds}/mbpaddedwide/${dir}/genMid.${mlsNum}_1.jpg`;
 }
 

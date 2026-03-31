@@ -331,21 +331,34 @@ export function RealEstateSectionClient({
 }
 
 function ListingCard({ listing: l }: { listing: RealEstateListingCard }) {
+  const [photoFailed, setPhotoFailed] = useState(false);
+
+  useEffect(() => {
+    setPhotoFailed(false);
+  }, [l.id, l.photo_url]);
+
+  const showPhoto = Boolean(l.photo_url) && !photoFailed;
+  const photoPlaceholder = (
+    <div className="flex h-full items-center justify-center px-4 text-center text-[10px] font-medium uppercase tracking-[0.16em] text-spotlight-teal/35">
+      {l.href ? "Photo on Redfin" : "No photo"}
+    </div>
+  );
+
   const cardInner = (
     <div className="flex flex-col gap-4 min-[480px]:flex-row min-[480px]:items-stretch">
       <div className="relative h-48 w-full shrink-0 overflow-hidden bg-[#e8e4dc] min-[480px]:h-44 min-[480px]:w-56">
-        {l.photo_url ? (
+        {showPhoto ? (
           <Image
-            src={l.photo_url}
+            src={l.photo_url!}
             alt=""
             fill
             className="object-cover"
             sizes="(max-width: 480px) 100vw, 224px"
+            unoptimized
+            onError={() => setPhotoFailed(true)}
           />
         ) : (
-          <div className="flex h-full items-center justify-center px-4 text-center text-[10px] font-medium uppercase tracking-[0.16em] text-spotlight-teal/35">
-            {l.href ? "Photo on Redfin" : "No photo"}
-          </div>
+          photoPlaceholder
         )}
       </div>
       <div className="flex min-w-0 flex-1 flex-col justify-center py-0 min-[480px]:py-2">
