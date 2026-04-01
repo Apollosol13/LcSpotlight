@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { redfinPhotoUrlCandidates } from "@/lib/redfin-photo";
 import { REAL_ESTATE_MARKETS, type RealEstateMarketKey } from "@/lib/real-estate-markets";
 
 export type { RealEstateMarketKey };
@@ -17,6 +18,8 @@ export type RealEstateListingCard = {
   detail: string;
   href: string | null;
   photo_url: string | null;
+  /** Redfin listing id — used to try alternate CDN folder when primary image 404s */
+  source_listing_id: string | null;
 };
 
 const EMPTY_LISTINGS: RealEstateListingCard[] = [];
@@ -322,7 +325,10 @@ export function RealEstateSectionClient({
             ) : (
               <div className="flex flex-col gap-2">
                 {visibleListings.map((l) => (
-                  <ListingCard key={`${l.id}:${l.photo_url ?? ""}`} listing={l} />
+                  <ListingCard
+                    key={`${l.id}:${l.photo_url ?? ""}:${l.source_listing_id ?? ""}`}
+                    listing={l}
+                  />
                 ))}
               </div>
             )}
@@ -334,9 +340,14 @@ export function RealEstateSectionClient({
 }
 
 function ListingCard({ listing: l }: { listing: RealEstateListingCard }) {
-  const [photoFailed, setPhotoFailed] = useState(false);
+  const photoCandidates = useMemo(
+    () => redfinPhotoUrlCandidates(l.photo_url, l.source_listing_id),
+    [l.photo_url, l.source_listing_id],
+  );
+  const [candidateIdx, setCandidateIdx] = useState(0);
+  const activeSrc = photoCandidates[candidateIdx] ?? null;
+  const showPhoto = Boolean(activeSrc);
 
-  const showPhoto = Boolean(l.photo_url) && !photoFailed;
   const photoPlaceholder = (
     <div className="flex h-full items-center justify-center px-4 text-center text-[10px] font-medium uppercase tracking-[0.16em] text-spotlight-teal/35">
       {l.href ? "Photo on Redfin" : "No photo"}
@@ -348,13 +359,16 @@ function ListingCard({ listing: l }: { listing: RealEstateListingCard }) {
       <div className="relative h-48 w-full shrink-0 overflow-hidden bg-[#e8e4dc] min-[480px]:h-44 min-[480px]:w-56">
         {showPhoto ? (
           <Image
-            src={l.photo_url!}
+            src={activeSrc!}
+            key={activeSrc}
             alt=""
             fill
             className="object-cover"
             sizes="(max-width: 480px) 100vw, 224px"
             unoptimized
-            onError={() => setPhotoFailed(true)}
+            onError={() => {
+              setCandidateIdx((i) => i + 1);
+            }}
           />
         ) : (
           photoPlaceholder
@@ -404,5 +418,6 @@ const PLACEHOLDER_LISTINGS: RealEstateListingCard[] = [
     detail: "Trigger POST /api/scrape with your service key or wait for cron",
     href: null,
     photo_url: null,
+    source_listing_id: null,
   },
 ];

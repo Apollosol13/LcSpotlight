@@ -79,7 +79,7 @@ export async function RealEstateSection({
       const { data: listingRows } = await supabase
         .from("real_estate_listings")
         .select(
-          "id, property_type, price, beds, baths, sqft, address_line, city, state, redfin_path, photo_url",
+          "id, property_type, price, beds, baths, sqft, address_line, city, state, redfin_path, photo_url, source_listing_id",
         )
         .eq("market_key", m.key)
         .not("price", "is", null)
@@ -90,6 +90,8 @@ export async function RealEstateSection({
       listings = (listingRows ?? []).map((r) => {
         const addr =
           [r.address_line, r.city, r.state].filter(Boolean).join(", ") || "Address on Redfin";
+        const rawPhoto =
+          typeof r.photo_url === "string" ? r.photo_url.trim() : "";
         return {
           id: r.id,
           property_type: r.property_type,
@@ -98,8 +100,11 @@ export async function RealEstateSection({
           address: addr,
           detail: listingDetail(r.beds, r.baths, r.sqft),
           href: redfinUrl(r.redfin_path),
-          photo_url:
-            typeof r.photo_url === "string" && r.photo_url.startsWith("http") ? r.photo_url : null,
+          photo_url: rawPhoto.startsWith("http") ? rawPhoto : null,
+          source_listing_id:
+            typeof r.source_listing_id === "string" && r.source_listing_id.trim()
+              ? r.source_listing_id.trim()
+              : null,
         };
       });
     }
