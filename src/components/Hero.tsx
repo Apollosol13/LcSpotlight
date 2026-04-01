@@ -21,11 +21,11 @@ export function Hero({ hhiMedianDisplay, hhiActiveListingsDisplay }: HeroProps) 
       {/* Left — photo + royal overlay */}
       <div className="relative flex min-h-[min(50vh,520px)] flex-col justify-between overflow-hidden bg-spotlight-navy px-8 pb-12 pt-14 min-[601px]:min-h-0 min-[601px]:px-12 min-[601px]:pb-16 min-[601px]:pt-[4.5rem]">
         <Image
-          src="/lc-spotlight-hero.jpg"
-          alt=""
+          src="/lc-spotlight-hero.png"
+          alt="Aerial view of coastal marsh and tidal waterways in the Lowcountry"
           fill
           priority
-          className="object-cover"
+          className="object-cover object-center"
           sizes="(max-width: 1023px) 100vw, 50vw"
         />
         <div
