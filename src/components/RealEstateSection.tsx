@@ -30,6 +30,45 @@ function redfinUrl(path: string | null): string | null {
   return `https://www.redfin.com${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+/** One row per Redfin listing — DB can still hold duplicates when legacy + GIS rows overlap. */
+type ListingRow = {
+  id: string;
+  property_type: string | null;
+  price: number | null;
+  beds: number | null;
+  baths: number | null;
+  sqft: number | null;
+  address_line: string | null;
+  city: string | null;
+  state: string | null;
+  redfin_path: string | null;
+  photo_url: string | null;
+  source_listing_id: string | null;
+  updated_at: string;
+};
+
+function dedupeListingRows(rows: ListingRow[]): ListingRow[] {
+  const byKey = new Map<string, ListingRow>();
+  for (const r of rows) {
+    const sid =
+      typeof r.source_listing_id === "string" && r.source_listing_id.trim()
+        ? r.source_listing_id.trim()
+        : "";
+    const pathKey =
+      typeof r.redfin_path === "string" && r.redfin_path.trim() ? r.redfin_path.trim() : "";
+    const key = sid ? `sid:${sid}` : pathKey ? `path:${pathKey}` : `id:${r.id}`;
+    const prev = byKey.get(key);
+    if (!prev) {
+      byKey.set(key, r);
+      continue;
+    }
+    const prevT = new Date(prev.updated_at).getTime();
+    const nextT = new Date(r.updated_at).getTime();
+    if (nextT >= prevT) byKey.set(key, r);
+  }
+  return Array.from(byKey.values());
+}
+
 type RealEstateSectionProps = {
   showFullReportsLink?: boolean;
   /** Cap rows loaded per market (scraper stores up to ~350 each). Only used when showListings is true. */
@@ -56,16 +95,20 @@ export async function RealEstateSection({
       const { data: listingRows } = await supabase
         .from("real_estate_listings")
         .select(
-          "id, property_type, price, beds, baths, sqft, address_line, city, state, redfin_path, photo_url, source_listing_id",
+          "id, property_type, price, beds, baths, sqft, address_line, city, state, redfin_path, photo_url, source_listing_id, updated_at",
         )
         .eq("market_key", m.key)
         .is("removed_at", null)
         .not("price", "is", null)
         .gt("price", 0)
         .order("price", { ascending: false })
-        .limit(maxListingsPerMarket);
+        .limit(Math.min(maxListingsPerMarket * 3, 3000));
 
-      listings = (listingRows ?? []).map((r) => {
+      const uniqueRows = dedupeListingRows((listingRows ?? []) as ListingRow[])
+        .sort((a, b) => (b.price ?? 0) - (a.price ?? 0))
+        .slice(0, maxListingsPerMarket);
+
+      listings = uniqueRows.map((r) => {
         const addr =
           [r.address_line, r.city, r.state].filter(Boolean).join(", ") || "Address on Redfin";
         const rawPhoto =

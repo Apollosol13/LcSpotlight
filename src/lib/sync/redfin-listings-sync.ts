@@ -23,6 +23,21 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return out;
 }
 
+/** Avoid "137 Cordillo Pkwy #8005 #8005" when Redfin repeats unit on street + unit field. */
+function joinStreetAndUnit(street: string, unit: string): string | null {
+  const s = street.trim();
+  const u = unit.trim();
+  if (!s && !u) return null;
+  if (!u) return s || null;
+  if (!s) return u;
+  const sLower = s.toLowerCase();
+  const uLower = u.toLowerCase();
+  if (sLower.endsWith(uLower)) return s;
+  const uNoHash = uLower.replace(/^#/, "");
+  if (uNoHash && (sLower.endsWith(`#${uNoHash}`) || sLower.endsWith(` ${uNoHash}`))) return s;
+  return `${s} ${u}`.trim();
+}
+
 async function fetchHomesForRegion(regionId: number): Promise<RedfinHome[]> {
   const url = new URL(GIS_URL);
   url.searchParams.set("al", "1");
@@ -79,7 +94,7 @@ function homeToRow(marketKey: string, h: RedfinHome): Record<string, unknown> | 
 
   const street = pickStr(h.streetLine) ?? "";
   const unit = pickStr(h.unitNumber) ?? "";
-  const addressLine = [street, unit].filter(Boolean).join(" ").trim() || null;
+  const addressLine = joinStreetAndUnit(street, unit);
 
   const ll = pickLatLong(h.latLong);
   const zip =
