@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { exchangePkceCodeOnce } from "@/lib/exchange-pkce-once";
-import { createSupabaseBrowser } from "@/lib/supabase-browser";
+import { useEffect, useMemo, useState } from "react";
+import { createAuthCallbackBrowserClient } from "@/lib/supabase-browser";
 
 type Phase = "loading" | "ready" | "error" | "redirecting";
 
@@ -27,7 +26,8 @@ function formatOAuthError(raw: string): string {
 
 export default function CompleteInvitePage() {
   const router = useRouter();
-  const supabase = createSupabaseBrowser();
+  /** PKCE if `?code=`; implicit if `#access_token=` — must match or GoTrue rejects the invite redirect. */
+  const supabase = useMemo(() => createAuthCallbackBrowserClient(), []);
   const [phase, setPhase] = useState<Phase>("loading");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
@@ -38,7 +38,7 @@ export default function CompleteInvitePage() {
 
   useEffect(() => {
     let cancelled = false;
-    const client = createSupabaseBrowser();
+    const client = supabase;
 
     function applySessionFromUser(u: { email?: string | null }): void {
       if (cancelled) return;
@@ -64,7 +64,7 @@ export default function CompleteInvitePage() {
       return false;
     }
 
-    async function waitForSession(maxAttempts = 16, delayMs = 200): Promise<boolean> {
+    async function waitForSession(maxAttempts = 40, delayMs = 200): Promise<boolean> {
       for (let i = 0; i < maxAttempts; i++) {
         if (cancelled) return false;
         if (await revealSession()) return true;
@@ -90,7 +90,11 @@ export default function CompleteInvitePage() {
 
       if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search);
-        const inviteHadCode = params.has("code");
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+        const inviteHadAuthParams =
+          params.has("code") ||
+          Boolean(hashParams.get("access_token")) ||
+          Boolean(hashParams.get("error_description") || hashParams.get("error"));
         const fromHash = parseOAuthErrorFromHash();
         const errDesc = params.get("error_description") || params.get("error") || fromHash;
         if (errDesc) {
@@ -101,25 +105,14 @@ export default function CompleteInvitePage() {
           return;
         }
 
-        const code = params.get("code");
-        if (code) {
-          const { error } = await exchangePkceCodeOnce(client, code);
-          if (error) {
-            if (!cancelled) {
-              setErrorMessage(error.message);
-              setPhase("error");
-            }
-            return;
-          }
-          if (await waitForSession()) return;
-        } else {
-          await new Promise((r) => setTimeout(r, 300));
-          if (await waitForSession(10, 250)) return;
-        }
+        // PKCE and implicit callbacks are handled inside the Supabase client init when
+        // flowType matches the URL; wait for cookies/session to settle.
+        await new Promise((r) => setTimeout(r, 100));
+        if (await waitForSession()) return;
 
         if (!cancelled) {
           setErrorMessage(
-            !inviteHadCode
+            !inviteHadAuthParams
               ? "Open this page from the invitation link in your email (it contains a one-time code). If you bookmarked this page, that won’t work. You can also try Sign in below if you already finished setup."
               : "We couldn’t finish signing you in (the link may have expired or been used twice). Ask for a new invite or sign in if you already set up your account.",
           );
@@ -140,7 +133,7 @@ export default function CompleteInvitePage() {
       cancelled = true;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [supabase]);
 
   async function redirectByRole(): Promise<boolean> {
     const {
