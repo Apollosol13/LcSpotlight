@@ -73,7 +73,7 @@ export async function POST(request: Request) {
       const { data: sendData, error: sendErr } = await resend.emails.send({
         from,
         to: normalized,
-        subject: "You're Subscribed -- LcSpotlight",
+        subject: "You're Subscribed — LcSpotlight",
         html: `
           <p>Thanks for subscribing to <strong>LcSpotlight</strong>.</p>
           <p>You’ll get events, openings, deals, and local news — we send on Thursdays.</p>
