@@ -2,13 +2,6 @@ import { supabase } from "@/lib/supabase";
 import type { RealEstateStatsCard } from "@/components/RealEstateSectionClient";
 import { REAL_ESTATE_MARKETS } from "@/lib/real-estate-markets";
 
-function medianSorted(nums: number[]): number {
-  if (!nums.length) return 0;
-  const s = [...nums].sort((a, b) => a - b);
-  const m = Math.floor(s.length / 2);
-  return s.length % 2 ? s[m]! : Math.round((s[m - 1]! + s[m]!) / 2);
-}
-
 function formatPrice(n: number): string {
   if (!n) return "—";
   if (n >= 1_000_000) {
@@ -21,50 +14,76 @@ function formatPrice(n: number): string {
   return `$${n}`;
 }
 
+function emptyStatsCard(): RealEstateStatsCard {
+  return {
+    median_price_display: "—",
+    median_dom_display: "—",
+    active_listings_display: "—",
+    avg_price_per_sqft_display: "—",
+    price_subtext: "Median · active listings",
+    dom_subtext: "Median days on Redfin",
+    listings_subtext: "Active listings (Redfin sync)",
+    ratio_subtext: "Avg $/sqft",
+  };
+}
+
+type MarketStatRow = {
+  market_key: string;
+  active_count: number;
+  median_price: number | string | null;
+  median_dom: number | string | null;
+  avg_price_per_sqft: number | string | null;
+};
+
 /**
- * Median list price, median DOM, active count, avg $/sqft from live rows (removed_at IS NULL).
+ * Median list price, median DOM, active count, avg $/sqft via Postgres aggregates
+ * (see migration `get_real_estate_market_stats`). No client row cap.
  */
 export async function buildLiveMarketStatsMap(): Promise<Map<string, RealEstateStatsCard>> {
-  const keys = REAL_ESTATE_MARKETS.map((m) => m.key);
-  const { data: rows, error } = await supabase
-    .from("real_estate_listings")
-    .select("market_key, price, dom, sqft")
-    .in("market_key", keys)
-    .is("removed_at", null);
+  const { data, error } = await supabase.rpc("get_real_estate_market_stats");
 
   if (error) {
-    if (error.code !== "42703") {
-      console.error("buildLiveMarketStatsMap", error);
+    if (error.code !== "PGRST202") {
+      console.error("get_real_estate_market_stats", error);
     }
-    return new Map();
+    const fallback = new Map<string, RealEstateStatsCard>();
+    for (const m of REAL_ESTATE_MARKETS) {
+      fallback.set(m.key, emptyStatsCard());
+    }
+    return fallback;
+  }
+
+  const byKey = new Map<string, MarketStatRow>();
+  for (const r of (data ?? []) as MarketStatRow[]) {
+    if (r?.market_key) byKey.set(r.market_key, r);
   }
 
   const out = new Map<string, RealEstateStatsCard>();
 
   for (const m of REAL_ESTATE_MARKETS) {
-    const marketRows = (rows ?? []).filter((r) => r.market_key === m.key);
-    const prices: number[] = [];
-    const doms: number[] = [];
-    const pps: number[] = [];
-
-    for (const r of marketRows) {
-      const p = typeof r.price === "number" ? r.price : null;
-      const d = typeof r.dom === "number" ? r.dom : null;
-      const sq = typeof r.sqft === "number" ? r.sqft : null;
-      if (p != null && p > 0) prices.push(p);
-      if (d != null && d >= 0) doms.push(d);
-      if (p != null && p > 0 && sq != null && sq > 0) pps.push(Math.round(p / sq));
+    const row = byKey.get(m.key);
+    if (!row) {
+      out.set(m.key, emptyStatsCard());
+      continue;
     }
 
-    const medianPrice = medianSorted(prices);
-    const medianDom = medianSorted(doms);
-    const avgPps = pps.length ? Math.round(pps.reduce((a, b) => a + b, 0) / pps.length) : 0;
+    const medPrice =
+      row.median_price != null ? Number(row.median_price) : NaN;
+    const medDom =
+      row.median_dom != null ? Number(row.median_dom) : NaN;
+    const avgPps =
+      row.avg_price_per_sqft != null ? Number(row.avg_price_per_sqft) : NaN;
+    const active =
+      row.active_count != null ? Number(row.active_count) : 0;
 
     out.set(m.key, {
-      median_price_display: prices.length ? formatPrice(medianPrice) : "—",
-      median_dom_display: doms.length ? String(medianDom) : "—",
-      active_listings_display: String(marketRows.length),
-      avg_price_per_sqft_display: avgPps ? `$${avgPps}` : "—",
+      median_price_display:
+        Number.isFinite(medPrice) && medPrice > 0 ? formatPrice(medPrice) : "—",
+      median_dom_display:
+        Number.isFinite(medDom) && medDom >= 0 ? String(Math.round(medDom)) : "—",
+      active_listings_display: String(active),
+      avg_price_per_sqft_display:
+        Number.isFinite(avgPps) && avgPps > 0 ? `$${Math.round(avgPps)}` : "—",
       price_subtext: "Median · active listings",
       dom_subtext: "Median days on Redfin",
       listings_subtext: "Active listings (Redfin sync)",
