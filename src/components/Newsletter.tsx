@@ -18,7 +18,12 @@ export function Newsletter() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-      const data = await res.json();
+      const data = (await res.json()) as {
+        message?: string;
+        error?: string;
+        welcomeSent?: boolean;
+        welcomeSkippedReason?: string | null;
+      };
 
       if (!res.ok) {
         setStatus("error");
@@ -27,7 +32,11 @@ export function Newsletter() {
       }
 
       setStatus("success");
-      setMessage(data.message);
+      let msg = data.message ?? "You're on the list!";
+      if (data.welcomeSent) {
+        msg += " Check your inbox for a confirmation.";
+      }
+      setMessage(msg);
       setEmail("");
     } catch {
       setStatus("error");
