@@ -80,3 +80,46 @@ body {
   font-size: 15px;
   line-height: 1.6;
 }
+
+/* Real estate price filter: dual range — custom track is drawn behind; native thumbs only */
+.re-price-dual-slider input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+}
+.re-price-dual-slider input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  background: transparent;
+  border-radius: 9999px;
+}
+.re-price-dual-slider input[type="range"]::-moz-range-track {
+  height: 6px;
+  background: transparent;
+  border-radius: 9999px;
+}
+.re-price-dual-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  border-radius: 9999px;
+  border: 2px solid var(--royal-blue);
+  background: var(--white);
+  box-shadow: 0 1px 3px rgba(17, 34, 80, 0.2);
+  cursor: pointer;
+}
+.re-price-dual-slider input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  border: 2px solid var(--royal-blue);
+  background: var(--white);
+  box-shadow: 0 1px 3px rgba(17, 34, 80, 0.2);
+  cursor: pointer;
+}

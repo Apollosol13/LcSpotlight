@@ -92,12 +92,110 @@ function formatPriceRangeLabel(minStr: string, maxStr: string): string {
   return `Up to ${formatUsdShort(maxB!)}`;
 }
 
-const PRICE_RANGE_PRESETS: { label: string; min: string; max: string }[] = [
-  { label: "Under $500K", min: "", max: "500000" },
-  { label: "$500K – $1M", min: "500000", max: "1000000" },
-  { label: "$1M – $2M", min: "1000000", max: "2000000" },
-  { label: "$2M+", min: "2000000", max: "" },
-];
+/** Slider domain: $0 (no min) … $5M (no max). Step keeps thumbs aligned to round amounts. */
+const PRICE_SLIDER_MAX = 5_000_000;
+const PRICE_SLIDER_STEP = 25_000;
+
+function minStrToSliderValue(minStr: string): number {
+  const b = parsePriceBound(minStr);
+  if (b == null) return 0;
+  return Math.min(Math.max(0, b), PRICE_SLIDER_MAX);
+}
+
+function maxStrToSliderValue(maxStr: string): number {
+  const b = parsePriceBound(maxStr);
+  if (b == null) return PRICE_SLIDER_MAX;
+  return Math.min(Math.max(0, b), PRICE_SLIDER_MAX);
+}
+
+function PriceRangeDualSlider({
+  minStr,
+  maxStr,
+  onMinChange,
+  onMaxChange,
+}: {
+  minStr: string;
+  maxStr: string;
+  onMinChange: (v: string) => void;
+  onMaxChange: (v: string) => void;
+}) {
+  const minVal = minStrToSliderValue(minStr);
+  const maxVal = maxStrToSliderValue(maxStr);
+  const minPct = (minVal / PRICE_SLIDER_MAX) * 100;
+  const maxPct = (maxVal / PRICE_SLIDER_MAX) * 100;
+
+  return (
+    <div className="re-price-dual-slider">
+      <div className="relative h-10">
+        <div
+          className="pointer-events-none absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-spotlight-navy/10"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-spotlight-navy/40"
+          style={{ left: `${minPct}%`, width: `${Math.max(0, maxPct - minPct)}%` }}
+          aria-hidden
+        />
+        <input
+          type="range"
+          min={0}
+          max={PRICE_SLIDER_MAX}
+          step={PRICE_SLIDER_STEP}
+          value={minVal}
+          aria-label="Minimum price"
+          className="absolute inset-x-0 top-0 z-10 h-10 w-full cursor-pointer"
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            const capMax = maxStrToSliderValue(maxStr);
+            if (v > capMax) {
+              onMaxChange(v >= PRICE_SLIDER_MAX ? "" : String(v));
+            }
+            onMinChange(v === 0 ? "" : String(v));
+          }}
+        />
+        <input
+          type="range"
+          min={0}
+          max={PRICE_SLIDER_MAX}
+          step={PRICE_SLIDER_STEP}
+          value={maxVal}
+          aria-label="Maximum price"
+          className="absolute inset-x-0 top-0 z-20 h-10 w-full cursor-pointer"
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            const floorMin = minStrToSliderValue(minStr);
+            if (v < floorMin) {
+              onMinChange(v === 0 ? "" : String(v));
+            }
+            onMaxChange(v >= PRICE_SLIDER_MAX ? "" : String(v));
+          }}
+        />
+      </div>
+      <div className="mt-2 flex justify-between gap-3 text-[9px] font-medium uppercase tracking-[0.14em] text-spotlight-teal/55">
+        <span>
+          Min:{" "}
+          {minStr === "" ? (
+            <span className="font-normal text-spotlight-navy/50">No min</span>
+          ) : (
+            <span className="font-normal normal-case tracking-normal text-spotlight-navy">
+              {formatUsdShort(minVal)}
+            </span>
+          )}
+        </span>
+        <span className="text-right">
+          Max:{" "}
+          {maxStr === "" ? (
+            <span className="font-normal text-spotlight-navy/50">No max</span>
+          ) : (
+            <span className="font-normal normal-case tracking-normal text-spotlight-navy">
+              {formatUsdShort(maxVal)}
+            </span>
+          )}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export function RealEstateSectionClient({
   markets,
@@ -330,63 +428,18 @@ export function RealEstateSectionClient({
                     aria-labelledby={`re-price-trigger-${active}`}
                     className="absolute left-0 right-0 top-full z-20 mt-2 min-[601px]:right-auto min-[601px]:w-[min(18rem,calc(100vw-2.5rem))] rounded-sm border border-spotlight-navy/10 bg-white p-4 shadow-[0_8px_28px_rgba(17,34,80,0.12)]"
                   >
-                    <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.16em] text-spotlight-teal/55">
-                      Quick ranges
+                    <p className="mb-3 text-[9px] font-medium uppercase tracking-[0.16em] text-spotlight-teal/55">
+                      Drag to set min and max
                     </p>
-                    <div className="flex flex-wrap gap-2">
-                      {PRICE_RANGE_PRESETS.map((p) => (
-                        <button
-                          key={p.label}
-                          type="button"
-                          onClick={() => {
-                            setMinPriceInput(p.min);
-                            setMaxPriceInput(p.max);
-                          }}
-                          className="rounded-sm border border-spotlight-navy/12 bg-spotlight-sand/80 px-3 py-1.5 text-[10px] font-normal tracking-[0.04em] text-spotlight-navy transition-colors hover:border-spotlight-gold hover:bg-white"
-                        >
-                          {p.label}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="mt-4 grid grid-cols-1 gap-3 min-[400px]:grid-cols-2">
-                      <div>
-                        <label
-                          htmlFor={`re-min-${active}`}
-                          className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55"
-                        >
-                          Min price (USD)
-                        </label>
-                        <input
-                          id={`re-min-${active}`}
-                          type="number"
-                          min={0}
-                          step={10000}
-                          placeholder="No min"
-                          value={minPriceInput}
-                          onChange={(e) => setMinPriceInput(e.target.value)}
-                          className="w-full border border-spotlight-navy/12 bg-white px-3 py-2 text-[13px] text-spotlight-navy outline-none focus:border-spotlight-teal/40"
-                        />
-                      </div>
-                      <div>
-                        <label
-                          htmlFor={`re-max-${active}`}
-                          className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55"
-                        >
-                          Max price (USD)
-                        </label>
-                        <input
-                          id={`re-max-${active}`}
-                          type="number"
-                          min={0}
-                          step={10000}
-                          placeholder="No max"
-                          value={maxPriceInput}
-                          onChange={(e) => setMaxPriceInput(e.target.value)}
-                          className="w-full border border-spotlight-navy/12 bg-white px-3 py-2 text-[13px] text-spotlight-navy outline-none focus:border-spotlight-teal/40"
-                        />
-                      </div>
-                    </div>
+                    <PriceRangeDualSlider
+                      minStr={minPriceInput}
+                      maxStr={maxPriceInput}
+                      onMinChange={setMinPriceInput}
+                      onMaxChange={setMaxPriceInput}
+                    />
+                    <p className="mt-2 text-[10px] font-light leading-snug text-spotlight-text-muted">
+                      Range $0–{formatUsdShort(PRICE_SLIDER_MAX)}. Move either handle to the end for no min or no max.
+                    </p>
 
                     <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-spotlight-navy/8 pt-4">
                       <button
