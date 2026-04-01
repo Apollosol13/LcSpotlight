@@ -264,9 +264,9 @@ export function RealEstateSectionClient({
 
         {showListings && listings.length > 0 ? (
           <div className="mt-8 flex flex-col gap-5 border-t border-spotlight-navy/10 pt-6">
-            <div className="flex flex-col gap-5 min-[601px]:flex-row min-[601px]:flex-wrap min-[601px]:items-start min-[601px]:justify-between">
-              <div>
-                <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55">
+            <div className="flex flex-col gap-5 min-[601px]:flex-row min-[601px]:flex-wrap min-[601px]:items-end min-[601px]:gap-8">
+              <div className="flex flex-col gap-2">
+                <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55">
                   Sort by price
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -295,36 +295,40 @@ export function RealEstateSectionClient({
                 </div>
               </div>
 
-              <div ref={pricePanelRef} className="w-full min-[601px]:max-w-[min(100%,28rem)]">
-                <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55">
-                  Price range
-                </p>
-                <button
-                  type="button"
-                  aria-expanded={pricePanelOpen}
-                  aria-controls={`re-price-panel-${active}`}
-                  id={`re-price-trigger-${active}`}
-                  onClick={() => setPricePanelOpen((o) => !o)}
-                  className={`flex w-full flex-col items-start gap-0.5 rounded-sm border px-4 py-3 text-left transition-colors min-[601px]:min-w-[16rem] ${
-                    pricePanelOpen || hasPriceFilters
-                      ? "border-spotlight-navy bg-white shadow-sm"
-                      : "border-spotlight-navy/15 bg-white hover:border-spotlight-gold"
-                  }`}
-                >
-                  <span className="text-[10px] font-normal uppercase tracking-[0.14em] text-spotlight-navy">
-                    Set price range
-                  </span>
-                  <span className="text-[12px] font-light text-spotlight-text-mid">
-                    {formatPriceRangeLabel(minPriceInput, maxPriceInput)}
-                  </span>
-                </button>
+              <div ref={pricePanelRef} className="relative w-full min-[601px]:w-auto min-[601px]:shrink-0">
+                <div className="flex flex-col gap-2">
+                  <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55">
+                    Price range
+                  </p>
+                  <button
+                    type="button"
+                    aria-expanded={pricePanelOpen}
+                    aria-controls={`re-price-panel-${active}`}
+                    id={`re-price-trigger-${active}`}
+                    onClick={() => setPricePanelOpen((o) => !o)}
+                    className={`inline-flex w-full min-[601px]:w-auto flex-col items-start gap-0.5 rounded-sm border border-spotlight-navy bg-spotlight-navy px-3 py-2 text-left text-white transition-colors hover:bg-spotlight-navy/90 ${
+                      pricePanelOpen
+                        ? "shadow-md ring-2 ring-spotlight-gold/60 ring-offset-2 ring-offset-spotlight-sand"
+                        : hasPriceFilters
+                          ? "shadow-sm"
+                          : ""
+                    }`}
+                  >
+                    <span className="text-[10px] font-normal uppercase tracking-[0.14em]">
+                      Set price range
+                    </span>
+                    <span className="text-[11px] font-light text-white/80">
+                      {formatPriceRangeLabel(minPriceInput, maxPriceInput)}
+                    </span>
+                  </button>
+                </div>
 
                 {pricePanelOpen ? (
                   <div
                     id={`re-price-panel-${active}`}
                     role="region"
                     aria-labelledby={`re-price-trigger-${active}`}
-                    className="mt-3 rounded-sm border border-spotlight-navy/10 bg-white p-4 shadow-[0_8px_28px_rgba(17,34,80,0.08)]"
+                    className="absolute left-0 right-0 top-full z-20 mt-2 min-[601px]:right-auto min-[601px]:w-[min(18rem,calc(100vw-2.5rem))] rounded-sm border border-spotlight-navy/10 bg-white p-4 shadow-[0_8px_28px_rgba(17,34,80,0.12)]"
                   >
                     <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.16em] text-spotlight-teal/55">
                       Quick ranges
