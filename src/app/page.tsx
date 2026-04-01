@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Hero } from "@/components/Hero";
+import { getHeroHhiRealEstateSnapshot } from "@/lib/real-estate/live-stats";
 import { Ticker } from "@/components/Ticker";
 import { InlineCTA } from "@/components/InlineCTA";
 import { EventsSection } from "@/components/EventsSection";
@@ -11,10 +12,11 @@ import { TicketingBanner } from "@/components/TicketingBanner";
 
 export const revalidate = 300;
 
-export default function Home() {
+export default async function Home() {
+  const hhi = await getHeroHhiRealEstateSnapshot();
   return (
     <>
-      <Hero />
+      <Hero hhiMedianDisplay={hhi.medianDisplay} hhiActiveListingsDisplay={hhi.activeCountDisplay} />
       <Ticker />
       <InlineCTA />
       <Suspense>

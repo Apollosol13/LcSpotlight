@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { buildLiveMarketStatsMap } from "@/lib/real-estate/live-stats";
 import { REAL_ESTATE_MARKETS, type RealEstateMarketKey } from "@/lib/real-estate-markets";
 import {
   RealEstateSectionClient,
@@ -29,21 +30,6 @@ function redfinUrl(path: string | null): string | null {
   return `https://www.redfin.com${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-function rowToStats(row: Record<string, unknown>): RealEstateStatsCard {
-  const s = (k: string, fallback: string) =>
-    typeof row[k] === "string" && (row[k] as string).length ? (row[k] as string) : fallback;
-  return {
-    median_price_display: s("median_price_display", "—"),
-    median_dom_display: s("median_dom_display", "—"),
-    active_listings_display: s("active_listings_display", "—"),
-    avg_price_per_sqft_display: s("avg_price_per_sqft_display", "—"),
-    price_subtext: s("price_subtext", "Median · sample"),
-    dom_subtext: s("dom_subtext", "Median days on Redfin"),
-    listings_subtext: s("listings_subtext", "Homes for sale (sample)"),
-    ratio_subtext: s("ratio_subtext", "Avg $/sqft"),
-  };
-}
-
 type RealEstateSectionProps = {
   showFullReportsLink?: boolean;
   /** Cap rows loaded per market (scraper stores up to ~350 each). Only used when showListings is true. */
@@ -57,16 +43,7 @@ export async function RealEstateSection({
   maxListingsPerMarket = 48,
   showListings = true,
 }: RealEstateSectionProps = {}) {
-  const keys = REAL_ESTATE_MARKETS.map((m) => m.key);
-  const { data: statRows } = await supabase.from("real_estate_stats").select("*").in("market_key", keys);
-
-  const statsByKey = new Map<string, RealEstateStatsCard>();
-  for (const row of statRows ?? []) {
-    const mk = row.market_key as string;
-    if ((keys as string[]).includes(mk)) {
-      statsByKey.set(mk, rowToStats(row as Record<string, unknown>));
-    }
-  }
+  const statsByKey = await buildLiveMarketStatsMap();
 
   const markets = {} as Record<
     RealEstateMarketKey,
@@ -82,6 +59,7 @@ export async function RealEstateSection({
           "id, property_type, price, beds, baths, sqft, address_line, city, state, redfin_path, photo_url, source_listing_id",
         )
         .eq("market_key", m.key)
+        .is("removed_at", null)
         .not("price", "is", null)
         .gt("price", 0)
         .order("price", { ascending: false })

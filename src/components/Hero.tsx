@@ -8,7 +8,14 @@ function editionLabel() {
   return `Daily edition · ${month} ${year}`;
 }
 
-export function Hero() {
+type HeroProps = {
+  /** Hilton Head median list price display, e.g. "$612K" — from Supabase live stats */
+  hhiMedianDisplay?: string | null;
+  /** Active listing count for HHI */
+  hhiActiveListingsDisplay?: string | null;
+};
+
+export function Hero({ hhiMedianDisplay, hhiActiveListingsDisplay }: HeroProps) {
   return (
     <section className="grid min-h-[min(88vh,920px)] grid-cols-1 lg:grid-cols-2">
       {/* Left — photo + royal overlay */}
@@ -101,9 +108,24 @@ export function Hero() {
               Market snapshot
             </p>
             <p className="mb-3 font-serif text-[clamp(1.35rem,3vw,1.75rem)] font-bold leading-[1.1] text-white">
-              HHI median hits{" "}
-              <span className="text-spotlight-gold">$748K</span> — up 4.2%
-              year over year.
+              {hhiMedianDisplay ? (
+                <>
+                  Hilton Head median list price{" "}
+                  <span className="text-spotlight-gold">{hhiMedianDisplay}</span>
+                  {hhiActiveListingsDisplay ? (
+                    <>
+                      {" "}
+                      · {hhiActiveListingsDisplay} active listings
+                    </>
+                  ) : null}
+                  . From Redfin.
+                </>
+              ) : (
+                <>
+                  Market snapshot — median list price and active listings on{" "}
+                  <span className="text-spotlight-gold">Real Estate</span>.
+                </>
+              )}
             </p>
             <p className="text-[11px] font-light tracking-[0.04em] text-white/65">
               {new Date().toLocaleDateString("en-US", {
