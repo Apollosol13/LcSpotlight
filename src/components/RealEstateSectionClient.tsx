@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { redfinPhotoUrlCandidates } from "@/lib/redfin-photo";
 import { REAL_ESTATE_MARKETS, type RealEstateMarketKey } from "@/lib/real-estate-markets";
 
@@ -63,7 +63,7 @@ type Props = {
   markets: Record<RealEstateMarketKey, { stats: RealEstateStatsCard | null; listings: RealEstateListingCard[] }>;
   /** Hide on `/real-estate` where this section is the full page */
   showFullReportsLink?: boolean;
-  /** Homepage: stats + tabs only; full listing cards on `/real-estate` */
+  /** Homepage: stats + tabs only; full listings on `/real-estate` */
   showListings?: boolean;
 };
 
@@ -73,6 +73,31 @@ function parsePriceBound(raw: string): number | null {
   const n = Number(t);
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
+
+function formatUsdShort(n: number): string {
+  if (n >= 1_000_000) {
+    const m = n / 1_000_000;
+    return m >= 10 ? `$${Math.round(m)}M` : `$${m.toFixed(m >= 1 ? 1 : 2).replace(/\.?0+$/, "")}M`;
+  }
+  if (n >= 1000) return `$${Math.round(n / 1000)}K`;
+  return `$${Math.round(n)}`;
+}
+
+function formatPriceRangeLabel(minStr: string, maxStr: string): string {
+  const minB = parsePriceBound(minStr);
+  const maxB = parsePriceBound(maxStr);
+  if (minB == null && maxB == null) return "Any price";
+  if (minB != null && maxB != null) return `${formatUsdShort(minB)} – ${formatUsdShort(maxB)}`;
+  if (minB != null) return `${formatUsdShort(minB)} and up`;
+  return `Up to ${formatUsdShort(maxB!)}`;
+}
+
+const PRICE_RANGE_PRESETS: { label: string; min: string; max: string }[] = [
+  { label: "Under $500K", min: "", max: "500000" },
+  { label: "$500K – $1M", min: "500000", max: "1000000" },
+  { label: "$1M – $2M", min: "1000000", max: "2000000" },
+  { label: "$2M+", min: "2000000", max: "" },
+];
 
 export function RealEstateSectionClient({
   markets,
@@ -84,13 +109,36 @@ export function RealEstateSectionClient({
   const [sortOrder, setSortOrder] = useState<SortOrder>("high-low");
   const [minPriceInput, setMinPriceInput] = useState("");
   const [maxPriceInput, setMaxPriceInput] = useState("");
+  const [pricePanelOpen, setPricePanelOpen] = useState(false);
+  const pricePanelRef = useRef<HTMLDivElement>(null);
 
   function selectMarket(key: RealEstateMarketKey) {
     setActive(key);
     setMinPriceInput("");
     setMaxPriceInput("");
     setSortOrder("high-low");
+    setPricePanelOpen(false);
   }
+
+  useEffect(() => {
+    if (!pricePanelOpen) return;
+    function handlePointerDown(e: PointerEvent) {
+      if (pricePanelRef.current && !pricePanelRef.current.contains(e.target as Node)) {
+        setPricePanelOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [pricePanelOpen]);
+
+  useEffect(() => {
+    if (!pricePanelOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setPricePanelOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [pricePanelOpen]);
 
   const m = markets[active];
   const stats = m.stats ?? emptyStats;
@@ -126,7 +174,6 @@ export function RealEstateSectionClient({
 
   const hasPriceFilters =
     parsePriceBound(minPriceInput) != null || parsePriceBound(maxPriceInput) != null;
-  /** Reset clears sort + price inputs */
   const filterActive = hasPriceFilters || sortOrder !== "high-low";
 
   return (
@@ -216,87 +263,167 @@ export function RealEstateSectionClient({
         ) : null}
 
         {showListings && listings.length > 0 ? (
-          <div className="mt-8 flex flex-col gap-5 border-t border-spotlight-navy/10 pt-6 min-[601px]:flex-row min-[601px]:flex-wrap min-[601px]:items-end min-[601px]:justify-between">
-            <div>
-              <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55">
-                Sort by price
-              </p>
-              <div className="flex flex-wrap gap-2">
+          <div className="mt-8 flex flex-col gap-5 border-t border-spotlight-navy/10 pt-6">
+            <div className="flex flex-col gap-5 min-[601px]:flex-row min-[601px]:flex-wrap min-[601px]:items-start min-[601px]:justify-between">
+              <div>
+                <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55">
+                  Sort by price
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSortOrder("high-low")}
+                    className={`rounded-sm border px-3 py-2 text-[10px] font-normal uppercase tracking-[0.12em] transition-colors ${
+                      sortOrder === "high-low"
+                        ? "border-spotlight-navy bg-spotlight-navy text-white"
+                        : "border-spotlight-navy/15 bg-white text-spotlight-navy hover:border-spotlight-gold"
+                    }`}
+                  >
+                    High → Low
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSortOrder("low-high")}
+                    className={`rounded-sm border px-3 py-2 text-[10px] font-normal uppercase tracking-[0.12em] transition-colors ${
+                      sortOrder === "low-high"
+                        ? "border-spotlight-navy bg-spotlight-navy text-white"
+                        : "border-spotlight-navy/15 bg-white text-spotlight-navy hover:border-spotlight-gold"
+                    }`}
+                  >
+                    Low → High
+                  </button>
+                </div>
+              </div>
+
+              <div ref={pricePanelRef} className="w-full min-[601px]:max-w-[min(100%,28rem)]">
+                <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55">
+                  Price range
+                </p>
                 <button
                   type="button"
-                  onClick={() => setSortOrder("high-low")}
-                  className={`rounded-sm border px-3 py-2 text-[10px] font-normal uppercase tracking-[0.12em] transition-colors ${
-                    sortOrder === "high-low"
-                      ? "border-spotlight-navy bg-spotlight-navy text-white"
-                      : "border-spotlight-navy/15 bg-white text-spotlight-navy hover:border-spotlight-gold"
+                  aria-expanded={pricePanelOpen}
+                  aria-controls={`re-price-panel-${active}`}
+                  id={`re-price-trigger-${active}`}
+                  onClick={() => setPricePanelOpen((o) => !o)}
+                  className={`flex w-full flex-col items-start gap-0.5 rounded-sm border px-4 py-3 text-left transition-colors min-[601px]:min-w-[16rem] ${
+                    pricePanelOpen || hasPriceFilters
+                      ? "border-spotlight-navy bg-white shadow-sm"
+                      : "border-spotlight-navy/15 bg-white hover:border-spotlight-gold"
                   }`}
                 >
-                  High → Low
+                  <span className="text-[10px] font-normal uppercase tracking-[0.14em] text-spotlight-navy">
+                    Set price range
+                  </span>
+                  <span className="text-[12px] font-light text-spotlight-text-mid">
+                    {formatPriceRangeLabel(minPriceInput, maxPriceInput)}
+                  </span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setSortOrder("low-high")}
-                  className={`rounded-sm border px-3 py-2 text-[10px] font-normal uppercase tracking-[0.12em] transition-colors ${
-                    sortOrder === "low-high"
-                      ? "border-spotlight-navy bg-spotlight-navy text-white"
-                      : "border-spotlight-navy/15 bg-white text-spotlight-navy hover:border-spotlight-gold"
-                  }`}
-                >
-                  Low → High
-                </button>
+
+                {pricePanelOpen ? (
+                  <div
+                    id={`re-price-panel-${active}`}
+                    role="region"
+                    aria-labelledby={`re-price-trigger-${active}`}
+                    className="mt-3 rounded-sm border border-spotlight-navy/10 bg-white p-4 shadow-[0_8px_28px_rgba(17,34,80,0.08)]"
+                  >
+                    <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.16em] text-spotlight-teal/55">
+                      Quick ranges
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {PRICE_RANGE_PRESETS.map((p) => (
+                        <button
+                          key={p.label}
+                          type="button"
+                          onClick={() => {
+                            setMinPriceInput(p.min);
+                            setMaxPriceInput(p.max);
+                          }}
+                          className="rounded-sm border border-spotlight-navy/12 bg-spotlight-sand/80 px-3 py-1.5 text-[10px] font-normal tracking-[0.04em] text-spotlight-navy transition-colors hover:border-spotlight-gold hover:bg-white"
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-1 gap-3 min-[400px]:grid-cols-2">
+                      <div>
+                        <label
+                          htmlFor={`re-min-${active}`}
+                          className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55"
+                        >
+                          Min price (USD)
+                        </label>
+                        <input
+                          id={`re-min-${active}`}
+                          type="number"
+                          min={0}
+                          step={10000}
+                          placeholder="No min"
+                          value={minPriceInput}
+                          onChange={(e) => setMinPriceInput(e.target.value)}
+                          className="w-full border border-spotlight-navy/12 bg-white px-3 py-2 text-[13px] text-spotlight-navy outline-none focus:border-spotlight-teal/40"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor={`re-max-${active}`}
+                          className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55"
+                        >
+                          Max price (USD)
+                        </label>
+                        <input
+                          id={`re-max-${active}`}
+                          type="number"
+                          min={0}
+                          step={10000}
+                          placeholder="No max"
+                          value={maxPriceInput}
+                          onChange={(e) => setMaxPriceInput(e.target.value)}
+                          className="w-full border border-spotlight-navy/12 bg-white px-3 py-2 text-[13px] text-spotlight-navy outline-none focus:border-spotlight-teal/40"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-spotlight-navy/8 pt-4">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMinPriceInput("");
+                          setMaxPriceInput("");
+                        }}
+                        className="text-[10px] font-normal uppercase tracking-[0.14em] text-spotlight-teal/80 underline-offset-2 hover:text-spotlight-navy hover:underline"
+                      >
+                        Clear price range
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPricePanelOpen(false)}
+                        className="rounded-sm border border-spotlight-navy/15 bg-spotlight-navy px-4 py-2 text-[10px] font-normal uppercase tracking-[0.12em] text-white hover:bg-spotlight-navy/90"
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </div>
-            <div className="flex flex-col gap-4 min-[480px]:flex-row min-[480px]:flex-wrap min-[480px]:items-end">
-              <div>
-                <label
-                  htmlFor={`re-min-${active}`}
-                  className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55"
-                >
-                  Min price (USD)
-                </label>
-                <input
-                  id={`re-min-${active}`}
-                  type="number"
-                  min={0}
-                  step={10000}
-                  placeholder="No min"
-                  value={minPriceInput}
-                  onChange={(e) => setMinPriceInput(e.target.value)}
-                  className="w-full min-w-[10rem] border border-spotlight-navy/12 bg-white px-3 py-2 text-[13px] text-spotlight-navy outline-none focus:border-spotlight-teal/40 min-[480px]:w-40"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor={`re-max-${active}`}
-                  className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-teal/55"
-                >
-                  Max price (USD)
-                </label>
-                <input
-                  id={`re-max-${active}`}
-                  type="number"
-                  min={0}
-                  step={10000}
-                  placeholder="No max"
-                  value={maxPriceInput}
-                  onChange={(e) => setMaxPriceInput(e.target.value)}
-                  className="w-full min-w-[10rem] border border-spotlight-navy/12 bg-white px-3 py-2 text-[13px] text-spotlight-navy outline-none focus:border-spotlight-teal/40 min-[480px]:w-40"
-                />
-              </div>
-              {filterActive ? (
+
+            {filterActive ? (
+              <div className="flex justify-end">
                 <button
                   type="button"
                   onClick={() => {
                     setMinPriceInput("");
                     setMaxPriceInput("");
                     setSortOrder("high-low");
+                    setPricePanelOpen(false);
                   }}
                   className="border-b border-spotlight-gold-dark pb-1 text-[10px] font-normal uppercase tracking-[0.14em] text-spotlight-gold-dark"
                 >
-                  Reset filters
+                  Reset all filters
                 </button>
-              ) : null}
-            </div>
+              </div>
+            ) : null}
           </div>
         ) : null}
 
@@ -310,7 +437,7 @@ export function RealEstateSectionClient({
                 ? "No listings loaded for this market yet. Run the scraper or wait for the next sync."
                 : hasPriceFilters
                   ? `Showing ${visibleListings.length} of ${listings.length} homes that match your price range. Open a card for the full Redfin listing.`
-                  : `${listings.length} homes in this sample — use sort and price filters above, then scroll to browse. Open a card for the full Redfin listing.`}
+                  : `${listings.length} homes in this sample — use sort and Set price range, then scroll to browse. Open a card for the full Redfin listing.`}
             </p>
             {!listings.length ? (
               <div className="flex flex-col gap-2">
