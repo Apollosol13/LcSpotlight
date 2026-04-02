@@ -20,6 +20,9 @@ type SerpApiResponse = {
   error?: string;
 };
 
+export const SERPAPI_LOCATION_BEAUFORT = "Beaufort, SC, United States";
+export const SERPAPI_LOCATION_SAVANNAH = "Savannah, GA, United States";
+
 function defaultLocations(): string[] {
   const raw = process.env.SERPAPI_EVENT_LOCATIONS;
   if (raw?.trim()) {
@@ -31,8 +34,8 @@ function defaultLocations(): string[] {
   return [
     "Bluffton, SC, United States",
     "Hilton Head Island, SC, United States",
-    "Beaufort, SC, United States",
-    "Savannah, GA, United States",
+    SERPAPI_LOCATION_BEAUFORT,
+    SERPAPI_LOCATION_SAVANNAH,
   ];
 }
 
@@ -81,6 +84,22 @@ function safeImageUrl(thumbnail: string | undefined): string | null {
 }
 
 export async function scrapeSerpApiGoogleEvents(supabase: SupabaseClient) {
+  return scrapeSerpApiGoogleEventsForLocations(supabase, defaultLocations());
+}
+
+export type SerpApiGoogleEventsResult = {
+  total: number;
+  inserted: number;
+  skipped: number;
+  /** Number of location queries run */
+  locations?: number;
+  message?: string;
+};
+
+export async function scrapeSerpApiGoogleEventsForLocations(
+  supabase: SupabaseClient,
+  locations: string[],
+): Promise<SerpApiGoogleEventsResult> {
   const apiKey = process.env.SERPAPI_KEY;
   if (!apiKey) {
     return {
@@ -91,7 +110,16 @@ export async function scrapeSerpApiGoogleEvents(supabase: SupabaseClient) {
     };
   }
 
-  const locations = defaultLocations();
+  if (locations.length === 0) {
+    return {
+      total: 0,
+      inserted: 0,
+      skipped: 0,
+      locations: 0,
+      message: "No locations provided",
+    };
+  }
+
   let total = 0;
   let inserted = 0;
   let skipped = 0;
@@ -133,7 +161,7 @@ export async function scrapeSerpApiGoogleEvents(supabase: SupabaseClient) {
         ? dedupeKeyFromIso(name, startAt, loc)
         : dedupeKeyFromDayMonth(name, day, month, loc);
 
-      const { inserted: did, reason } = await insertEventIfNew(supabase, {
+      const { inserted: did } = await insertEventIfNew(supabase, {
         name,
         day,
         month,

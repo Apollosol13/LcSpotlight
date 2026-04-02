@@ -1,17 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-server";
+import { cronUnauthorized, isCronAuthorized } from "@/lib/cron-auth";
 import { scrapeIslandNews } from "@/lib/scrapers/island-news";
 import { scrapeBlufftonEvents } from "@/lib/scrapers/bluffton-events";
 import { scrapeGoogleNews } from "@/lib/scrapers/google-news";
 import { scrapeRedfinToSupabase } from "@/lib/scrapers/redfin";
 import { replaceThingsToDoFromSeed } from "@/lib/seed-data/replace-things-to-do";
 
+/**
+ * GET /api/cron/scrape-all — full batch (may exceed cron-job.org ~30s timeout).
+ * Prefer separate jobs: /api/cron/island-news, /api/cron/bluffton-events, /api/cron/google-news,
+ * /api/cron/google-news-beaufort, /api/cron/google-news-savannah, /api/cron/sync-listings,
+ * /api/cron/things-to-do, /api/cron/serpapi-events, /api/cron/serpapi-events-beaufort, /api/cron/serpapi-events-savannah
+ */
 export async function GET(req: NextRequest) {
-  const auth = req.headers.get("authorization");
-  const secret = process.env.CRON_SECRET;
-  if (!secret || auth !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!isCronAuthorized(req)) return cronUnauthorized();
 
   const results: Record<string, unknown> = {};
 

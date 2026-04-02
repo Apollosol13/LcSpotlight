@@ -3,12 +3,14 @@ import { isContentClean } from "./content-filter";
 import { fetchOgImage } from "./og-image";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-const FEEDS = [
+export type GoogleNewsFeedDef = { url: string; region: string };
+
+export const GOOGLE_NEWS_FEEDS: readonly GoogleNewsFeedDef[] = [
   { url: "https://news.google.com/rss/search?q=hilton+head+island&hl=en-US&gl=US&ceid=US:en", region: "Hilton Head" },
   { url: "https://news.google.com/rss/search?q=bluffton+south+carolina&hl=en-US&gl=US&ceid=US:en", region: "Bluffton" },
   { url: "https://news.google.com/rss/search?q=beaufort+south+carolina&hl=en-US&gl=US&ceid=US:en", region: "Beaufort" },
   { url: "https://news.google.com/rss/search?q=savannah+georgia&hl=en-US&gl=US&ceid=US:en", region: "Savannah" },
-];
+] as const;
 
 interface GoogleNewsItem {
   title: string;
@@ -65,7 +67,43 @@ function extractDescription(html: string): string {
   return decoded.length > 300 ? decoded.slice(0, 300) + "..." : decoded;
 }
 
-export async function scrapeGoogleNews(supabase: SupabaseClient) {
+export type GoogleNewsScrapeResult = {
+  total: number;
+  inserted: number;
+  filtered: number;
+  skipped: number;
+  regions: Record<string, { total: number; inserted: number; filtered: number; skipped: number }>;
+  message?: string;
+};
+
+/** Ingest Google News RSS for named regions only (e.g. `["Beaufort", "Savannah"]`). Case-insensitive. */
+export async function scrapeGoogleNewsForRegions(
+  supabase: SupabaseClient,
+  regions: readonly string[],
+): Promise<GoogleNewsScrapeResult> {
+  const wanted = new Set(regions.map((r) => r.trim().toLowerCase()).filter(Boolean));
+  const feeds = GOOGLE_NEWS_FEEDS.filter((f) => wanted.has(f.region.toLowerCase()));
+  if (feeds.length === 0) {
+    return {
+      total: 0,
+      inserted: 0,
+      filtered: 0,
+      skipped: 0,
+      regions: {},
+      message: "No matching regions — use Hilton Head, Bluffton, Beaufort, or Savannah",
+    };
+  }
+  return scrapeGoogleNewsFeeds(supabase, feeds);
+}
+
+export async function scrapeGoogleNews(supabase: SupabaseClient): Promise<GoogleNewsScrapeResult> {
+  return scrapeGoogleNewsFeeds(supabase, [...GOOGLE_NEWS_FEEDS]);
+}
+
+async function scrapeGoogleNewsFeeds(
+  supabase: SupabaseClient,
+  feeds: readonly GoogleNewsFeedDef[],
+): Promise<GoogleNewsScrapeResult> {
   const parser = new XMLParser({ ignoreAttributes: false });
   let totalInserted = 0;
   let totalFiltered = 0;
@@ -73,7 +111,7 @@ export async function scrapeGoogleNews(supabase: SupabaseClient) {
   let totalItems = 0;
   const regionResults: Record<string, { total: number; inserted: number; filtered: number; skipped: number }> = {};
 
-  for (const feed of FEEDS) {
+  for (const feed of feeds) {
     let inserted = 0;
     let filtered = 0;
     let skipped = 0;
@@ -130,7 +168,9 @@ export async function scrapeGoogleNews(supabase: SupabaseClient) {
         let publishedAt: string | undefined;
         try {
           publishedAt = new Date(item.pubDate).toISOString();
-        } catch { /* fall back to auto */ }
+        } catch {
+          /* fall back to auto */
+        }
 
         const publisherUrl = extractPublisherUrl(item);
         const ogImage = publisherUrl ? await fetchOgImage(publisherUrl) : null;
