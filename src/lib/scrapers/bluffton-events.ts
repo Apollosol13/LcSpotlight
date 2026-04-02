@@ -3,6 +3,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 const FEED_URL = "https://www.townofbluffton.sc.gov/RSSFeed.aspx?ModID=58&CID=All-0";
 
+/** Static public asset; card hero uses same path after deploy. */
+const BUNNY_BONANZA_IMAGE_URL = "/images/events/bunny-bonanza-bluffton.png";
+
+function imageUrlForBlufftonEventTitle(title: string): string | null {
+  if (title.toLowerCase().includes("bunny bonanza")) return BUNNY_BONANZA_IMAGE_URL;
+  return null;
+}
+
 interface CalendarItem {
   title: string;
   link: string;
@@ -66,6 +74,8 @@ export async function scrapeBlufftonEvents(supabase: SupabaseClient) {
     const { day, month } = parseEventDate(eventDates);
     const time = extractTime(eventTimes);
 
+    const imageUrl = imageUrlForBlufftonEventTitle(item.title);
+
     const { error } = await supabase.from("events").insert({
       name: item.title,
       day,
@@ -78,6 +88,7 @@ export async function scrapeBlufftonEvents(supabase: SupabaseClient) {
       price: "Free",
       cta: "Learn More",
       source: "rss:bluffton",
+      ...(imageUrl ? { image_url: imageUrl } : {}),
     });
 
     if (!error) inserted++;
