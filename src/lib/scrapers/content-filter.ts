@@ -39,6 +39,23 @@ const BLOCKED_PHRASES = [
   "mass protest",
   "planned protest",
   "protests planned",
+  // Gun violence (avoid bare substring "shot" in keywords — matches "screenshot")
+  "shots fired",
+  "second person shot",
+  "shooting injury",
+  "street shooting",
+  "deadly shooting",
+  "fatal shooting",
+  "school shooting",
+  "shooting victim",
+  "officer shot",
+  "shot by police",
+  "shot by sheriff",
+  "shot while",
+  "shot after",
+  "found shot",
+  "was shot",
+  "been shot",
 ];
 
 const BLOCKED_CATEGORIES = [
@@ -47,12 +64,17 @@ const BLOCKED_CATEGORIES = [
   "crime & public safety", "breaking news",
 ];
 
+/** Matches "shot" as a whole word — blocks "Man shot…", "… shot near …" but not "screenshot", "gunshot", "snapshot". */
+const SHOT_WORD_RE = /\bshot\b/i;
+
 export function isContentClean(title: string, description: string, categories: string[]): boolean {
   const text = `${title} ${description}`.toLowerCase();
 
   for (const phrase of BLOCKED_PHRASES) {
     if (text.includes(phrase)) return false;
   }
+
+  if (SHOT_WORD_RE.test(text)) return false;
 
   for (const keyword of BLOCKED_KEYWORDS) {
     if (text.includes(keyword)) return false;

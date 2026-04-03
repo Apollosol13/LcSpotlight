@@ -34,6 +34,8 @@ const BLOCKED_CATEGORIES = [
 
 function isContentClean(title, description, categories) {
   const text = `${title} ${description}`.toLowerCase();
+  // Keep in sync with src/lib/scrapers/content-filter.ts — whole word "shot", not "screenshot"
+  if (/\bshot\b/i.test(text)) return false;
   for (const kw of BLOCKED_KEYWORDS) {
     if (text.includes(kw)) return false;
   }
