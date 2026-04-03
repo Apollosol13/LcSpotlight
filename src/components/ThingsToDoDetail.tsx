@@ -3,6 +3,7 @@ import { REAL_ESTATE_MARKETS } from "@/lib/real-estate-markets";
 import type { ThingsToDoRow } from "@/lib/things-to-do-types";
 import { websiteHref } from "@/lib/things-to-do-website";
 import { ThingsToDoDetailActions } from "@/components/ThingsToDoDetailActions";
+import { googleMapsPlaceEmbedUrl } from "@/lib/google-maps-embed";
 
 function marketLabel(marketKey: string | null | undefined): string {
   const k = (marketKey ?? "").trim();
@@ -35,6 +36,7 @@ export function ThingsToDoDetail({ row }: Props) {
   const venue = row.venue?.trim() ?? "";
   const bullets = newlineBullets(row.description);
   const img = row.image_url?.trim();
+  const mapEmbedSrc = venue ? googleMapsPlaceEmbedUrl(venue) : null;
 
   return (
     <div className="bg-spotlight-cream pb-16 pt-0">
@@ -204,26 +206,37 @@ export function ThingsToDoDetail({ row }: Props) {
                 <h2 className="mb-3 font-serif text-xl font-normal text-spotlight-navy">Location</h2>
                 <p className="mb-4 text-sm font-medium text-spotlight-navy">{venue}</p>
                 <div className="overflow-hidden rounded-lg border border-spotlight-navy/10 bg-[#e8eaee]">
-                  <div className="flex min-h-[200px] flex-col items-center justify-center gap-4 px-4 py-10">
-                    <svg
-                      className="size-12 text-spotlight-navy/25"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.25"
-                    >
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
-                    <a
-                      href={mapsSearchUrl(venue)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center rounded-lg bg-spotlight-navy px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.08em] text-white no-underline transition-opacity hover:opacity-90"
-                    >
-                      Get directions
-                    </a>
-                  </div>
+                  {mapEmbedSrc ? (
+                    <iframe
+                      title={`Map: ${venue}`}
+                      src={mapEmbedSrc}
+                      className="aspect-[16/10] min-h-[240px] w-full border-0"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <div className="flex min-h-[200px] flex-col items-center justify-center gap-4 px-4 py-10">
+                      <svg
+                        className="size-12 text-spotlight-navy/25"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.25"
+                      >
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                      </svg>
+                      <a
+                        href={mapsSearchUrl(venue)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center rounded-lg bg-spotlight-navy px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.08em] text-white no-underline transition-opacity hover:opacity-90"
+                      >
+                        Get directions
+                      </a>
+                    </div>
+                  )}
                 </div>
                 <div className="mt-3 flex flex-wrap gap-4 text-[12px] font-medium">
                   <a
