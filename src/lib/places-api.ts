@@ -2,65 +2,87 @@ import type { RealEstateMarketKey } from "@/lib/real-estate-markets";
 
 const PLACES_BASE = "https://places.googleapis.com/v1";
 
-/** Approximate centers for biasing Text Search (meters). */
-const MARKET_LOCATION_BIAS: Record<
-  RealEstateMarketKey,
-  { latitude: number; longitude: number; radiusMeters: number }
-> = {
-  hhi: { latitude: 32.1789, longitude: -80.7512, radiusMeters: 45_000 },
-  bluffton: { latitude: 32.1271, longitude: -80.8604, radiusMeters: 40_000 },
-  beaufort: { latitude: 32.4316, longitude: -80.6698, radiusMeters: 45_000 },
-  savannah: { latitude: 32.0809, longitude: -81.0912, radiusMeters: 50_000 },
-};
+/**
+ * X-Goog-FieldMask for POST places:searchText — must be a header, never a body field.
+ */
+export const PLACES_SEARCH_TEXT_FIELD_MASK =
+  "places.id,places.displayName,places.regularOpeningHours,places.websiteUri,places.rating,places.userRatingCount";
+
+const LOG_PREFIX = "[places:searchText]";
 
 function getApiKey(): string | null {
   return process.env.GOOGLE_MAPS_API_KEY?.trim() || null;
 }
 
-export type PlacesTextSearchHit = {
-  name: string;
+/** Appends region so textQuery reads like "Business Name City State". */
+export function marketKeyToRegionSuffix(marketKey: string | null | undefined): string {
+  const k = (marketKey ?? "hhi").toString().trim().toLowerCase();
+  switch (k as RealEstateMarketKey) {
+    case "bluffton":
+      return "Bluffton SC";
+    case "beaufort":
+      return "Beaufort SC";
+    case "savannah":
+      return "Savannah GA";
+    case "hhi":
+    default:
+      return "Hilton Head Island SC";
+  }
+}
+
+export type PlacesSearchPlace = {
   id?: string;
+  /** Present only if requested in field mask; search mask above omits it — derive from id. */
+  name?: string;
+  displayName?: { text?: string };
+  regularOpeningHours?: {
+    weekdayDescriptions?: string[];
+  };
+  websiteUri?: string;
+  rating?: number;
+  userRatingCount?: number;
 };
 
 type SearchTextResponse = {
-  places?: Array<{ name?: string; id?: string }>;
+  places?: PlacesSearchPlace[];
 };
 
-type PlaceDetailsResponse = {
-  name?: string;
-  websiteUri?: string;
-  photos?: Array<{ name?: string }>;
+export type PlacesTextSearchEnrichedFirst = {
+  placeName: string;
+  websiteUri: string | null;
+  weekdayDescriptions: string[] | null;
+  /** Search response does not include photos with our field mask; filled via placesGetDetails. */
+  firstPhotoName: null;
+  rating?: number;
+  userRatingCount?: number;
 };
+
+function placeResourceName(place: PlacesSearchPlace): string | null {
+  const n = place.name?.trim();
+  if (n) return n;
+  const id = place.id?.trim();
+  if (!id) return null;
+  return id.startsWith("places/") ? id : `places/${id}`;
+}
 
 /**
- * Text Search (New). Returns first candidate place resource name, or null.
+ * Text Search (New): POST body is only `{ textQuery }`. Field mask only in X-Goog-FieldMask header.
  */
-export async function placesTextSearchFirst(
+export async function placesTextSearchFirstEnriched(
   textQuery: string,
-  marketKey: string | null | undefined,
-): Promise<PlacesTextSearchHit | null> {
+  logRawFirstThree: boolean,
+): Promise<PlacesTextSearchEnrichedFirst | null> {
   const key = getApiKey();
   if (!key || !textQuery.trim()) return null;
 
-  const mk = (marketKey ?? "hhi") as RealEstateMarketKey;
-  const bias = MARKET_LOCATION_BIAS[mk] ?? MARKET_LOCATION_BIAS.hhi;
-
-  const body = {
-    textQuery: textQuery.trim(),
-    locationBias: {
-      circle: {
-        center: { latitude: bias.latitude, longitude: bias.longitude },
-        radius: bias.radiusMeters,
-      },
-    },
-  };
+  const body = { textQuery: textQuery.trim() };
 
   const res = await fetch(`${PLACES_BASE}/places:searchText`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "X-Goog-Api-Key": key,
-      "X-Goog-FieldMask": "places.id,places.name",
+      "X-Goog-FieldMask": PLACES_SEARCH_TEXT_FIELD_MASK,
     },
     body: JSON.stringify(body),
   });
@@ -71,27 +93,71 @@ export async function placesTextSearchFirst(
   }
 
   const data = (await res.json()) as SearchTextResponse;
+
+  if (logRawFirstThree && data.places && data.places.length > 0) {
+    console.log(
+      `${LOG_PREFIX} first 3 raw:`,
+      JSON.stringify(data.places.slice(0, 3), null, 2),
+    );
+  }
+
   const first = data.places?.[0];
-  const name = first?.name?.trim();
-  if (!name) return null;
-  return { name, id: first?.id };
+  if (!first) return null;
+
+  const placeName = placeResourceName(first);
+  if (!placeName) return null;
+
+  const websiteUri = first.websiteUri?.trim() || null;
+  const weekdayDescriptions =
+    first.regularOpeningHours?.weekdayDescriptions &&
+    first.regularOpeningHours.weekdayDescriptions.length > 0
+      ? [...first.regularOpeningHours.weekdayDescriptions]
+      : null;
+
+  return {
+    placeName,
+    websiteUri,
+    weekdayDescriptions,
+    firstPhotoName: null,
+    rating: first.rating,
+    userRatingCount: first.userRatingCount,
+  };
+}
+
+type PlaceDetailsResponse = {
+  name?: string;
+  websiteUri?: string;
+  regularOpeningHours?: {
+    weekdayDescriptions?: string[];
+  };
+  photos?: Array<{ name?: string }>;
+};
+
+/**
+ * Google Places photo media URLs require a photo resource name like
+ * `places/ChIJ…/photos/AW…`, not the place resource alone (`places/ChIJ…`).
+ */
+export function isValidGooglePhotoResourceName(name: string): boolean {
+  const n = name.trim();
+  return n.startsWith("places/") && n.includes("/photos/");
 }
 
 /**
- * Place Details (New) by resource name, e.g. places/ChIJ...
+ * Place Details (New) by place id segment (with or without places/ prefix).
  */
 export async function placesGetDetails(placeName: string): Promise<{
   websiteUri: string | null;
   firstPhotoName: string | null;
+  weekdayDescriptions: string[] | null;
 }> {
   const key = getApiKey();
   if (!key || !placeName.trim()) {
-    return { websiteUri: null, firstPhotoName: null };
+    return { websiteUri: null, firstPhotoName: null, weekdayDescriptions: null };
   }
 
   const id = placeName.replace(/^places\//, "").trim();
   if (!id) {
-    return { websiteUri: null, firstPhotoName: null };
+    return { websiteUri: null, firstPhotoName: null, weekdayDescriptions: null };
   }
 
   const url = `${PLACES_BASE}/places/${encodeURIComponent(id)}`;
@@ -99,7 +165,7 @@ export async function placesGetDetails(placeName: string): Promise<{
     method: "GET",
     headers: {
       "X-Goog-Api-Key": key,
-      "X-Goog-FieldMask": "websiteUri,photos",
+      "X-Goog-FieldMask": "websiteUri,photos,regularOpeningHours",
     },
   });
 
@@ -110,8 +176,20 @@ export async function placesGetDetails(placeName: string): Promise<{
 
   const data = (await res.json()) as PlaceDetailsResponse;
   const websiteUri = data.websiteUri?.trim() || null;
-  const firstPhotoName = data.photos?.[0]?.name?.trim() || null;
-  return { websiteUri, firstPhotoName };
+  let firstPhotoName: string | null = null;
+  for (const p of data.photos ?? []) {
+    const candidate = p.name?.trim();
+    if (candidate && isValidGooglePhotoResourceName(candidate)) {
+      firstPhotoName = candidate;
+      break;
+    }
+  }
+  const weekdayDescriptions =
+    data.regularOpeningHours?.weekdayDescriptions &&
+    data.regularOpeningHours.weekdayDescriptions.length > 0
+      ? [...data.regularOpeningHours.weekdayDescriptions]
+      : null;
+  return { websiteUri, firstPhotoName, weekdayDescriptions };
 }
 
 export function isPlacesConfigured(): boolean {

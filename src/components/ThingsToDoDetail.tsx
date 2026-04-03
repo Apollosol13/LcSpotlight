@@ -176,9 +176,15 @@ export function ThingsToDoDetail({ row }: Props) {
                   <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-spotlight-text-muted">
                     Hours
                   </p>
-                  <p className="text-sm leading-relaxed text-spotlight-text-mid">
-                    Visit the official website for current hours, special events, and closures.
-                  </p>
+                  {row.opening_hours_text?.trim() ? (
+                    <p className="whitespace-pre-line text-sm leading-relaxed text-spotlight-text-mid">
+                      {row.opening_hours_text.trim()}
+                    </p>
+                  ) : (
+                    <p className="text-sm leading-relaxed text-spotlight-text-mid">
+                      Visit the official website for current hours, special events, and closures.
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-3">
                   {site ? (

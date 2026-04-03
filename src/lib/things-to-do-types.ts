@@ -14,4 +14,6 @@ export type ThingsToDoRow = {
   /** First photo resource name; images served via /api/places-photo */
   google_photo_name?: string | null;
   place_enriched_at?: string | null;
+  /** Lines from Places weekdayDescriptions (cron enrich) */
+  opening_hours_text?: string | null;
 };

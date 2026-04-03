@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isValidGooglePhotoResourceName } from "@/lib/places-api";
 
 /**
  * Proxies Google Places photo media so we don't store API keys in public HTML.
@@ -16,7 +17,10 @@ export async function GET(req: NextRequest) {
   }
 
   const photoName = n.trim();
-  if (photoName.length > 2048 || !photoName.startsWith("places/")) {
+  if (
+    photoName.length > 2048 ||
+    !isValidGooglePhotoResourceName(photoName)
+  ) {
     return NextResponse.json({ error: "Invalid n" }, { status: 400 });
   }
 
