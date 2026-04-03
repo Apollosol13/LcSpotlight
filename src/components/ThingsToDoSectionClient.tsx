@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { REAL_ESTATE_MARKETS, type RealEstateMarketKey } from "@/lib/real-estate-markets";
 import type { ThingsToDoRow } from "@/lib/things-to-do-types";
+import { websiteHref } from "@/lib/things-to-do-website";
 
 export type { ThingsToDoRow };
 
@@ -17,13 +18,6 @@ type Props = {
 };
 
 const ALL = "All";
-
-function websiteHref(w: string | null): string | null {
-  if (!w?.trim()) return null;
-  const t = w.trim();
-  if (/^https?:\/\//i.test(t)) return t;
-  return `https://${t}`;
-}
 
 export function ThingsToDoSectionClient({
   dealsByMarket,
@@ -149,36 +143,41 @@ export function ThingsToDoSectionClient({
           <div className="grid grid-cols-1 gap-0.5 min-[601px]:grid-cols-2 min-[901px]:grid-cols-3">
             {visible.map((d) => (
               <article key={d.id} className={cardClass}>
-                {d.image_url?.trim() ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={d.image_url.trim()}
-                    alt=""
-                    className="-mx-6 -mt-6 mb-4 aspect-[16/9] w-[calc(100%+3rem)] max-w-none object-cover min-[601px]:w-[calc(100%+3rem)]"
-                  />
-                ) : null}
-                <div className="mb-3 flex items-start justify-between gap-2">
-                  {d.category ? (
-                    <span className="inline-flex max-w-[85%] items-center border border-spotlight-teal/20 bg-spotlight-teal/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-spotlight-teal">
-                      {d.category}
-                    </span>
-                  ) : (
-                    <span />
-                  )}
-                </div>
-                <h3 className="mb-1.5 font-serif text-lg font-bold text-spotlight-navy">{d.title}</h3>
-                {d.description ? (
-                  <p className="mb-3 text-[13px] font-light tracking-[0.03em] text-[#8a96a8]">{d.description}</p>
-                ) : null}
-                {d.venue ? (
-                  <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-spotlight-teal">{d.venue}</p>
-                ) : null}
+                <Link
+                  href={`/things-to-do/${d.id}`}
+                  className="block text-inherit no-underline outline-none focus-visible:ring-2 focus-visible:ring-spotlight-gold/50 focus-visible:ring-offset-2"
+                >
+                  {d.image_url?.trim() ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={d.image_url.trim()}
+                      alt=""
+                      className="-mx-6 -mt-6 mb-4 aspect-[16/9] w-[calc(100%+3rem)] max-w-none object-cover min-[601px]:w-[calc(100%+3rem)]"
+                    />
+                  ) : null}
+                  <div className="mb-3 flex items-start justify-between gap-2">
+                    {d.category ? (
+                      <span className="inline-flex max-w-[85%] items-center border border-spotlight-teal/20 bg-spotlight-teal/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-spotlight-teal">
+                        {d.category}
+                      </span>
+                    ) : (
+                      <span />
+                    )}
+                  </div>
+                  <h3 className="mb-1.5 font-serif text-lg font-bold text-spotlight-navy">{d.title}</h3>
+                  {d.description ? (
+                    <p className="mb-3 text-[13px] font-light tracking-[0.03em] text-[#8a96a8]">{d.description}</p>
+                  ) : null}
+                  {d.venue ? (
+                    <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-spotlight-teal">{d.venue}</p>
+                  ) : null}
+                </Link>
                 {websiteHref(d.website) ? (
                   <a
                     href={websiteHref(d.website)!}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-3 inline-flex text-[11px] font-medium text-spotlight-gold-dark no-underline hover:underline"
+                    className="relative z-10 mt-3 inline-flex text-[11px] font-medium text-spotlight-gold-dark no-underline hover:underline"
                   >
                     Visit website →
                   </a>
@@ -191,34 +190,39 @@ export function ThingsToDoSectionClient({
             {visible.map((d) => (
               <div key={d.id} className={cardClass}>
                 <div className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-spotlight-teal transition-transform group-hover:scale-x-100" />
-                {d.image_url?.trim() ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={d.image_url.trim()}
-                    alt=""
-                    className="-mx-6 -mt-6 mb-4 aspect-[16/9] w-[calc(100%+3rem)] max-w-none object-cover"
-                  />
-                ) : null}
-                <div className="mb-3 flex items-start justify-between gap-2">
-                  {d.category ? (
-                    <span className="inline-flex max-w-[90%] rounded-[2px] bg-[rgba(30,123,114,0.1)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-spotlight-teal">
-                      {d.category}
-                    </span>
+                <Link
+                  href={`/things-to-do/${d.id}`}
+                  className="block text-inherit no-underline outline-none focus-visible:ring-2 focus-visible:ring-spotlight-gold/50 focus-visible:ring-offset-2"
+                >
+                  {d.image_url?.trim() ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={d.image_url.trim()}
+                      alt=""
+                      className="-mx-6 -mt-6 mb-4 aspect-[16/9] w-[calc(100%+3rem)] max-w-none object-cover"
+                    />
                   ) : null}
-                </div>
-                <h2 className="mb-1.5 font-serif text-[17px] font-normal text-spotlight-navy">{d.title}</h2>
-                {d.description ? (
-                  <p className="mb-3.5 text-[13px] font-light text-spotlight-text-muted">{d.description}</p>
-                ) : null}
-                {d.venue ? (
-                  <p className="text-xs font-medium uppercase tracking-[0.5px] text-spotlight-text-mid">{d.venue}</p>
-                ) : null}
+                  <div className="mb-3 flex items-start justify-between gap-2">
+                    {d.category ? (
+                      <span className="inline-flex max-w-[90%] rounded-[2px] bg-[rgba(30,123,114,0.1)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-spotlight-teal">
+                        {d.category}
+                      </span>
+                    ) : null}
+                  </div>
+                  <h2 className="mb-1.5 font-serif text-[17px] font-normal text-spotlight-navy">{d.title}</h2>
+                  {d.description ? (
+                    <p className="mb-3.5 text-[13px] font-light text-spotlight-text-muted">{d.description}</p>
+                  ) : null}
+                  {d.venue ? (
+                    <p className="text-xs font-medium uppercase tracking-[0.5px] text-spotlight-text-mid">{d.venue}</p>
+                  ) : null}
+                </Link>
                 {websiteHref(d.website) ? (
                   <a
                     href={websiteHref(d.website)!}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-4 inline-flex text-xs font-medium text-spotlight-gold no-underline hover:underline"
+                    className="relative z-10 mt-4 inline-flex text-xs font-medium text-spotlight-gold no-underline hover:underline"
                   >
                     Visit website →
                   </a>
