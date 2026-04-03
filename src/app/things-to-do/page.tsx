@@ -16,7 +16,7 @@ function emptyByMarket(): Record<RealEstateMarketKey, ThingsToDoRow[]> {
 export default async function ThingsToDoPage() {
   const { data: rows } = await supabase
     .from("things_to_do")
-    .select("id, market_key, category, title, description, venue, website, image_url")
+    .select("id, market_key, category, title, description, venue, website, image_url, google_photo_name")
     .order("created_at", { ascending: false });
 
   const by = emptyByMarket();

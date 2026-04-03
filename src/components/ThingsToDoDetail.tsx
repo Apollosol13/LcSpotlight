@@ -4,6 +4,7 @@ import type { ThingsToDoRow } from "@/lib/things-to-do-types";
 import { websiteHref } from "@/lib/things-to-do-website";
 import { ThingsToDoDetailActions } from "@/components/ThingsToDoDetailActions";
 import { googleMapsPlaceEmbedUrl } from "@/lib/google-maps-embed";
+import { thingsToDoImageSrc } from "@/lib/things-to-do-image";
 
 function marketLabel(marketKey: string | null | undefined): string {
   const k = (marketKey ?? "").trim();
@@ -35,7 +36,7 @@ export function ThingsToDoDetail({ row }: Props) {
   const area = marketLabel(row.market_key);
   const venue = row.venue?.trim() ?? "";
   const bullets = newlineBullets(row.description);
-  const img = row.image_url?.trim();
+  const img = thingsToDoImageSrc(row);
   const mapEmbedSrc = venue ? googleMapsPlaceEmbedUrl(venue) : null;
 
   return (

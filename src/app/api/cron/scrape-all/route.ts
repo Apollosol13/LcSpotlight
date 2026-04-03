@@ -12,7 +12,7 @@ import { replaceThingsToDoFromSeed } from "@/lib/seed-data/replace-things-to-do"
  * Prefer separate jobs: /api/cron/island-news, /api/cron/bluffton-events, /api/cron/google-news,
  * /api/cron/google-news-beaufort, /api/cron/google-news-savannah, /api/cron/google-news-hilton-head,
  * /api/cron/google-news-bluffton, /api/cron/sync-listings,
- * /api/cron/things-to-do, /api/cron/serpapi-events, /api/cron/serpapi-events-beaufort, /api/cron/serpapi-events-savannah
+ * /api/cron/things-to-do, /api/cron/things-to-do-enrich, /api/cron/serpapi-events, /api/cron/serpapi-events-beaufort, /api/cron/serpapi-events-savannah
  */
 export async function GET(req: NextRequest) {
   if (!isCronAuthorized(req)) return cronUnauthorized();

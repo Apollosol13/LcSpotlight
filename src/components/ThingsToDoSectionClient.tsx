@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { REAL_ESTATE_MARKETS, type RealEstateMarketKey } from "@/lib/real-estate-markets";
 import type { ThingsToDoRow } from "@/lib/things-to-do-types";
+import { thingsToDoImageSrc } from "@/lib/things-to-do-image";
 import { websiteHref } from "@/lib/things-to-do-website";
 
 export type { ThingsToDoRow };
@@ -141,16 +142,18 @@ export function ThingsToDoSectionClient({
 
         {variant === "home" ? (
           <div className="grid grid-cols-1 gap-0.5 min-[601px]:grid-cols-2 min-[901px]:grid-cols-3">
-            {visible.map((d) => (
+            {visible.map((d) => {
+              const thumb = thingsToDoImageSrc(d);
+              return (
               <article key={d.id} className={cardClass}>
                 <Link
                   href={`/things-to-do/${d.id}`}
                   className="block text-inherit no-underline outline-none focus-visible:ring-2 focus-visible:ring-spotlight-gold/50 focus-visible:ring-offset-2"
                 >
-                  {d.image_url?.trim() ? (
+                  {thumb ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={d.image_url.trim()}
+                      src={thumb}
                       alt=""
                       className="-mx-6 -mt-6 mb-4 aspect-[16/9] w-[calc(100%+3rem)] max-w-none object-cover min-[601px]:w-[calc(100%+3rem)]"
                     />
@@ -183,21 +186,24 @@ export function ThingsToDoSectionClient({
                   </a>
                 ) : null}
               </article>
-            ))}
+            );
+            })}
           </div>
         ) : (
           <div className="grid gap-5 min-[601px]:grid-cols-2 min-[901px]:grid-cols-3">
-            {visible.map((d) => (
+            {visible.map((d) => {
+              const thumb = thingsToDoImageSrc(d);
+              return (
               <div key={d.id} className={cardClass}>
                 <div className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-spotlight-teal transition-transform group-hover:scale-x-100" />
                 <Link
                   href={`/things-to-do/${d.id}`}
                   className="block text-inherit no-underline outline-none focus-visible:ring-2 focus-visible:ring-spotlight-gold/50 focus-visible:ring-offset-2"
                 >
-                  {d.image_url?.trim() ? (
+                  {thumb ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={d.image_url.trim()}
+                      src={thumb}
                       alt=""
                       className="-mx-6 -mt-6 mb-4 aspect-[16/9] w-[calc(100%+3rem)] max-w-none object-cover"
                     />
@@ -228,7 +234,8 @@ export function ThingsToDoSectionClient({
                   </a>
                 ) : null}
               </div>
-            ))}
+            );
+            })}
           </div>
         )}
 

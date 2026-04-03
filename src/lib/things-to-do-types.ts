@@ -9,4 +9,9 @@ export type ThingsToDoRow = {
   source?: string | null;
   owner_user_id?: string | null;
   image_url?: string | null;
+  /** Places API resource name, e.g. places/ChIJ... */
+  google_place_name?: string | null;
+  /** First photo resource name; images served via /api/places-photo */
+  google_photo_name?: string | null;
+  place_enriched_at?: string | null;
 };
