@@ -6,6 +6,7 @@ import { REAL_ESTATE_MARKETS, type RealEstateMarketKey } from "@/lib/real-estate
 import type { ThingsToDoRow } from "@/lib/things-to-do-types";
 import { thingsToDoImageSrc } from "@/lib/things-to-do-image";
 import { websiteHref } from "@/lib/things-to-do-website";
+import { THINGS_TO_DO_CATEGORY_PRESETS } from "@/lib/things-to-do-categories";
 
 export type { ThingsToDoRow };
 
@@ -32,7 +33,7 @@ export function ThingsToDoSectionClient({
   const deals = dealsByMarket[active] ?? [];
 
   const categoryOptions = useMemo(() => {
-    const set = new Set<string>();
+    const set = new Set<string>(THINGS_TO_DO_CATEGORY_PRESETS);
     for (const d of deals) {
       const c = d.category?.trim();
       if (c) set.add(c);

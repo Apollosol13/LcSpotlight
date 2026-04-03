@@ -12,7 +12,12 @@ const fields: FieldDef[] = [
     defaultValue: "hhi",
     required: true,
   },
-  { key: "category", label: "Category", placeholder: "Beaches & Parks, Food & Drink…", required: true },
+  {
+    key: "category",
+    label: "Category",
+    placeholder: "Beaches & Parks, Food trucks, Food & Drink…",
+    required: true,
+  },
   { key: "title", label: "Title", placeholder: "Your listing title", required: true },
   { key: "description", label: "Description", type: "textarea", placeholder: "Short description…" },
   { key: "venue", label: "Venue / location", placeholder: "Street, city" },
