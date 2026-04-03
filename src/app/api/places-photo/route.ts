@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Invalid n" }, { status: 400 });
   }
 
-  const url = `https://places.googleapis.com/v1/${encodeURIComponent(photoName)}/media?maxHeightPx=1200&maxWidthPx=1200`;
+  const url = `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=1200&maxWidthPx=1200`;
 
   const res = await fetch(url, {
     method: "GET",
