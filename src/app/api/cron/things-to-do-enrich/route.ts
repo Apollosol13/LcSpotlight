@@ -15,6 +15,9 @@ function sleep(ms: number) {
 /**
  * GET /api/cron/things-to-do-enrich — Backfill website, opening_hours_text, google_photo_name.
  * Requires GOOGLE_MAPS_API_KEY and Places API (New) enabled. Auth: Bearer CRON_SECRET.
+ *
+ * Rows are ordered with `place_enriched_at` NULLS FIRST so never-enriched listings are
+ * processed before recently touched rows (fairer across markets than `created_at` alone).
  */
 export async function GET(req: NextRequest) {
   if (!isCronAuthorized(req)) return cronUnauthorized();
@@ -23,8 +26,9 @@ export async function GET(req: NextRequest) {
     const { data: rows, error: fetchErr } = await supabaseAdmin
       .from("things_to_do")
       .select(
-        "id, title, venue, market_key, website, image_url, google_place_name, google_photo_name, opening_hours_text",
+        "id, title, venue, market_key, website, image_url, google_place_name, google_photo_name, opening_hours_text, place_enriched_at, created_at",
       )
+      .order("place_enriched_at", { ascending: true, nullsFirst: true })
       .order("created_at", { ascending: false })
       .limit(500);
 

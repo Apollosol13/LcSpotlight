@@ -17,6 +17,9 @@ export type ThingsToDoEnrichRow = {
   google_place_name: string | null;
   google_photo_name: string | null;
   opening_hours_text: string | null;
+  /** Set by enrich; used for cron fetch ordering */
+  place_enriched_at?: string | null;
+  created_at?: string | null;
 };
 
 export type EnrichThingsToDoOptions = {
