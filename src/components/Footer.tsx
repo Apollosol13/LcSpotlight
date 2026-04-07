@@ -15,6 +15,7 @@ const columns = [
   {
     title: "Community",
     links: [
+      { label: "Contact", href: "/contact" },
       { label: "Submit an Event", href: "#" },
       { label: "List a Business", href: "#" },
       { label: "Advertise", href: "#" },

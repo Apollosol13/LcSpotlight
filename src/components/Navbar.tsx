@@ -12,6 +12,7 @@ const navItems = [
   { href: "/deals", label: "Deals" },
   { href: "/real-estate", label: "Real Estate" },
   { href: "/ticketing", label: "Tickets" },
+  { href: "/contact", label: "Contact" },
 ] as const;
 
 export function Navbar() {
