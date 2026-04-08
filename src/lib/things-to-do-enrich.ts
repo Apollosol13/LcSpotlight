@@ -74,8 +74,9 @@ export function thingsToDoNeedsEnrichment(row: ThingsToDoEnrichRow): boolean {
 }
 
 /**
- * Higher score = run sooner: never enriched first, then rows with more missing fields.
- * Used by the enrich cron so sparse rows aren’t stuck behind partial rows.
+ * Higher score = run sooner. Primary: **emptiest first** (most of the four gaps still open)
+ * so partial rows are not starved behind never-enriched rows that only need one field.
+ * Secondary: +500 when `place_enriched_at` is null (tie-break among same gap count).
  */
 export function thingsToDoEnrichmentQueueScore(row: ThingsToDoEnrichRow): number {
   if (!thingsToDoNeedsEnrichment(row)) return -1;
@@ -86,7 +87,7 @@ export function thingsToDoEnrichmentQueueScore(row: ThingsToDoEnrichRow): number
     Number(n.needHours) +
     Number(n.needPlacesExtras);
   const neverEnriched = !row.place_enriched_at?.trim();
-  return (neverEnriched ? 10_000 : 0) + gapCount * 100;
+  return gapCount * 2500 + (neverEnriched ? 500 : 0);
 }
 
 

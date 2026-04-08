@@ -23,7 +23,7 @@ function sleep(ms: number) {
  * Requires GOOGLE_MAPS_API_KEY and Places API (New) enabled. Auth: Bearer CRON_SECRET.
  *
  * Candidates: filter rows that still need data, sort by {@link thingsToDoEnrichmentQueueScore}
- * (never enriched + most nulls first), then process BATCH.
+ * (emptiest rows first — gap count dominates; never-enriched tie-break), then process BATCH.
  */
 export async function GET(req: NextRequest) {
   if (!isCronAuthorized(req)) return cronUnauthorized();
