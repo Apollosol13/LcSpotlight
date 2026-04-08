@@ -30,6 +30,8 @@ create index if not exists event_submissions_status_idx
 
 alter table public.event_submissions enable row level security;
 
+drop policy if exists "event_submissions_authenticated_all" on public.event_submissions;
+
 create policy "event_submissions_authenticated_all"
   on public.event_submissions
   for all

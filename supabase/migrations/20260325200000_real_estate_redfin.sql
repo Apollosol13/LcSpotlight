@@ -46,6 +46,11 @@ create table if not exists public.real_estate_stats (
 alter table public.real_estate_listings enable row level security;
 alter table public.real_estate_stats enable row level security;
 
+drop policy if exists "real_estate_listings_select_public" on public.real_estate_listings;
+drop policy if exists "real_estate_listings_select_authenticated" on public.real_estate_listings;
+drop policy if exists "real_estate_stats_select_public" on public.real_estate_stats;
+drop policy if exists "real_estate_stats_select_authenticated" on public.real_estate_stats;
+
 create policy "real_estate_listings_select_public"
   on public.real_estate_listings for select to anon using (true);
 

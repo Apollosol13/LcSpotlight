@@ -10,6 +10,8 @@ create index if not exists user_roles_role_idx on public.user_roles (role);
 
 alter table public.user_roles enable row level security;
 
+drop policy if exists "user_roles_select_own" on public.user_roles;
+
 create policy "user_roles_select_own"
   on public.user_roles
   for select
@@ -50,6 +52,12 @@ create index if not exists business_discounts_owner_idx on public.business_disco
 create index if not exists business_discounts_market_active_idx on public.business_discounts (market_key, is_active);
 
 alter table public.business_discounts enable row level security;
+
+drop policy if exists "business_discounts_select_public_active" on public.business_discounts;
+drop policy if exists "business_discounts_select_owner" on public.business_discounts;
+drop policy if exists "business_discounts_insert_owner" on public.business_discounts;
+drop policy if exists "business_discounts_update_owner" on public.business_discounts;
+drop policy if exists "business_discounts_delete_owner" on public.business_discounts;
 
 create policy "business_discounts_select_public_active"
   on public.business_discounts

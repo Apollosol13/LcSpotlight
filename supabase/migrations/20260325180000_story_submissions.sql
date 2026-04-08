@@ -21,6 +21,8 @@ create index if not exists story_submissions_status_idx
 alter table public.story_submissions enable row level security;
 
 -- Logged-in admins (Supabase Auth) can manage rows via client if needed.
+drop policy if exists "story_submissions_authenticated_all" on public.story_submissions;
+
 create policy "story_submissions_authenticated_all"
   on public.story_submissions
   for all

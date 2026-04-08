@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-server";
 import { REAL_ESTATE_MARKETS, type RealEstateMarketKey } from "@/lib/real-estate-markets";
 import { bucketKeyForThingsToDoRow } from "@/lib/things-to-do-bucket";
 import { pickThingsToDoSpotlight } from "@/lib/things-to-do-spotlight";
@@ -20,9 +20,11 @@ function emptyByMarket(): Record<RealEstateMarketKey, ThingsToDoRow[]> {
 }
 
 export async function ThingsToDoSection() {
-  const { data: rows } = await supabase
+  const { data: rows } = await supabaseAdmin
     .from("things_to_do")
-    .select("id, market_key, category, title, description, venue, website, image_url, google_photo_name")
+    .select(
+      "id, market_key, category, title, description, venue, website, image_url, google_photo_name, google_photo_names",
+    )
     .order("created_at", { ascending: false });
 
   const by = emptyByMarket();

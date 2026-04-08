@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { revalidatePath } from "next/cache";
 import { thingsToDoSeedData } from "@/lib/seed-data/things-to-do";
 import type { ThingsToDoSeedRow } from "@/lib/seed-data/things-to-do-seed-types";
 
@@ -121,6 +122,9 @@ export async function replaceThingsToDoFromSeed(supabase: SupabaseClient): Promi
     }
     inserted += batches[b].length;
   }
+
+  revalidatePath("/things-to-do");
+  revalidatePath("/");
 
   const { count: verifiedCount, error: cntErr } = await supabase
     .from("things_to_do")

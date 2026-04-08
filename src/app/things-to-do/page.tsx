@@ -1,10 +1,11 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-server";
 import type { RealEstateMarketKey } from "@/lib/real-estate-markets";
 import { ThingsToDoSectionClient } from "@/components/ThingsToDoSectionClient";
 import { bucketKeyForThingsToDoRow } from "@/lib/things-to-do-bucket";
 import type { ThingsToDoRow } from "@/lib/things-to-do-types";
 
-export const revalidate = 300;
+/** Fresh data after seed replace; avoids stale card links (see replace-things-to-do revalidatePath). */
+export const dynamic = "force-dynamic";
 
 /** Full page: show up to this many per market (adjust if needed). */
 const PAGE_PER_MARKET = 120;
@@ -14,9 +15,11 @@ function emptyByMarket(): Record<RealEstateMarketKey, ThingsToDoRow[]> {
 }
 
 export default async function ThingsToDoPage() {
-  const { data: rows } = await supabase
+  const { data: rows } = await supabaseAdmin
     .from("things_to_do")
-    .select("id, market_key, category, title, description, venue, website, image_url, google_photo_name")
+    .select(
+      "id, market_key, category, title, description, venue, website, image_url, google_photo_name, google_photo_names",
+    )
     .order("created_at", { ascending: false });
 
   const by = emptyByMarket();
