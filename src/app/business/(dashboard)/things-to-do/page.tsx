@@ -40,6 +40,8 @@ export default function BusinessThingsToDoPage() {
       title="Your Things To Do"
       fields={fields}
       columns={columns}
+      searchKeys={["market_key", "category", "title", "venue", "description", "website"]}
+      searchPlaceholder="Search by title, venue, area, category…"
     />
   );
 }

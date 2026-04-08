@@ -36,9 +36,11 @@ export default function AdminThingsToDoPage() {
   return (
     <AdminCrud
       table="things_to_do"
-      title="Things To Do"
+      title="Your Things To Do"
       fields={fields}
       columns={columns}
+      searchKeys={["market_key", "category", "title", "venue", "description", "website", "source"]}
+      searchPlaceholder="Search by title, venue, area, category…"
     />
   );
 }
