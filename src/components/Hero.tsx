@@ -18,8 +18,8 @@ type HeroProps = {
 export function Hero({ hhiMedianDisplay, hhiActiveListingsDisplay }: HeroProps) {
   return (
     <section className="grid min-h-[min(88vh,920px)] grid-cols-1 lg:grid-cols-2">
-      {/* Left — photo + royal overlay */}
-      <div className="relative flex min-h-[min(50vh,520px)] flex-col justify-between overflow-hidden bg-spotlight-navy px-8 pb-12 pt-14 min-[601px]:min-h-0 min-[601px]:px-12 min-[601px]:pb-16 min-[601px]:pt-[4.5rem]">
+      {/* Left — photo + neutral darken for text contrast (no navy cast) */}
+      <div className="relative flex min-h-[min(50vh,520px)] flex-col justify-between overflow-hidden bg-black px-8 pb-12 pt-14 min-[601px]:min-h-0 min-[601px]:px-12 min-[601px]:pb-16 min-[601px]:pt-[4.5rem]">
         <Image
           src="/lc-spotlight-hero.jpg"
           alt=""
@@ -29,7 +29,7 @@ export function Hero({ hhiMedianDisplay, hhiActiveListingsDisplay }: HeroProps) 
           sizes="(max-width: 1023px) 100vw, 50vw"
         />
         <div
-          className="pointer-events-none absolute inset-0 z-[1] bg-spotlight-navy/72"
+          className="pointer-events-none absolute inset-0 z-[1] bg-black/45"
           aria-hidden
         />
         <div
@@ -143,7 +143,7 @@ export function Hero({ hhiMedianDisplay, hhiActiveListingsDisplay }: HeroProps) 
         >
           <Image
             src="/hero-featured-event.png"
-            alt="Lowcountry golf fairway with water and tree line"
+            alt="Aerial view of a Lowcountry golf fairway at golden hour, with bunkers, water, and tree-lined holes"
             fill
             className="object-cover transition-[filter] duration-300 ease-out group-hover:brightness-[0.92]"
             sizes="(max-width: 1023px) 100vw, 50vw"
