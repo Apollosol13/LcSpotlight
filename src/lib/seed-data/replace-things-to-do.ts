@@ -10,8 +10,15 @@ type PreservedByTitle = {
   image_url: string | null;
   google_place_name: string | null;
   google_photo_name: string | null;
+  google_photo_names: string[] | null;
   place_enriched_at: string | null;
   opening_hours_text: string | null;
+  google_rating: number | null;
+  google_user_rating_count: number | null;
+  place_formatted_address: string | null;
+  place_international_phone: string | null;
+  place_google_maps_uri: string | null;
+  place_editorial_summary: string | null;
   owner_user_id: string | null;
 };
 
@@ -28,8 +35,15 @@ function mergeSeedWithPreserved(
     merged.image_url = p.image_url;
     merged.google_place_name = p.google_place_name;
     merged.google_photo_name = p.google_photo_name;
+    merged.google_photo_names = p.google_photo_names;
     merged.place_enriched_at = p.place_enriched_at;
     merged.opening_hours_text = p.opening_hours_text;
+    merged.google_rating = p.google_rating;
+    merged.google_user_rating_count = p.google_user_rating_count;
+    merged.place_formatted_address = p.place_formatted_address;
+    merged.place_international_phone = p.place_international_phone;
+    merged.place_google_maps_uri = p.place_google_maps_uri;
+    merged.place_editorial_summary = p.place_editorial_summary;
     if (p.owner_user_id) merged.owner_user_id = p.owner_user_id;
     return merged;
   });
@@ -55,7 +69,7 @@ export async function replaceThingsToDoFromSeed(supabase: SupabaseClient): Promi
   const { data: existingRows, error: selErr } = await supabase
     .from("things_to_do")
     .select(
-      "id, title, website, image_url, google_place_name, google_photo_name, place_enriched_at, opening_hours_text, owner_user_id",
+      "id, title, website, image_url, google_place_name, google_photo_name, google_photo_names, place_enriched_at, opening_hours_text, google_rating, google_user_rating_count, place_formatted_address, place_international_phone, place_google_maps_uri, place_editorial_summary, owner_user_id",
     );
   if (selErr) {
     return { ok: false, error: selErr.message, stage: "select_ids" };
@@ -70,8 +84,15 @@ export async function replaceThingsToDoFromSeed(supabase: SupabaseClient): Promi
       image_url: (r.image_url as string | null) ?? null,
       google_place_name: (r.google_place_name as string | null) ?? null,
       google_photo_name: (r.google_photo_name as string | null) ?? null,
+      google_photo_names: (r.google_photo_names as string[] | null) ?? null,
       place_enriched_at: (r.place_enriched_at as string | null) ?? null,
       opening_hours_text: (r.opening_hours_text as string | null) ?? null,
+      google_rating: (r.google_rating as number | null) ?? null,
+      google_user_rating_count: (r.google_user_rating_count as number | null) ?? null,
+      place_formatted_address: (r.place_formatted_address as string | null) ?? null,
+      place_international_phone: (r.place_international_phone as string | null) ?? null,
+      place_google_maps_uri: (r.place_google_maps_uri as string | null) ?? null,
+      place_editorial_summary: (r.place_editorial_summary as string | null) ?? null,
       owner_user_id: (r.owner_user_id as string | null) ?? null,
     });
   }

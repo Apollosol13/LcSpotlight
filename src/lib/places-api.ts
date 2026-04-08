@@ -131,6 +131,30 @@ type PlaceDetailsResponse = {
     weekdayDescriptions?: string[];
   };
   photos?: Array<{ name?: string }>;
+  formattedAddress?: string;
+  internationalPhoneNumber?: string;
+  rating?: number;
+  userRatingCount?: number;
+  googleMapsUri?: string;
+  editorialSummary?: { text?: string };
+};
+
+/** Fields requested from GET places/{id} (Place Details). */
+const PLACES_DETAILS_FIELD_MASK =
+  "websiteUri,photos,regularOpeningHours,formattedAddress,internationalPhoneNumber,rating,userRatingCount,googleMapsUri,editorialSummary";
+
+export type PlacesDetailsResult = {
+  websiteUri: string | null;
+  firstPhotoName: string | null;
+  /** Up to 5 valid photo resource names. */
+  photoNames: string[];
+  weekdayDescriptions: string[] | null;
+  formattedAddress: string | null;
+  internationalPhoneNumber: string | null;
+  rating: number | null;
+  userRatingCount: number | null;
+  googleMapsUri: string | null;
+  editorialSummary: string | null;
 };
 
 /**
@@ -159,22 +183,35 @@ export function buildPlacesPhotoMediaUrl(
   return `https://places.googleapis.com/v1/${name}/media?${q.toString()}`;
 }
 
+const MAX_DETAIL_PHOTOS = 5;
+
+function emptyDetails(): PlacesDetailsResult {
+  return {
+    websiteUri: null,
+    firstPhotoName: null,
+    photoNames: [],
+    weekdayDescriptions: null,
+    formattedAddress: null,
+    internationalPhoneNumber: null,
+    rating: null,
+    userRatingCount: null,
+    googleMapsUri: null,
+    editorialSummary: null,
+  };
+}
+
 /**
  * Place Details (New) by place id segment (with or without places/ prefix).
  */
-export async function placesGetDetails(placeName: string): Promise<{
-  websiteUri: string | null;
-  firstPhotoName: string | null;
-  weekdayDescriptions: string[] | null;
-}> {
+export async function placesGetDetails(placeName: string): Promise<PlacesDetailsResult> {
   const key = getApiKey();
   if (!key || !placeName.trim()) {
-    return { websiteUri: null, firstPhotoName: null, weekdayDescriptions: null };
+    return emptyDetails();
   }
 
   const id = placeName.replace(/^places\//, "").trim();
   if (!id) {
-    return { websiteUri: null, firstPhotoName: null, weekdayDescriptions: null };
+    return emptyDetails();
   }
 
   const url = `${PLACES_BASE}/places/${encodeURIComponent(id)}`;
@@ -182,7 +219,7 @@ export async function placesGetDetails(placeName: string): Promise<{
     method: "GET",
     headers: {
       "X-Goog-Api-Key": key,
-      "X-Goog-FieldMask": "websiteUri,photos,regularOpeningHours",
+      "X-Goog-FieldMask": PLACES_DETAILS_FIELD_MASK,
     },
   });
 
@@ -193,20 +230,42 @@ export async function placesGetDetails(placeName: string): Promise<{
 
   const data = (await res.json()) as PlaceDetailsResponse;
   const websiteUri = data.websiteUri?.trim() || null;
-  let firstPhotoName: string | null = null;
+  const photoNames: string[] = [];
   for (const p of data.photos ?? []) {
     const candidate = p.name?.trim();
     if (candidate && isValidGooglePhotoResourceName(candidate)) {
-      firstPhotoName = candidate;
-      break;
+      photoNames.push(candidate);
+      if (photoNames.length >= MAX_DETAIL_PHOTOS) break;
     }
   }
+  const firstPhotoName = photoNames[0] ?? null;
   const weekdayDescriptions =
     data.regularOpeningHours?.weekdayDescriptions &&
     data.regularOpeningHours.weekdayDescriptions.length > 0
       ? [...data.regularOpeningHours.weekdayDescriptions]
       : null;
-  return { websiteUri, firstPhotoName, weekdayDescriptions };
+  const formattedAddress = data.formattedAddress?.trim() || null;
+  const internationalPhoneNumber = data.internationalPhoneNumber?.trim() || null;
+  const rating =
+    typeof data.rating === "number" && !Number.isNaN(data.rating) ? data.rating : null;
+  const userRatingCount =
+    typeof data.userRatingCount === "number" && data.userRatingCount >= 0
+      ? data.userRatingCount
+      : null;
+  const googleMapsUri = data.googleMapsUri?.trim() || null;
+  const editorialSummary = data.editorialSummary?.text?.trim() || null;
+  return {
+    websiteUri,
+    firstPhotoName,
+    photoNames,
+    weekdayDescriptions,
+    formattedAddress,
+    internationalPhoneNumber,
+    rating,
+    userRatingCount,
+    googleMapsUri,
+    editorialSummary,
+  };
 }
 
 export function isPlacesConfigured(): boolean {

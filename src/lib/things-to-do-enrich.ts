@@ -16,7 +16,14 @@ export type ThingsToDoEnrichRow = {
   image_url: string | null;
   google_place_name: string | null;
   google_photo_name: string | null;
+  google_photo_names?: string[] | null;
   opening_hours_text: string | null;
+  place_formatted_address?: string | null;
+  place_international_phone?: string | null;
+  place_google_maps_uri?: string | null;
+  place_editorial_summary?: string | null;
+  google_rating?: number | null;
+  google_user_rating_count?: number | null;
   /** Set by enrich; used for cron fetch ordering */
   place_enriched_at?: string | null;
   created_at?: string | null;
@@ -27,16 +34,34 @@ export type EnrichThingsToDoOptions = {
   logSearchSamples?: boolean;
 };
 
-function needsEnrichment(row: ThingsToDoEnrichRow): boolean {
+export function thingsToDoNeedsEnrichment(row: ThingsToDoEnrichRow): boolean {
   const needWebsite = !row.website?.trim();
   const storedPhoto = row.google_photo_name?.trim();
   const hasValidPhoto = storedPhoto
     ? isValidGooglePhotoResourceName(storedPhoto)
     : false;
-  const needImage = !row.image_url?.trim() && !hasValidPhoto;
+  const names = row.google_photo_names;
+  const hasArrayPhoto =
+    Array.isArray(names) &&
+    names.some((n) => {
+      const t = n?.trim();
+      return t ? isValidGooglePhotoResourceName(t) : false;
+    });
+  const needImage = !row.image_url?.trim() && !hasValidPhoto && !hasArrayPhoto;
   const needHours = !row.opening_hours_text?.trim();
-  return needWebsite || needImage || needHours;
+  const hasPhotoList =
+    Array.isArray(row.google_photo_names) && row.google_photo_names.some((n) => n?.trim());
+  const hasPlacesMetadata =
+    Boolean(row.place_formatted_address?.trim()) ||
+    Boolean(row.place_google_maps_uri?.trim()) ||
+    Boolean(row.place_international_phone?.trim()) ||
+    Boolean(row.place_editorial_summary?.trim()) ||
+    row.google_rating != null ||
+    hasPhotoList;
+  const needPlacesExtras = !hasPlacesMetadata;
+  return needWebsite || needImage || needHours || needPlacesExtras;
 }
+
 
 function buildTextQuery(row: ThingsToDoEnrichRow): string {
   const region = marketKeyToRegionSuffix(row.market_key);
@@ -44,7 +69,7 @@ function buildTextQuery(row: ThingsToDoEnrichRow): string {
 }
 
 /**
- * Fills website, opening_hours_text (weekdayDescriptions), and/or Google photo from Places API (New).
+ * Fills website, opening_hours_text, Google photos, and extended Place Details (address, phone, rating, maps URI, editorial summary).
  */
 export async function enrichThingsToDoRow(
   supabase: SupabaseClient,
@@ -55,7 +80,7 @@ export async function enrichThingsToDoRow(
     return { ok: false, error: "GOOGLE_MAPS_API_KEY not set" };
   }
 
-  if (!needsEnrichment(row)) {
+  if (!thingsToDoNeedsEnrichment(row)) {
     return { ok: true, updated: [] };
   }
 
@@ -64,14 +89,30 @@ export async function enrichThingsToDoRow(
   const hasValidPhoto = storedPhoto
     ? isValidGooglePhotoResourceName(storedPhoto)
     : false;
-  const needImage = !row.image_url?.trim() && !hasValidPhoto;
+  const names = row.google_photo_names;
+  const hasArrayPhoto =
+    Array.isArray(names) &&
+    names.some((n) => {
+      const t = n?.trim();
+      return t ? isValidGooglePhotoResourceName(t) : false;
+    });
+  const needImage = !row.image_url?.trim() && !hasValidPhoto && !hasArrayPhoto;
   const needHours = !row.opening_hours_text?.trim();
+  const hasPhotoList =
+    Array.isArray(row.google_photo_names) && row.google_photo_names.some((n) => n?.trim());
+  const hasPlacesMetadata =
+    Boolean(row.place_formatted_address?.trim()) ||
+    Boolean(row.place_google_maps_uri?.trim()) ||
+    Boolean(row.place_international_phone?.trim()) ||
+    Boolean(row.place_editorial_summary?.trim()) ||
+    row.google_rating != null ||
+    hasPhotoList;
+  const needPlacesExtras = !hasPlacesMetadata;
 
   try {
     let placeName = row.google_place_name?.trim() ?? null;
     let websiteUri: string | null = null;
     let weekdayDescriptions: string[] | null = null;
-    let firstPhotoName: string | null = null;
 
     if (!placeName) {
       const q = buildTextQuery(row);
@@ -96,18 +137,50 @@ export async function enrichThingsToDoRow(
     const needsDetails =
       needImage ||
       (needWebsite && !websiteUri) ||
-      (needHours && (!weekdayDescriptions || weekdayDescriptions.length === 0));
+      (needHours && (!weekdayDescriptions || weekdayDescriptions.length === 0)) ||
+      needPlacesExtras;
+
+    let firstPhotoName: string | null = null;
+    let detailPhotoNames: string[] = [];
 
     if (needsDetails && placeName) {
       const d = await placesGetDetails(placeName);
       if (needWebsite && !websiteUri && d.websiteUri) {
         websiteUri = d.websiteUri;
       }
-      if (needImage && d.firstPhotoName) {
-        firstPhotoName = d.firstPhotoName;
-      }
       if (needHours && (!weekdayDescriptions?.length) && d.weekdayDescriptions?.length) {
         weekdayDescriptions = d.weekdayDescriptions;
+      }
+      if (d.photoNames.length > 0) {
+        detailPhotoNames = d.photoNames;
+        firstPhotoName = d.firstPhotoName;
+      } else if (needImage && d.firstPhotoName) {
+        firstPhotoName = d.firstPhotoName;
+        detailPhotoNames = d.firstPhotoName ? [d.firstPhotoName] : [];
+      }
+      if (d.formattedAddress) {
+        patch.place_formatted_address = d.formattedAddress;
+        updated.push("place_formatted_address");
+      }
+      if (d.internationalPhoneNumber) {
+        patch.place_international_phone = d.internationalPhoneNumber;
+        updated.push("place_international_phone");
+      }
+      if (d.googleMapsUri) {
+        patch.place_google_maps_uri = d.googleMapsUri;
+        updated.push("place_google_maps_uri");
+      }
+      if (d.editorialSummary) {
+        patch.place_editorial_summary = d.editorialSummary;
+        updated.push("place_editorial_summary");
+      }
+      if (d.rating != null) {
+        patch.google_rating = d.rating;
+        updated.push("google_rating");
+      }
+      if (d.userRatingCount != null) {
+        patch.google_user_rating_count = d.userRatingCount;
+        updated.push("google_user_rating_count");
       }
     }
 
@@ -115,14 +188,19 @@ export async function enrichThingsToDoRow(
       patch.website = websiteUri;
       updated.push("website");
     }
-    if (needImage) {
+    if (detailPhotoNames.length > 0) {
+      patch.google_photo_names = detailPhotoNames;
+      updated.push("google_photo_names");
+      const primary = detailPhotoNames[0];
+      if (primary && isValidGooglePhotoResourceName(primary)) {
+        patch.google_photo_name = primary;
+        updated.push("google_photo_name");
+      }
+    } else if (needImage) {
       if (firstPhotoName && isValidGooglePhotoResourceName(firstPhotoName)) {
         patch.google_photo_name = firstPhotoName;
         updated.push("google_photo_name");
-      } else if (
-        storedPhoto &&
-        !isValidGooglePhotoResourceName(storedPhoto)
-      ) {
+      } else if (storedPhoto && !isValidGooglePhotoResourceName(storedPhoto)) {
         patch.google_photo_name = null;
         updated.push("google_photo_name");
       }
@@ -138,7 +216,7 @@ export async function enrichThingsToDoRow(
       return { ok: false, error: error.message };
     }
 
-    return { ok: true, updated };
+    return { ok: true, updated: [...new Set(updated)] };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }

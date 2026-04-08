@@ -2,8 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
 import { supabaseAdmin } from "@/lib/supabase-server";
 import { cronUnauthorized, isCronAuthorized } from "@/lib/cron-auth";
-import { isValidGooglePhotoResourceName } from "@/lib/places-api";
-import { enrichThingsToDoRow, type ThingsToDoEnrichRow } from "@/lib/things-to-do-enrich";
+import {
+  enrichThingsToDoRow,
+  thingsToDoNeedsEnrichment,
+  type ThingsToDoEnrichRow,
+} from "@/lib/things-to-do-enrich";
 
 const BATCH = 20;
 const DELAY_MS = 200;
@@ -13,7 +16,7 @@ function sleep(ms: number) {
 }
 
 /**
- * GET /api/cron/things-to-do-enrich — Backfill website, opening_hours_text, google_photo_name.
+ * GET /api/cron/things-to-do-enrich — Backfill website, hours, Google photos, and Place Details (address, phone, rating, maps URI, editorial summary).
  * Requires GOOGLE_MAPS_API_KEY and Places API (New) enabled. Auth: Bearer CRON_SECRET.
  *
  * Rows are ordered with `place_enriched_at` NULLS FIRST so never-enriched listings are
@@ -26,7 +29,7 @@ export async function GET(req: NextRequest) {
     const { data: rows, error: fetchErr } = await supabaseAdmin
       .from("things_to_do")
       .select(
-        "id, title, venue, market_key, website, image_url, google_place_name, google_photo_name, opening_hours_text, place_enriched_at, created_at",
+        "id, title, venue, market_key, website, image_url, google_place_name, google_photo_name, google_photo_names, opening_hours_text, place_formatted_address, place_international_phone, place_google_maps_uri, place_editorial_summary, google_rating, google_user_rating_count, place_enriched_at, created_at",
       )
       .order("place_enriched_at", { ascending: true, nullsFirst: true })
       .order("created_at", { ascending: false })
@@ -37,18 +40,7 @@ export async function GET(req: NextRequest) {
     }
 
     const list = (rows ?? []) as ThingsToDoEnrichRow[];
-    const candidates = list
-      .filter((r) => {
-        const needWebsite = !r.website?.trim();
-        const storedPhoto = r.google_photo_name?.trim();
-        const hasValidPhoto = storedPhoto
-          ? isValidGooglePhotoResourceName(storedPhoto)
-          : false;
-        const needImage = !r.image_url?.trim() && !hasValidPhoto;
-        const needHours = !r.opening_hours_text?.trim();
-        return needWebsite || needImage || needHours;
-      })
-      .slice(0, BATCH);
+    const candidates = list.filter(thingsToDoNeedsEnrichment).slice(0, BATCH);
 
     const results: Array<{ id: string; ok: boolean; updated?: string[]; error?: string }> = [];
 

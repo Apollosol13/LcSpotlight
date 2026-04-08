@@ -4,7 +4,7 @@ import type { ThingsToDoRow } from "@/lib/things-to-do-types";
 import { websiteHref } from "@/lib/things-to-do-website";
 import { ThingsToDoDetailActions } from "@/components/ThingsToDoDetailActions";
 import { googleMapsPlaceEmbedUrl } from "@/lib/google-maps-embed";
-import { thingsToDoImageSrc } from "@/lib/things-to-do-image";
+import { thingsToDoGalleryImageSrcs, thingsToDoImageSrc } from "@/lib/things-to-do-image";
 
 function marketLabel(marketKey: string | null | undefined): string {
   const k = (marketKey ?? "").trim();
@@ -37,7 +37,16 @@ export function ThingsToDoDetail({ row }: Props) {
   const venue = row.venue?.trim() ?? "";
   const bullets = newlineBullets(row.description);
   const img = thingsToDoImageSrc(row);
-  const mapEmbedSrc = venue ? googleMapsPlaceEmbedUrl(venue) : null;
+  const gallerySrcs = thingsToDoGalleryImageSrcs(row);
+  const mapQuery = row.place_formatted_address?.trim() || venue;
+  const mapEmbedSrc = mapQuery ? googleMapsPlaceEmbedUrl(mapQuery) : null;
+  const mapsOutHref =
+    row.place_google_maps_uri?.trim() || (mapQuery ? mapsSearchUrl(mapQuery) : null);
+  const rating =
+    row.google_rating != null && !Number.isNaN(row.google_rating)
+      ? row.google_rating
+      : null;
+  const reviewCount = row.google_user_rating_count;
 
   return (
     <div className="bg-spotlight-cream pb-16 pt-0">
@@ -91,13 +100,28 @@ export function ThingsToDoDetail({ row }: Props) {
                 </svg>
                 {area}
               </span>
-              <span className="inline-flex items-center gap-2">
-                <svg className="size-4 shrink-0 opacity-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg>
-                Hours vary — check the venue&apos;s site
-              </span>
+              {rating != null ? (
+                <span className="inline-flex items-center gap-2">
+                  <svg className="size-4 shrink-0 opacity-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                  <span>
+                    {rating.toFixed(1)}
+                    {reviewCount != null && reviewCount > 0
+                      ? ` · ${reviewCount.toLocaleString()} reviews`
+                      : null}{" "}
+                    <span className="text-white/70">(Google)</span>
+                  </span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-2">
+                  <svg className="size-4 shrink-0 opacity-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  Hours vary — check the venue&apos;s site
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -109,13 +133,18 @@ export function ThingsToDoDetail({ row }: Props) {
           <div className="space-y-6 pt-2">
             <section className="rounded-xl border border-[rgba(12,27,51,0.08)] bg-white p-6 shadow-sm min-[601px]:p-8">
               <h2 className="mb-4 font-serif text-xl font-normal text-spotlight-navy">About this listing</h2>
+              {row.place_editorial_summary?.trim() ? (
+                <p className="mb-4 text-[15px] font-light leading-relaxed tracking-[0.02em] text-spotlight-text-mid">
+                  {row.place_editorial_summary.trim()}
+                </p>
+              ) : null}
               {row.description?.trim() ? (
                 <p className="text-[15px] font-light leading-relaxed tracking-[0.02em] text-spotlight-text-mid">
                   {row.description.trim()}
                 </p>
-              ) : (
+              ) : !row.place_editorial_summary?.trim() ? (
                 <p className="text-sm text-spotlight-text-muted">No description yet.</p>
-              )}
+              ) : null}
               <div className="mt-6 grid gap-3 min-[480px]:grid-cols-2">
                 <div className="rounded-lg border border-spotlight-navy/10 bg-spotlight-cream/80 px-4 py-3">
                   <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-spotlight-text-muted">
@@ -152,19 +181,22 @@ export function ThingsToDoDetail({ row }: Props) {
               </section>
             ) : null}
 
-            {img ? (
+            {gallerySrcs.length > 0 ? (
               <section className="rounded-xl border border-[rgba(12,27,51,0.08)] bg-white p-6 shadow-sm min-[601px]:p-8">
                 <h2 className="mb-4 font-serif text-xl font-normal text-spotlight-navy">Gallery</h2>
-                <div className="grid grid-cols-2 gap-2 min-[601px]:grid-cols-4">
-                  {/* Single image in grid for visual balance */}
-                  <div className="col-span-2 min-[601px]:col-span-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={img}
-                      alt=""
-                      className="aspect-[4/3] w-full rounded-lg object-cover"
-                    />
-                  </div>
+                <div
+                  className={
+                    gallerySrcs.length === 1
+                      ? "grid grid-cols-1"
+                      : "grid grid-cols-2 gap-2 min-[601px]:grid-cols-3"
+                  }
+                >
+                  {gallerySrcs.map((src) => (
+                    <div key={src}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt="" className="aspect-[4/3] w-full rounded-lg object-cover" />
+                    </div>
+                  ))}
                 </div>
               </section>
             ) : null}
@@ -187,6 +219,19 @@ export function ThingsToDoDetail({ row }: Props) {
                   )}
                 </div>
                 <div className="space-y-3">
+                  {row.place_international_phone?.trim() ? (
+                    <div>
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-spotlight-text-muted">
+                        Phone
+                      </p>
+                      <a
+                        href={`tel:${row.place_international_phone.replace(/\s+/g, "")}`}
+                        className="text-sm font-medium text-spotlight-navy no-underline hover:underline"
+                      >
+                        {row.place_international_phone.trim()}
+                      </a>
+                    </div>
+                  ) : null}
                   {site ? (
                     <div>
                       <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-spotlight-text-muted">
@@ -208,14 +253,19 @@ export function ThingsToDoDetail({ row }: Props) {
               </div>
             </section>
 
-            {venue ? (
+            {venue || row.place_formatted_address?.trim() ? (
               <section className="rounded-xl border border-[rgba(12,27,51,0.08)] bg-white p-6 shadow-sm min-[601px]:p-8">
                 <h2 className="mb-3 font-serif text-xl font-normal text-spotlight-navy">Location</h2>
-                <p className="mb-4 text-sm font-medium text-spotlight-navy">{venue}</p>
+                <div className="mb-4 space-y-1">
+                  {venue ? <p className="text-sm font-medium text-spotlight-navy">{venue}</p> : null}
+                  {row.place_formatted_address?.trim() ? (
+                    <p className="text-sm text-spotlight-text-mid">{row.place_formatted_address.trim()}</p>
+                  ) : null}
+                </div>
                 <div className="overflow-hidden rounded-lg border border-spotlight-navy/10 bg-[#e8eaee]">
                   {mapEmbedSrc ? (
                     <iframe
-                      title={`Map: ${venue}`}
+                      title={`Map: ${mapQuery || title}`}
                       src={mapEmbedSrc}
                       className="aspect-[16/10] min-h-[240px] w-full border-0"
                       loading="lazy"
@@ -235,7 +285,7 @@ export function ThingsToDoDetail({ row }: Props) {
                         <circle cx="12" cy="10" r="3" />
                       </svg>
                       <a
-                        href={mapsSearchUrl(venue)}
+                        href={mapQuery ? mapsSearchUrl(mapQuery) : "#"}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center justify-center rounded-lg bg-spotlight-navy px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.08em] text-white no-underline transition-opacity hover:opacity-90"
@@ -246,14 +296,16 @@ export function ThingsToDoDetail({ row }: Props) {
                   )}
                 </div>
                 <div className="mt-3 flex flex-wrap gap-4 text-[12px] font-medium">
-                  <a
-                    href={mapsSearchUrl(venue)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-spotlight-teal no-underline hover:underline"
-                  >
-                    View on Google Maps
-                  </a>
+                  {mapsOutHref ? (
+                    <a
+                      href={mapsOutHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-spotlight-teal no-underline hover:underline"
+                    >
+                      View on Google Maps
+                    </a>
+                  ) : null}
                 </div>
               </section>
             ) : null}

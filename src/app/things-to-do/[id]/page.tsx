@@ -33,7 +33,7 @@ export default async function ThingsToDoDetailPage({ params }: PageProps) {
   const { data, error } = await supabase
     .from("things_to_do")
     .select(
-      "id, market_key, category, title, description, venue, website, image_url, google_photo_name, google_place_name, place_enriched_at, opening_hours_text",
+      "id, market_key, category, title, description, venue, website, image_url, google_photo_name, google_photo_names, google_place_name, place_enriched_at, opening_hours_text, google_rating, google_user_rating_count, place_formatted_address, place_international_phone, place_google_maps_uri, place_editorial_summary",
     )
     .eq("id", id)
     .maybeSingle();
