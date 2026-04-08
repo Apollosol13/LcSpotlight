@@ -138,12 +138,12 @@ export function Hero({ hhiMedianDisplay, hhiActiveListingsDisplay }: HeroProps) 
         </Link>
 
         <Link
-          href="/events"
+          href="/things-to-do"
           className="group relative block h-full min-h-[220px] overflow-hidden no-underline lg:min-h-0"
         >
           <Image
-            src="/hero-featured-event.jpg"
-            alt="Wine and live jazz at an outdoor Lowcountry evening event"
+            src="/hero-featured-event.png"
+            alt="Lowcountry golf fairway with water and tree line"
             fill
             className="object-cover transition-[filter] duration-300 ease-out group-hover:brightness-[0.92]"
             sizes="(max-width: 1023px) 100vw, 50vw"
@@ -157,13 +157,13 @@ export function Hero({ hhiMedianDisplay, hhiActiveListingsDisplay }: HeroProps) 
           </span>
           <div className="absolute inset-x-0 bottom-0 z-[2] p-8 min-[601px]:p-8">
             <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.2em] text-spotlight-gold/90">
-              Featured event
+              Golf
             </p>
             <p className="mb-3 font-serif text-[clamp(1.35rem,3vw,1.75rem)] font-bold leading-[1.1] text-white">
-              Jazz &amp; Wine Festival returns to Shelter Cove Marina.
+              Explore some of Hilton Head&apos;s Best Golf
             </p>
             <p className="text-[11px] font-light tracking-[0.04em] text-white/65">
-              April 5 · From $45
+              Resort courses, coastal views &amp; championship layouts
             </p>
           </div>
         </Link>
