@@ -142,8 +142,8 @@ export function Hero({ hhiMedianDisplay, hhiActiveListingsDisplay }: HeroProps) 
           className="group relative block h-full min-h-[220px] overflow-hidden no-underline lg:min-h-0"
         >
           <Image
-            src="/hero-golf-hero.webp"
-            alt="Aerial view of a Lowcountry golf fairway at golden hour, with bunkers, water, and tree-lined holes"
+            src="/hero-golf-hero-v2.jpg"
+            alt="Panoramic aerial view of a Lowcountry golf fairway beside water, bunkers, and tree-lined coast"
             fill
             className="object-cover transition-[filter] duration-300 ease-out group-hover:brightness-[0.92]"
             sizes="(max-width: 1023px) 100vw, 50vw"
