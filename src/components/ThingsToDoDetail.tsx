@@ -128,9 +128,9 @@ export function ThingsToDoDetail({ row }: Props) {
       </section>
 
       <div className="mx-auto max-w-[1200px] px-5 min-[601px]:px-10">
-        <div className="-mt-6 grid gap-8 lg:grid-cols-[1fr_min(340px,100%)] lg:items-start lg:gap-10">
+        <div className="-mt-6 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_min(340px,100%)] lg:items-start lg:gap-10">
           {/* Main column */}
-          <div className="space-y-6 pt-2">
+          <div className="min-w-0 space-y-6 pt-2">
             <section className="rounded-xl border border-[rgba(12,27,51,0.08)] bg-white p-6 shadow-sm min-[601px]:p-8">
               <h2 className="mb-4 font-serif text-xl font-normal text-spotlight-navy">About this listing</h2>
               {row.place_editorial_summary?.trim() ? (
@@ -203,8 +203,12 @@ export function ThingsToDoDetail({ row }: Props) {
 
             <section className="rounded-xl border border-[rgba(12,27,51,0.08)] bg-white p-6 shadow-sm min-[601px]:p-8">
               <h2 className="mb-4 font-serif text-xl font-normal text-spotlight-navy">Hours &amp; contact</h2>
-              <div className="grid gap-6 min-[601px]:grid-cols-2">
-                <div>
+              <div
+                className={`grid min-w-0 gap-6 ${
+                  row.place_international_phone?.trim() ? "min-[601px]:grid-cols-2" : ""
+                }`}
+              >
+                <div className="min-w-0">
                   <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-spotlight-text-muted">
                     Hours
                   </p>
@@ -218,38 +222,19 @@ export function ThingsToDoDetail({ row }: Props) {
                     </p>
                   )}
                 </div>
-                <div className="space-y-3">
-                  {row.place_international_phone?.trim() ? (
-                    <div>
-                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-spotlight-text-muted">
-                        Phone
-                      </p>
-                      <a
-                        href={`tel:${row.place_international_phone.replace(/\s+/g, "")}`}
-                        className="text-sm font-medium text-spotlight-navy no-underline hover:underline"
-                      >
-                        {row.place_international_phone.trim()}
-                      </a>
-                    </div>
-                  ) : null}
-                  {site ? (
-                    <div>
-                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-spotlight-text-muted">
-                        Website
-                      </p>
-                      <a
-                        href={site}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block rounded-lg border border-spotlight-navy/12 bg-spotlight-cream/60 px-3 py-2.5 text-sm font-medium text-spotlight-navy no-underline transition-colors hover:border-spotlight-teal/40"
-                      >
-                        {site.replace(/^https?:\/\//i, "")}
-                      </a>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-spotlight-text-muted">No website on file.</p>
-                  )}
-                </div>
+                {row.place_international_phone?.trim() ? (
+                  <div className="min-w-0">
+                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-spotlight-text-muted">
+                      Phone
+                    </p>
+                    <a
+                      href={`tel:${row.place_international_phone.replace(/\s+/g, "")}`}
+                      className="text-sm font-medium text-spotlight-navy no-underline hover:underline"
+                    >
+                      {row.place_international_phone.trim()}
+                    </a>
+                  </div>
+                ) : null}
               </div>
             </section>
 
@@ -311,8 +296,8 @@ export function ThingsToDoDetail({ row }: Props) {
             ) : null}
           </div>
 
-          {/* Sidebar */}
-          <aside className="lg:sticky lg:top-24">
+          {/* Sidebar — primary CTA + tips */}
+          <aside className="min-w-0 lg:sticky lg:top-24">
             <div className="rounded-xl border border-[rgba(12,27,51,0.1)] bg-white p-6 shadow-[0_8px_30px_rgba(12,27,51,0.08)]">
               <div className="mb-4 flex items-start justify-between gap-2">
                 <h2 className="font-serif text-lg font-normal text-spotlight-navy">Plan your visit</h2>
@@ -321,15 +306,15 @@ export function ThingsToDoDetail({ row }: Props) {
                 </span>
               </div>
               {venue ? (
-                <p className="mb-1 flex items-start gap-2 text-[13px] text-spotlight-text-mid">
+                <p className="mb-4 flex items-start gap-2 text-[13px] text-spotlight-text-mid">
                   <svg className="mt-0.5 size-4 shrink-0 text-spotlight-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                     <circle cx="12" cy="10" r="3" />
                   </svg>
-                  {venue}
+                  <span className="min-w-0">{venue}</span>
                 </p>
               ) : null}
-              <p className="mb-6 text-[12px] text-spotlight-text-muted">
+              <p className="mb-6 text-[12px] leading-relaxed text-spotlight-text-muted">
                 Confirm hours and offerings on the venue&apos;s official site before you go.
               </p>
               {site ? (
