@@ -34,7 +34,13 @@ export type EnrichThingsToDoOptions = {
   logSearchSamples?: boolean;
 };
 
-export function thingsToDoNeedsEnrichment(row: ThingsToDoEnrichRow): boolean {
+/** Single source of truth for “what is still missing” on a row. */
+export function getThingsToDoEnrichmentNeeds(row: ThingsToDoEnrichRow): {
+  needWebsite: boolean;
+  needImage: boolean;
+  needHours: boolean;
+  needPlacesExtras: boolean;
+} {
   const needWebsite = !row.website?.trim();
   const storedPhoto = row.google_photo_name?.trim();
   const hasValidPhoto = storedPhoto
@@ -59,7 +65,28 @@ export function thingsToDoNeedsEnrichment(row: ThingsToDoEnrichRow): boolean {
     row.google_rating != null ||
     hasPhotoList;
   const needPlacesExtras = !hasPlacesMetadata;
-  return needWebsite || needImage || needHours || needPlacesExtras;
+  return { needWebsite, needImage, needHours, needPlacesExtras };
+}
+
+export function thingsToDoNeedsEnrichment(row: ThingsToDoEnrichRow): boolean {
+  const n = getThingsToDoEnrichmentNeeds(row);
+  return n.needWebsite || n.needImage || n.needHours || n.needPlacesExtras;
+}
+
+/**
+ * Higher score = run sooner: never enriched first, then rows with more missing fields.
+ * Used by the enrich cron so sparse rows aren’t stuck behind partial rows.
+ */
+export function thingsToDoEnrichmentQueueScore(row: ThingsToDoEnrichRow): number {
+  if (!thingsToDoNeedsEnrichment(row)) return -1;
+  const n = getThingsToDoEnrichmentNeeds(row);
+  const gapCount =
+    Number(n.needWebsite) +
+    Number(n.needImage) +
+    Number(n.needHours) +
+    Number(n.needPlacesExtras);
+  const neverEnriched = !row.place_enriched_at?.trim();
+  return (neverEnriched ? 10_000 : 0) + gapCount * 100;
 }
 
 
@@ -84,30 +111,13 @@ export async function enrichThingsToDoRow(
     return { ok: true, updated: [] };
   }
 
-  const needWebsite = !row.website?.trim();
+  const {
+    needWebsite,
+    needImage,
+    needHours,
+    needPlacesExtras,
+  } = getThingsToDoEnrichmentNeeds(row);
   const storedPhoto = row.google_photo_name?.trim();
-  const hasValidPhoto = storedPhoto
-    ? isValidGooglePhotoResourceName(storedPhoto)
-    : false;
-  const names = row.google_photo_names;
-  const hasArrayPhoto =
-    Array.isArray(names) &&
-    names.some((n) => {
-      const t = n?.trim();
-      return t ? isValidGooglePhotoResourceName(t) : false;
-    });
-  const needImage = !row.image_url?.trim() && !hasValidPhoto && !hasArrayPhoto;
-  const needHours = !row.opening_hours_text?.trim();
-  const hasPhotoList =
-    Array.isArray(row.google_photo_names) && row.google_photo_names.some((n) => n?.trim());
-  const hasPlacesMetadata =
-    Boolean(row.place_formatted_address?.trim()) ||
-    Boolean(row.place_google_maps_uri?.trim()) ||
-    Boolean(row.place_international_phone?.trim()) ||
-    Boolean(row.place_editorial_summary?.trim()) ||
-    row.google_rating != null ||
-    hasPhotoList;
-  const needPlacesExtras = !hasPlacesMetadata;
 
   try {
     let placeName = row.google_place_name?.trim() ?? null;
