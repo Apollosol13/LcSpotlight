@@ -143,6 +143,24 @@ export function isValidGooglePhotoResourceName(name: string): boolean {
 }
 
 /**
+ * Build GET URL for Place Photo media (New API). Each path segment must be
+ * percent-encoded; naive string concat breaks when IDs contain reserved chars.
+ */
+export function buildPlacesPhotoMediaUrl(
+  photoResourceName: string,
+  maxHeightPx = 1200,
+  maxWidthPx = 1200,
+): string {
+  const trimmed = photoResourceName.trim();
+  const segments = trimmed.split("/").filter(Boolean);
+  const encodedPath = segments.map((s) => encodeURIComponent(s)).join("/");
+  const u = new URL(`https://places.googleapis.com/v1/${encodedPath}/media`);
+  u.searchParams.set("maxHeightPx", String(maxHeightPx));
+  u.searchParams.set("maxWidthPx", String(maxWidthPx));
+  return u.toString();
+}
+
+/**
  * Place Details (New) by place id segment (with or without places/ prefix).
  */
 export async function placesGetDetails(placeName: string): Promise<{

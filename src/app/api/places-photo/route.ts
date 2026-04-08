@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isValidGooglePhotoResourceName } from "@/lib/places-api";
+import {
+  buildPlacesPhotoMediaUrl,
+  isValidGooglePhotoResourceName,
+} from "@/lib/places-api";
 
 /**
  * Proxies Google Places photo media so we don't store API keys in public HTML.
  * Query: n = photo resource name from Place Details (photos[].name).
  */
 export async function GET(req: NextRequest) {
+  const noStoreJson = (body: object, status: number) =>
+    NextResponse.json(body, { status, headers: { "Cache-Control": "no-store" } });
+
   const n = req.nextUrl.searchParams.get("n");
   if (!n?.trim()) {
-    return NextResponse.json({ error: "Missing n" }, { status: 400 });
+    return noStoreJson({ error: "Missing n" }, 400);
   }
 
   const key = process.env.GOOGLE_MAPS_API_KEY?.trim();
   if (!key) {
-    return NextResponse.json({ error: "Not configured" }, { status: 503 });
+    return noStoreJson({ error: "Not configured" }, 503);
   }
 
   const photoName = n.trim();
@@ -21,10 +27,10 @@ export async function GET(req: NextRequest) {
     photoName.length > 2048 ||
     !isValidGooglePhotoResourceName(photoName)
   ) {
-    return NextResponse.json({ error: "Invalid n" }, { status: 400 });
+    return noStoreJson({ error: "Invalid n" }, 400);
   }
 
-  const url = `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=1200&maxWidthPx=1200`;
+  const url = buildPlacesPhotoMediaUrl(photoName);
 
   const res = await fetch(url, {
     method: "GET",
@@ -33,7 +39,7 @@ export async function GET(req: NextRequest) {
   });
 
   if (!res.ok) {
-    return NextResponse.json({ error: "Upstream photo error" }, { status: res.status });
+    return noStoreJson({ error: "Upstream photo error" }, res.status);
   }
 
   const buf = await res.arrayBuffer();
