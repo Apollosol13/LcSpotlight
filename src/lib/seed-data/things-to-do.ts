@@ -1,13 +1,7 @@
-/** Curated directory rows for `things_to_do`. Upserted on `title`. */
-export type ThingsToDoSeedRow = {
-  market_key: "hhi" | "bluffton" | "beaufort" | "savannah";
-  category: string;
-  title: string;
-  description: string;
-  venue: string;
-  website: string | null;
-  source: "curated";
-};
+import type { ThingsToDoSeedRow } from "./things-to-do-seed-types";
+import { additionalThingsToDoSeedRows } from "./things-to-do-additions";
+
+export type { ThingsToDoSeedRow } from "./things-to-do-seed-types";
 
 export const thingsToDoSeedData: ThingsToDoSeedRow[] = [
   {
@@ -1458,6 +1452,7 @@ export const thingsToDoSeedData: ThingsToDoSeedRow[] = [
     "venue": "Savannah",
     "website": null,
     "source": "curated"
-  }
+  },
+  ...additionalThingsToDoSeedRows
 ];
 
