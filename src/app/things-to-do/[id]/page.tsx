@@ -4,7 +4,8 @@ import { ThingsToDoDetail } from "@/components/ThingsToDoDetail";
 import { supabase } from "@/lib/supabase";
 import type { ThingsToDoRow } from "@/lib/things-to-do-types";
 
-export const revalidate = 300;
+/** Always resolve at request time so we never cache a stale `notFound()` after seed replaces (new UUIDs). */
+export const dynamic = "force-dynamic";
 
 type PageProps = { params: Promise<{ id: string }> };
 
