@@ -4,12 +4,13 @@ const columns = [
   {
     title: "Explore",
     links: [
+      { label: "Things To Do", href: "/things-to-do" },
+      { label: "News", href: "/news" },
+      { label: "Real Estate", href: "/real-estate" },
+      { label: "Deals", href: "/deals" },
+      { label: "Buy Tickets", href: "/ticketing" },
       { label: "Upcoming Events", href: "/events" },
       { label: "New Openings", href: "/openings" },
-      { label: "Things To Do", href: "/things-to-do" },
-      { label: "Deals", href: "/deals" },
-      { label: "Real Estate", href: "/real-estate" },
-      { label: "Buy Tickets", href: "/ticketing" },
     ],
   },
   {

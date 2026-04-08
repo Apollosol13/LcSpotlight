@@ -5,13 +5,13 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const navItems = [
+  { href: "/things-to-do", label: "Things To Do" },
+  { href: "/news", label: "News" },
+  { href: "/real-estate", label: "Real Estate" },
+  { href: "/deals", label: "Deals" },
+  { href: "/ticketing", label: "Tickets" },
   { href: "/events", label: "Events" },
   { href: "/openings", label: "New Openings" },
-  { href: "/news", label: "News" },
-  { href: "/things-to-do", label: "Things To Do" },
-  { href: "/deals", label: "Deals" },
-  { href: "/real-estate", label: "Real Estate" },
-  { href: "/ticketing", label: "Tickets" },
   { href: "/contact", label: "Contact" },
 ] as const;
 
