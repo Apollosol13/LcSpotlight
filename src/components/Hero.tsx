@@ -138,18 +138,22 @@ export function Hero({ hhiMedianDisplay, hhiActiveListingsDisplay }: HeroProps) 
         </Link>
 
         <Link
-          href="/things-to-do"
+          href="/things-to-do?category=Golf"
           className="group relative block h-full min-h-[220px] overflow-hidden no-underline lg:min-h-0"
         >
           <Image
             src="/hero-golf-hero-v2.jpg"
             alt="Panoramic aerial view of a Lowcountry golf fairway beside water, bunkers, and tree-lined coast"
             fill
-            className="object-cover transition-[filter] duration-300 ease-out group-hover:brightness-[0.92]"
+            className="object-cover object-[center_42%] transition-[filter] duration-300 ease-out group-hover:brightness-[0.92]"
             sizes="(max-width: 1023px) 100vw, 50vw"
           />
           <div
-            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/82 via-black/35 to-black/15"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-transparent"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/[0.78] via-black/28 to-black/[0.04]"
             aria-hidden
           />
           <span className="absolute right-7 top-7 z-[2] text-lg font-light text-white/45 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white/70">
@@ -157,13 +161,16 @@ export function Hero({ hhiMedianDisplay, hhiActiveListingsDisplay }: HeroProps) 
           </span>
           <div className="absolute inset-x-0 bottom-0 z-[2] p-8 min-[601px]:p-8">
             <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.2em] text-spotlight-gold/90">
-              Golf
+              Golf · LCSpotlight guide
             </p>
             <p className="mb-3 font-serif text-[clamp(1.35rem,3vw,1.75rem)] font-bold leading-[1.1] text-white">
-              Explore some of Hilton Head&apos;s Best Golf
+              Find your next round on Hilton Head
             </p>
-            <p className="text-[11px] font-light tracking-[0.04em] text-white/65">
-              Resort courses, coastal views &amp; championship layouts
+            <p className="text-[11px] font-light tracking-[0.04em] text-white/70">
+              Editor-shortlisted courses — resort layouts, public tee times, and Lowcountry views.
+            </p>
+            <p className="mt-3 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-gold/95">
+              Browse the golf guide →
             </p>
           </div>
         </Link>

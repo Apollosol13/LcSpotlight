@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { REAL_ESTATE_MARKETS, type RealEstateMarketKey } from "@/lib/real-estate-markets";
 import type { ThingsToDoRow } from "@/lib/things-to-do-types";
 import { thingsToDoImageSrc } from "@/lib/things-to-do-image";
@@ -17,20 +17,41 @@ type Props = {
   variant: Variant;
   /** Optional link to full page (home only) */
   showAllLink?: boolean;
+  /** Things-to-do page: pre-select category from URL (?category=Golf) */
+  deepLinkCategory?: string | null;
 };
 
 const ALL = "All";
+
+const MARKET_ORDER: RealEstateMarketKey[] = ["hhi", "bluffton", "beaufort", "savannah"];
 
 export function ThingsToDoSectionClient({
   dealsByMarket,
   variant,
   showAllLink = true,
+  deepLinkCategory = null,
 }: Props) {
   const tabs = REAL_ESTATE_MARKETS.map((m) => ({ key: m.key, label: m.label }));
   const [active, setActive] = useState<RealEstateMarketKey>("hhi");
   const [activeCategory, setActiveCategory] = useState(ALL);
+  const deepLinkApplied = useRef(false);
 
   const deals = dealsByMarket[active] ?? [];
+
+  useEffect(() => {
+    if (variant !== "page" || deepLinkApplied.current) return;
+    const raw = deepLinkCategory?.trim();
+    if (!raw) return;
+    for (const k of MARKET_ORDER) {
+      const list = dealsByMarket[k] ?? [];
+      if (list.some((d) => (d.category ?? "").trim() === raw)) {
+        setActive(k);
+        setActiveCategory(raw);
+        deepLinkApplied.current = true;
+        return;
+      }
+    }
+  }, [variant, deepLinkCategory, dealsByMarket]);
 
   const categoryOptions = useMemo(() => {
     const set = new Set<string>(THINGS_TO_DO_CATEGORY_PRESETS);

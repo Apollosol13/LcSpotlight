@@ -14,7 +14,16 @@ function emptyByMarket(): Record<RealEstateMarketKey, ThingsToDoRow[]> {
   return { hhi: [], bluffton: [], beaufort: [], savannah: [] };
 }
 
-export default async function ThingsToDoPage() {
+export default async function ThingsToDoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string | string[] }>;
+}) {
+  const sp = await searchParams;
+  const catRaw = sp.category;
+  const deepLinkCategory =
+    typeof catRaw === "string" ? catRaw : Array.isArray(catRaw) ? catRaw[0] : null;
+
   const { data: rows } = await supabaseAdmin
     .from("things_to_do")
     .select(
@@ -32,7 +41,12 @@ export default async function ThingsToDoPage() {
 
   return (
     <main className="mx-auto w-full max-w-[1200px] flex-1 px-5 py-16 min-[601px]:px-10">
-      <ThingsToDoSectionClient dealsByMarket={by} variant="page" showAllLink={false} />
+      <ThingsToDoSectionClient
+        dealsByMarket={by}
+        variant="page"
+        showAllLink={false}
+        deepLinkCategory={deepLinkCategory}
+      />
     </main>
   );
 }
