@@ -422,7 +422,7 @@ export const thingsToDoAddBeaufort: ThingsToDoSeedRow[] = [
     title: "Secession Golf Club",
     description: "Private coastal course with wide dunes and ocean breezes.",
     venue: "Beaufort",
-    website: null,
+    website: "https://www.secessiongolfclub.com",
     source: "curated",
   },
   {
@@ -431,7 +431,7 @@ export const thingsToDoAddBeaufort: ThingsToDoSeedRow[] = [
     title: "Ocean Point Golf Links",
     description: "Public-friendly layout with marsh carries and Lowcountry views.",
     venue: "Lady's Island",
-    website: null,
+    website: "https://www.oceanpointgolf.com",
     source: "curated",
   },
   {

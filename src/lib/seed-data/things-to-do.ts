@@ -82,7 +82,7 @@ export const thingsToDoSeedData: ThingsToDoSeedRow[] = [
     "title": "Harbour Town Golf Links",
     "description": "PGA Tour–famous course in a classic Sea Pines setting.",
     "venue": "Sea Pines Resort",
-    "website": "https://www.seapines.com/golf",
+    "website": "https://www.seapines.com/golf/courses/harbour-town-golf-links",
     "source": "curated"
   },
   {

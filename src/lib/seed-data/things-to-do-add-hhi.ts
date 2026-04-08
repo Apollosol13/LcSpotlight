@@ -396,7 +396,7 @@ export const thingsToDoAddHhi: ThingsToDoSeedRow[] = [
     title: "George Fazio Golf Course",
     description: "Challenging resort course with tight fairways and coastal breezes.",
     venue: "Palmetto Dunes, HHI",
-    website: null,
+    website: "https://www.palmettodunes.com/golf/george-fazio-course",
     source: "curated",
   },
   {
@@ -414,7 +414,7 @@ export const thingsToDoAddHhi: ThingsToDoSeedRow[] = [
     title: "Oyster Reef Golf Club",
     description: "Rees Jones design with ocean breezes and memorable par threes.",
     venue: "Shipyard Plantation, HHI",
-    website: null,
+    website: "https://hiltonheadgolf.net/clubs/oyster-reef",
     source: "curated",
   },
   {
@@ -423,7 +423,7 @@ export const thingsToDoAddHhi: ThingsToDoSeedRow[] = [
     title: "Robert Trent Jones Oceanfront Course",
     description: "Oceanfront holes and wide fairways at Palmetto Dunes Resort.",
     venue: "Palmetto Dunes, HHI",
-    website: null,
+    website: "https://www.palmettodunes.com/golf/robert-trent-jones-course",
     source: "curated",
   },
   {
@@ -432,7 +432,7 @@ export const thingsToDoAddHhi: ThingsToDoSeedRow[] = [
     title: "Heron Point by Pete Dye",
     description: "Strategic Pete Dye redesign with risk-reward shots at Sea Pines.",
     venue: "Sea Pines, HHI",
-    website: null,
+    website: "https://www.seapines.com/golf/courses/heron-point-by-pete-dye",
     source: "curated",
   },
   {
@@ -441,7 +441,7 @@ export const thingsToDoAddHhi: ThingsToDoSeedRow[] = [
     title: "Dolphin Head Golf Club",
     description: "Public-friendly course with mossy oaks and forgiving fairways.",
     venue: "North End, HHI",
-    website: null,
+    website: "https://www.dolphinheadgc.com",
     source: "curated",
   },
   {

@@ -422,7 +422,7 @@ export const thingsToDoAddSavannah: ThingsToDoSeedRow[] = [
     title: "Savannah Golf Championship Course",
     description: "TPC-level conditioning and tour-style practice facilities.",
     venue: "The Landings, Savannah",
-    website: null,
+    website: "https://www.landingsclub.com",
     source: "curated",
   },
   {
@@ -431,7 +431,7 @@ export const thingsToDoAddSavannah: ThingsToDoSeedRow[] = [
     title: "Crosswinds Golf Club",
     description: "Public course with pine-lined fairways near the airport.",
     venue: "Savannah",
-    website: null,
+    website: "https://www.crosswindsgolfclub.com",
     source: "curated",
   },
   {

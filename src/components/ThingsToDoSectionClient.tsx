@@ -166,6 +166,7 @@ export function ThingsToDoSectionClient({
           <div className="grid grid-cols-1 gap-0.5 min-[601px]:grid-cols-2 min-[901px]:grid-cols-3">
             {visible.map((d) => {
               const thumb = thingsToDoImageSrc(d);
+              const siteHref = websiteHref(d.website, { category: d.category });
               return (
               <article key={d.id} className={cardClass}>
                 <Link
@@ -197,9 +198,9 @@ export function ThingsToDoSectionClient({
                     <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-spotlight-teal">{d.venue}</p>
                   ) : null}
                 </Link>
-                {websiteHref(d.website) ? (
+                {siteHref ? (
                   <a
-                    href={websiteHref(d.website)!}
+                    href={siteHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="relative z-10 mt-3 inline-flex text-[11px] font-medium text-spotlight-gold-dark no-underline hover:underline"
@@ -215,6 +216,7 @@ export function ThingsToDoSectionClient({
           <div className="grid gap-5 min-[601px]:grid-cols-2 min-[901px]:grid-cols-3">
             {visible.map((d) => {
               const thumb = thingsToDoImageSrc(d);
+              const siteHref = websiteHref(d.website, { category: d.category });
               return (
               <div key={d.id} className={cardClass}>
                 <div className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-spotlight-teal transition-transform group-hover:scale-x-100" />
@@ -245,9 +247,9 @@ export function ThingsToDoSectionClient({
                     <p className="text-xs font-medium uppercase tracking-[0.5px] text-spotlight-text-mid">{d.venue}</p>
                   ) : null}
                 </Link>
-                {websiteHref(d.website) ? (
+                {siteHref ? (
                   <a
-                    href={websiteHref(d.website)!}
+                    href={siteHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="relative z-10 mt-4 inline-flex text-xs font-medium text-spotlight-gold no-underline hover:underline"

@@ -440,7 +440,7 @@ export const thingsToDoAddBluffton: ThingsToDoSeedRow[] = [
     title: "Crescent Pointe Golf Club",
     description: "Arnold Palmer public design with generous fairways and water features.",
     venue: "Bluffton",
-    website: null,
+    website: "https://www.crescentpointegolf.com",
     source: "curated",
   },
   {
@@ -449,7 +449,7 @@ export const thingsToDoAddBluffton: ThingsToDoSeedRow[] = [
     title: "Old South Golf Links",
     description: "Lowcountry marsh views and classic Lowcountry layout.",
     venue: "Bluffton",
-    website: null,
+    website: "https://www.oldsouthgolflinks.com",
     source: "curated",
   },
   {
@@ -458,7 +458,7 @@ export const thingsToDoAddBluffton: ThingsToDoSeedRow[] = [
     title: "Eagle's Pointe Golf Club",
     description: "Player-friendly course with lakes and pine-lined corridors.",
     venue: "Bluffton",
-    website: null,
+    website: "https://www.eaglespointegolfclub.com",
     source: "curated",
   },
   {

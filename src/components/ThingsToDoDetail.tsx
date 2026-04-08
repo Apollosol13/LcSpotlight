@@ -32,7 +32,7 @@ type Props = {
 
 export function ThingsToDoDetail({ row }: Props) {
   const title = row.title?.trim() || "Listing";
-  const site = websiteHref(row.website);
+  const site = websiteHref(row.website, { category: row.category });
   const area = marketLabel(row.market_key);
   const venue = row.venue?.trim() ?? "";
   const bullets = newlineBullets(row.description);
