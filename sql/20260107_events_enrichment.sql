@@ -1,10 +1,7 @@
 -- Run in Supabase SQL Editor (Dashboard → SQL → New query) once.
 -- Adds fields for external links, images, sortable dates, and deduplication.
 --
--- After this, set optional env for SerpApi Google Events ingest:
---   SERPAPI_KEY=...
---   SERPAPI_EVENT_LOCATIONS=Bluffton, SC, United States|Hilton Head Island, SC, United States
--- Cron: GET /api/cron/events with Authorization: Bearer CRON_SECRET
+-- Event ingest: Bluffton RSS via GET /api/cron/bluffton-events (or /api/cron/events) with CRON_SECRET.
 
 alter table public.events
   add column if not exists source_url text,
