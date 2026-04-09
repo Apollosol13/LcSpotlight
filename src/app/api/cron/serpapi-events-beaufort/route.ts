@@ -16,8 +16,9 @@ export async function GET(req: NextRequest) {
     ]);
     return NextResponse.json({ scraped: { serpApiGoogleEvents } });
   } catch (err) {
+    const msg = err instanceof Error ? err.message : JSON.stringify(err);
     return NextResponse.json(
-      { scraped: { serpApiGoogleEvents: { error: String(err) } } },
+      { scraped: { serpApiGoogleEvents: { error: msg } } },
       { status: 500 },
     );
   }

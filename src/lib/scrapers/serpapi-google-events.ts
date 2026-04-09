@@ -100,7 +100,7 @@ export async function scrapeSerpApiGoogleEventsForLocations(
   supabase: SupabaseClient,
   locations: string[],
 ): Promise<SerpApiGoogleEventsResult> {
-  const apiKey = process.env.SERPAPI_KEY;
+  const apiKey = process.env.SERPAPI_KEY?.trim();
   if (!apiKey) {
     return {
       total: 0,
@@ -132,11 +132,22 @@ export async function scrapeSerpApiGoogleEventsForLocations(
     url.searchParams.set("q", "Events");
 
     const res = await fetch(url.toString());
+    const bodyText = await res.text();
+
     if (!res.ok) {
-      throw new Error(`SerpAPI HTTP ${res.status} for location ${location}`);
+      let detail = bodyText.slice(0, 500);
+      try {
+        const errJson = JSON.parse(bodyText) as { error?: string };
+        if (errJson.error) detail = errJson.error;
+      } catch {
+        /* use raw slice */
+      }
+      throw new Error(
+        `SerpAPI HTTP ${res.status} for location ${location}: ${detail}`,
+      );
     }
 
-    const json = (await res.json()) as SerpApiResponse;
+    const json = JSON.parse(bodyText) as SerpApiResponse;
     if (json.error) {
       throw new Error(`SerpAPI: ${json.error}`);
     }
