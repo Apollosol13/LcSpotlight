@@ -11,8 +11,9 @@ export async function GET(req: NextRequest) {
     const eventbriteEvents = await scrapeEventbriteEvents(supabaseAdmin);
     return NextResponse.json({ scraped: { eventbriteEvents } });
   } catch (err) {
+    const msg = err instanceof Error ? err.message : JSON.stringify(err);
     return NextResponse.json(
-      { scraped: { eventbriteEvents: { error: String(err) } } },
+      { scraped: { eventbriteEvents: { error: msg } } },
       { status: 500 },
     );
   }

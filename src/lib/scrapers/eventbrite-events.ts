@@ -176,26 +176,36 @@ export async function scrapeEventbriteEvents(
         ? dedupeKeyFromIso(name, startAt, loc)
         : dedupeKeyFromDayMonth(name, day, month, loc);
 
-      const { inserted: did } = await insertEventIfNew(supabase, {
-        name,
-        day,
-        month,
-        time: null,
-        location: loc,
-        category: "Events",
-        price: "See listing",
-        bg: "#F05537",
-        icon: null,
-        cta: "Get tickets",
-        source: "eventbrite",
-        source_url: sourceUrl,
-        image_url: img,
-        start_at: startAt,
-        dedupe_key,
-      });
+      try {
+        const { inserted: did } = await insertEventIfNew(supabase, {
+          name,
+          day,
+          month,
+          time: null,
+          location: loc,
+          category: "Events",
+          price: "See listing",
+          bg: "#F05537",
+          icon: null,
+          cta: "Get tickets",
+          source: "eventbrite",
+          source_url: sourceUrl,
+          image_url: img,
+          start_at: startAt,
+          dedupe_key,
+        });
 
-      if (did) inserted++;
-      else skipped++;
+        if (did) inserted++;
+        else skipped++;
+      } catch (insertErr) {
+        const msg =
+          insertErr instanceof Error
+            ? insertErr.message
+            : JSON.stringify(insertErr);
+        throw new Error(
+          `Insert failed for "${name}" (${slug}): ${msg}`,
+        );
+      }
     }
   }
 
