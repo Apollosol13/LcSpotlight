@@ -114,24 +114,49 @@ function extractEvents(html: string): JsonLdEvent[] {
   }
 }
 
-async function fetchLocationPage(slug: string): Promise<string> {
+const BROWSER_HEADERS: Record<string, string> = {
+  "User-Agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+  Accept:
+    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+  "Accept-Language": "en-US,en;q=0.9",
+  "Sec-Fetch-Dest": "document",
+  "Sec-Fetch-Mode": "navigate",
+  "Sec-Fetch-Site": "same-origin",
+  "Sec-Fetch-User": "?1",
+  "Upgrade-Insecure-Requests": "1",
+};
+
+function parseCookies(res: Response): string {
+  const raw = res.headers.getSetCookie?.() ?? [];
+  return raw
+    .map((c) => c.split(";")[0])
+    .filter(Boolean)
+    .join("; ");
+}
+
+/** Eventbrite requires session cookies — warm up with the homepage first. */
+async function getSessionCookies(): Promise<string> {
+  const res = await fetch("https://www.eventbrite.com/", {
+    headers: BROWSER_HEADERS,
+    redirect: "follow",
+  });
+  await res.text();
+  return parseCookies(res);
+}
+
+async function fetchLocationPage(
+  slug: string,
+  cookies: string,
+): Promise<string> {
   const url = `https://www.eventbrite.com/d/${slug}/events/`;
   const res = await fetch(url, {
     headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-      Accept:
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-      "Accept-Language": "en-US,en;q=0.9",
-      "Accept-Encoding": "gzip, deflate, br",
-      "Cache-Control": "no-cache",
-      Pragma: "no-cache",
-      "Sec-Fetch-Dest": "document",
-      "Sec-Fetch-Mode": "navigate",
-      "Sec-Fetch-Site": "none",
-      "Sec-Fetch-User": "?1",
-      "Upgrade-Insecure-Requests": "1",
+      ...BROWSER_HEADERS,
+      Cookie: cookies,
+      Referer: "https://www.eventbrite.com/",
     },
+    redirect: "follow",
   });
   if (!res.ok) {
     throw new Error(`Eventbrite HTTP ${res.status} for ${slug}`);
@@ -146,8 +171,10 @@ export async function scrapeEventbriteEvents(
   let inserted = 0;
   let skipped = 0;
 
+  const cookies = await getSessionCookies();
+
   for (const { slug, label } of LOCATIONS) {
-    const html = await fetchLocationPage(slug);
+    const html = await fetchLocationPage(slug, cookies);
     const events = extractEvents(html);
 
     for (const ev of events) {
