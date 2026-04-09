@@ -1,5 +1,7 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { eventHeroStyle } from "@/lib/event-hero-style";
+import { upcomingEventsQuery } from "@/lib/events/fetch-upcoming-events";
 import { supabase } from "@/lib/supabase";
 
 function isFreePrice(price: string | null | undefined) {
@@ -7,12 +9,37 @@ function isFreePrice(price: string | null | undefined) {
   return /\bfree\b/i.test(price);
 }
 
+function EventListingLink({
+  sourceUrl,
+  className,
+  children,
+}: {
+  sourceUrl?: string | null;
+  className: string;
+  children: ReactNode;
+}) {
+  const url = sourceUrl?.trim();
+  if (url) {
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link href="/events" className={className}>
+      {children}
+    </Link>
+  );
+}
+
 export async function EventsSection() {
-  const { data: events } = await supabase
-    .from("events")
-    .select("*")
-    .order("created_at", { ascending: true })
-    .limit(4);
+  const { data: events } = await upcomingEventsQuery(supabase, { limit: 4 });
 
   const list = events ?? [];
   const [featured, second, third, fourth] = list;
@@ -42,8 +69,8 @@ export async function EventsSection() {
         ) : (
           <div className="grid grid-cols-1 gap-0.5 lg:grid-cols-[1.4fr_1fr_1fr] lg:grid-rows-[auto_auto]">
             {featured && (
-              <Link
-                href="/events"
+              <EventListingLink
+                sourceUrl={featured.source_url}
                 className="group relative overflow-hidden bg-white transition-transform hover:-translate-y-0.5 lg:row-span-2"
               >
                 <div className="relative overflow-hidden">
@@ -81,7 +108,7 @@ export async function EventsSection() {
                     </p>
                   )}
                 </div>
-              </Link>
+              </EventListingLink>
             )}
 
             {second && (
@@ -92,8 +119,8 @@ export async function EventsSection() {
             )}
 
             {fourth && (
-              <Link
-                href="/events"
+              <EventListingLink
+                sourceUrl={fourth.source_url}
                 className="group relative overflow-hidden bg-white transition-transform hover:-translate-y-0.5 lg:col-span-2 lg:col-start-2 lg:row-start-2"
               >
                 <div className="grid lg:grid-cols-2">
@@ -133,7 +160,7 @@ export async function EventsSection() {
                     )}
                   </div>
                 </div>
-              </Link>
+              </EventListingLink>
             )}
           </div>
         )}
@@ -157,12 +184,13 @@ function EventCardSmall({
     price: string | null;
     bg: string | null;
     image_url?: string | null;
+    source_url?: string | null;
   };
   className?: string;
 }) {
   return (
-    <Link
-      href="/events"
+    <EventListingLink
+      sourceUrl={e.source_url}
       className={`group relative overflow-hidden bg-white transition-transform hover:-translate-y-0.5 ${className ?? ""}`}
     >
       <div className="relative overflow-hidden">
@@ -198,6 +226,6 @@ function EventCardSmall({
           </p>
         )}
       </div>
-    </Link>
+    </EventListingLink>
   );
 }
