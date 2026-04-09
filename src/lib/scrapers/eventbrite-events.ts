@@ -5,51 +5,42 @@ import {
   insertEventIfNew,
 } from "@/lib/events/insert-event";
 
-const EVENTBRITE_BASE = "https://www.eventbriteapi.com/v3";
+const LOCATIONS: { slug: string; label: string }[] = [
+  { slug: "sc--hilton-head-island", label: "Hilton Head Island, SC" },
+  { slug: "sc--bluffton", label: "Bluffton, SC" },
+  { slug: "sc--beaufort", label: "Beaufort, SC" },
+  { slug: "ga--savannah", label: "Savannah, GA" },
+];
 
-const LOCATIONS = [
-  "Hilton Head Island, SC",
-  "Bluffton, SC",
-  "Beaufort, SC",
-  "Savannah, GA",
-] as const;
-
-const SEARCH_RADIUS = "25mi";
-
-type EBDatetime = { utc?: string; local?: string; timezone?: string };
-type EBName = { text?: string; html?: string };
-type EBLogo = { url?: string };
-type EBVenueAddress = {
-  address_1?: string;
-  city?: string;
-  region?: string;
-  localized_address_display?: string;
+type JsonLdAddress = {
+  streetAddress?: string;
+  addressLocality?: string;
+  addressRegion?: string;
+  postalCode?: string;
 };
-type EBVenue = { name?: string; address?: EBVenueAddress };
 
-type EBEvent = {
-  id?: string;
-  name?: EBName;
+type JsonLdLocation = {
+  name?: string;
+  address?: JsonLdAddress;
+};
+
+type JsonLdEvent = {
+  name?: string;
+  startDate?: string;
+  endDate?: string;
   url?: string;
-  start?: EBDatetime;
-  end?: EBDatetime;
-  logo?: EBLogo;
-  venue?: EBVenue;
-  is_free?: boolean;
+  image?: string;
+  description?: string;
+  location?: JsonLdLocation;
+  eventAttendanceMode?: string;
 };
 
-type EBPagination = {
-  page_number?: number;
-  page_count?: number;
-  has_more_items?: boolean;
+type JsonLdListItem = {
+  item?: JsonLdEvent;
 };
 
-type EBSearchResponse = {
-  pagination?: EBPagination;
-  events?: EBEvent[];
-  error?: string;
-  error_description?: string;
-  status_code?: number;
+type JsonLdList = {
+  itemListElement?: JsonLdListItem[];
 };
 
 export type EventbriteResult = {
@@ -60,19 +51,11 @@ export type EventbriteResult = {
   message?: string;
 };
 
-function parseStartAt(start: EBDatetime | undefined): string | null {
-  if (!start) return null;
-  const utc = start.utc;
-  if (utc) {
-    const d = new Date(utc);
-    if (!Number.isNaN(d.getTime())) return d.toISOString();
-  }
-  const local = start.local;
-  if (local) {
-    const d = new Date(local);
-    if (!Number.isNaN(d.getTime())) return d.toISOString();
-  }
-  return null;
+function parseStartAt(dateStr: string | undefined): string | null {
+  if (!dateStr?.trim()) return null;
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString();
 }
 
 function dayMonthFromIso(iso: string | null): { day: string; month: string } {
@@ -85,141 +68,124 @@ function dayMonthFromIso(iso: string | null): { day: string; month: string } {
   };
 }
 
-function extractTime(start: EBDatetime | undefined): string | null {
-  const local = start?.local;
-  if (!local) return null;
-  const d = new Date(local);
-  if (Number.isNaN(d.getTime())) return null;
-  return d
-    .toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-    .toUpperCase();
-}
-
-function venueLine(venue: EBVenue | undefined): string | null {
-  if (!venue) return null;
+function venueLine(loc: JsonLdLocation | undefined): string | null {
+  if (!loc) return null;
   const parts: string[] = [];
-  if (venue.name) parts.push(venue.name);
-  const addr = venue.address;
-  if (addr?.localized_address_display) {
-    parts.push(addr.localized_address_display);
-  } else if (addr?.city) {
-    parts.push([addr.city, addr.region].filter(Boolean).join(", "));
+  if (loc.name) parts.push(loc.name);
+  const addr = loc.address;
+  if (addr) {
+    const city = [addr.addressLocality, addr.addressRegion]
+      .filter(Boolean)
+      .join(", ");
+    if (city) parts.push(city);
   }
   return parts.length ? parts.join(" — ") : null;
 }
 
-function imageUrl(ev: EBEvent): string | null {
-  const url = ev.logo?.url?.trim();
-  if (!url) return null;
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+function safeImageUrl(url: string | undefined): string | null {
+  const u = url?.trim();
+  if (!u) return null;
+  if (u.startsWith("http://") || u.startsWith("https://")) return u;
   return null;
 }
 
-async function fetchPage(
-  token: string,
-  locationAddress: string,
-  page: number,
-): Promise<EBSearchResponse> {
-  const url = new URL(`${EVENTBRITE_BASE}/events/search/`);
-  url.searchParams.set("location.address", locationAddress);
-  url.searchParams.set("location.within", SEARCH_RADIUS);
-  url.searchParams.set("expand", "venue");
-  url.searchParams.set("sort_by", "date");
-  url.searchParams.set("page", String(page));
-
-  const res = await fetch(url.toString(), {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(
-      `Eventbrite HTTP ${res.status} for "${locationAddress}" page ${page}: ${body.slice(0, 300)}`,
-    );
-  }
-
-  return (await res.json()) as EBSearchResponse;
+function isInPersonEvent(ev: JsonLdEvent): boolean {
+  return (
+    !ev.eventAttendanceMode ||
+    ev.eventAttendanceMode.includes("OfflineEventAttendanceMode") ||
+    ev.eventAttendanceMode.includes("MixedEventAttendanceMode")
+  );
 }
 
-/** Max pages per location to avoid runaway pagination. */
-const MAX_PAGES = 3;
+const JSON_LD_RE = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/;
+
+function extractEvents(html: string): JsonLdEvent[] {
+  const match = html.match(JSON_LD_RE);
+  if (!match?.[1]) return [];
+  try {
+    const data = JSON.parse(match[1]) as JsonLdList;
+    return (
+      data.itemListElement
+        ?.map((li) => li.item)
+        .filter((item): item is JsonLdEvent => !!item) ?? []
+    );
+  } catch {
+    return [];
+  }
+}
+
+async function fetchLocationPage(slug: string): Promise<string> {
+  const url = `https://www.eventbrite.com/d/${slug}/events/`;
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (compatible; LcSpotlightBot/1.0; +https://lcspotlight.com)",
+      Accept: "text/html",
+    },
+  });
+  if (!res.ok) {
+    throw new Error(`Eventbrite HTTP ${res.status} for ${slug}`);
+  }
+  return res.text();
+}
 
 export async function scrapeEventbriteEvents(
   supabase: SupabaseClient,
 ): Promise<EventbriteResult> {
-  const token = process.env.EVENTBRITE_TOKEN;
-  if (!token) {
-    return {
-      total: 0,
-      inserted: 0,
-      skipped: 0,
-      locations: 0,
-      message: "EVENTBRITE_TOKEN not set — skipping Eventbrite ingest",
-    };
-  }
-
   let total = 0;
   let inserted = 0;
   let skipped = 0;
 
-  for (const location of LOCATIONS) {
-    let page = 1;
-    let hasMore = true;
+  for (const { slug, label } of LOCATIONS) {
+    const html = await fetchLocationPage(slug);
+    const events = extractEvents(html);
 
-    while (hasMore && page <= MAX_PAGES) {
-      const json = await fetchPage(token, location, page);
-
-      if (json.error) {
-        throw new Error(
-          `Eventbrite: ${json.error} — ${json.error_description ?? ""}`,
-        );
-      }
-
-      const items = json.events ?? [];
-
-      for (const ev of items) {
+    for (const ev of events) {
+      if (!isInPersonEvent(ev)) {
+        skipped++;
         total++;
-        const name = ev.name?.text?.trim();
-        if (!name) {
-          skipped++;
-          continue;
-        }
-
-        const startAt = parseStartAt(ev.start);
-        const { day, month } = dayMonthFromIso(startAt);
-        const time = extractTime(ev.start);
-        const loc = venueLine(ev.venue);
-        const sourceUrl = ev.url?.trim() ?? null;
-        const img = imageUrl(ev);
-
-        const dedupe_key = startAt
-          ? dedupeKeyFromIso(name, startAt, loc)
-          : dedupeKeyFromDayMonth(name, day, month, loc);
-
-        const { inserted: did } = await insertEventIfNew(supabase, {
-          name,
-          day,
-          month,
-          time,
-          location: loc,
-          category: "Events",
-          price: ev.is_free ? "Free" : "See listing",
-          bg: "#F05537",
-          icon: null,
-          cta: "Get tickets",
-          source: "eventbrite",
-          source_url: sourceUrl,
-          image_url: img,
-          start_at: startAt,
-          dedupe_key,
-        });
-
-        if (did) inserted++;
-        else skipped++;
+        continue;
       }
 
-      hasMore = json.pagination?.has_more_items ?? false;
-      page++;
+      const name = ev.name?.trim();
+      if (!name) {
+        skipped++;
+        total++;
+        continue;
+      }
+
+      total++;
+
+      const startAt = parseStartAt(ev.startDate);
+      const { day, month } = dayMonthFromIso(startAt);
+      const loc = venueLine(ev.location) ?? label;
+      const sourceUrl = ev.url?.trim() ?? null;
+      const img = safeImageUrl(ev.image);
+
+      const dedupe_key = startAt
+        ? dedupeKeyFromIso(name, startAt, loc)
+        : dedupeKeyFromDayMonth(name, day, month, loc);
+
+      const { inserted: did } = await insertEventIfNew(supabase, {
+        name,
+        day,
+        month,
+        time: null,
+        location: loc,
+        category: "Events",
+        price: "See listing",
+        bg: "#F05537",
+        icon: null,
+        cta: "Get tickets",
+        source: "eventbrite",
+        source_url: sourceUrl,
+        image_url: img,
+        start_at: startAt,
+        dedupe_key,
+      });
+
+      if (did) inserted++;
+      else skipped++;
     }
   }
 
