@@ -66,7 +66,7 @@ export async function EventsSection() {
   const list = events ?? [];
 
   return (
-    <section className="bg-spotlight-cream px-5 py-16 min-[601px]:px-12 min-[601px]:py-[72px]">
+    <section className="overflow-hidden bg-spotlight-cream px-5 py-16 min-[601px]:px-12 min-[601px]:py-[72px]">
       <div className="mx-auto max-w-[1200px]">
         <div className="mb-10 flex flex-col gap-4 min-[601px]:mb-10 min-[601px]:flex-row min-[601px]:items-end min-[601px]:justify-between">
           <div>
@@ -93,7 +93,7 @@ export async function EventsSection() {
               <EventListingLink
                 key={e.id}
                 sourceUrl={e.source_url}
-                className="group flex gap-4 rounded-lg border border-[rgba(12,27,51,0.06)] bg-white p-4 no-underline transition-all hover:-translate-y-0.5 hover:border-spotlight-gold/30 hover:shadow-[0_8px_30px_rgba(12,27,51,0.08)]"
+                className="group flex min-w-0 gap-4 overflow-hidden rounded-lg border border-[rgba(12,27,51,0.06)] bg-white p-4 no-underline transition-all hover:-translate-y-0.5 hover:border-spotlight-gold/30 hover:shadow-[0_8px_30px_rgba(12,27,51,0.08)]"
               >
                 {/* Date badge */}
                 <div className="flex h-[56px] w-[56px] shrink-0 flex-col items-center justify-center rounded-lg bg-spotlight-navy text-center">
@@ -110,11 +110,11 @@ export async function EventsSection() {
                   <h3 className="mb-1 truncate font-serif text-[16px] font-semibold leading-snug text-spotlight-navy group-hover:text-spotlight-teal">
                     {e.name}
                   </h3>
-                  <div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-spotlight-text-muted">
-                    {e.time && <span>{e.time}</span>}
+                  <div className="mb-1.5 flex items-center gap-x-2 text-[11px] text-spotlight-text-muted">
+                    {e.time && <span className="shrink-0">{e.time}</span>}
                     {e.location && (
                       <>
-                        {e.time && <span className="text-spotlight-sand">·</span>}
+                        {e.time && <span className="shrink-0 text-spotlight-sand">·</span>}
                         <span className="truncate">{e.location}</span>
                       </>
                     )}

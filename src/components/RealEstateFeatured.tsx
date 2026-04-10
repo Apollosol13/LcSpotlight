@@ -75,7 +75,7 @@ export async function RealEstateFeatured() {
   }));
 
   return (
-    <section className="bg-spotlight-sand px-5 py-16 min-[601px]:px-12 min-[601px]:py-[72px]">
+    <section className="overflow-hidden bg-spotlight-sand px-5 py-16 min-[601px]:px-12 min-[601px]:py-[72px]">
       <div className="mx-auto max-w-[1200px]">
         {/* Header */}
         <div className="mb-10 flex flex-col gap-4 min-[601px]:flex-row min-[601px]:items-end min-[601px]:justify-between">

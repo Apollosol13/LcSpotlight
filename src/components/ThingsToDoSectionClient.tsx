@@ -81,7 +81,7 @@ export function ThingsToDoSectionClient({
     <section
       className={
         variant === "home"
-          ? "bg-spotlight-cream px-5 py-16 min-[601px]:px-12 min-[601px]:py-[72px]"
+          ? "overflow-hidden bg-spotlight-cream px-5 py-16 min-[601px]:px-12 min-[601px]:py-[72px]"
           : ""
       }
     >
