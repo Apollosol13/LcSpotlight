@@ -3,6 +3,7 @@ import { scrapeBlufftonEvents } from "@/lib/scrapers/bluffton-events";
 import { scrapeBlufftonCalendarEvents } from "@/lib/scrapers/bluffton-calendar-events";
 import { scrapeBeaufortCalendarEvents } from "@/lib/scrapers/beaufort-calendar-events";
 import { scrapeHiltonHeadIslandEvents } from "@/lib/scrapers/hiltonhead-island-events";
+import { scrapeSavannahCalendarEvents } from "@/lib/scrapers/savannah-calendar-events";
 
 export async function runEventIngest(supabase: SupabaseClient) {
   const results: Record<string, unknown> = {};
@@ -29,6 +30,12 @@ export async function runEventIngest(supabase: SupabaseClient) {
     results.hiltonHeadIslandEvents = await scrapeHiltonHeadIslandEvents(supabase);
   } catch (err) {
     results.hiltonHeadIslandEvents = { error: String(err) };
+  }
+
+  try {
+    results.savannahCalendarEvents = await scrapeSavannahCalendarEvents(supabase);
+  } catch (err) {
+    results.savannahCalendarEvents = { error: String(err) };
   }
 
   return results;
