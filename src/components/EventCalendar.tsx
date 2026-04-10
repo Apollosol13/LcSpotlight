@@ -197,29 +197,31 @@ export default function EventCalendar() {
       </div>
 
       {/* Area filter tabs */}
-      <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
-        {AREAS.map(({ key, label }) => {
-          const count = areaCounts[key];
-          const active = area === key;
-          return (
-            <button
-              key={key}
-              onClick={() => { setArea(key); setMobileDay(null); }}
-              className={`rounded-full border px-4 py-1.5 text-[11px] font-medium uppercase tracking-[1px] transition ${
-                active
-                  ? "border-spotlight-navy bg-spotlight-navy text-spotlight-gold"
-                  : "border-[rgba(12,27,51,0.15)] bg-white text-spotlight-text-mid hover:border-spotlight-navy/40 hover:text-spotlight-navy"
-              }`}
-            >
-              {label}
-              {!loading && (
-                <span className={`ml-1.5 ${active ? "text-spotlight-gold/70" : "text-spotlight-text-muted"}`}>
-                  {count}
-                </span>
-              )}
-            </button>
-          );
-        })}
+      <div className="-mx-5 mb-5 overflow-x-auto px-5 min-[601px]:mx-0 min-[601px]:px-0">
+        <div className="flex items-center gap-2 min-[601px]:flex-wrap min-[601px]:justify-center">
+          {AREAS.map(({ key, label }) => {
+            const count = areaCounts[key];
+            const active = area === key;
+            return (
+              <button
+                key={key}
+                onClick={() => { setArea(key); setMobileDay(null); }}
+                className={`shrink-0 rounded-full border px-4 py-1.5 text-[11px] font-medium uppercase tracking-[1px] transition ${
+                  active
+                    ? "border-spotlight-navy bg-spotlight-navy text-spotlight-gold"
+                    : "border-[rgba(12,27,51,0.15)] bg-white text-spotlight-text-mid hover:border-spotlight-navy/40 hover:text-spotlight-navy"
+                }`}
+              >
+                {label}
+                {!loading && (
+                  <span className={`ml-1.5 ${active ? "text-spotlight-gold/70" : "text-spotlight-text-muted"}`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {loading && (
@@ -303,54 +305,86 @@ export default function EventCalendar() {
           {mobileDays.map((dayKey) => {
             const d = new Date(dayKey + "T12:00:00");
             const dayEvents = grouped[dayKey] ?? [];
-            const isOpen = mobileDay === dayKey;
             const isToday = dayKey === todayKey;
 
             return (
-              <div key={dayKey} className="border-b border-[rgba(12,27,51,0.08)]">
-                <button
-                  onClick={() => setMobileDay(isOpen ? null : dayKey)}
-                  className="flex w-full items-center justify-between px-2 py-3 text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`flex h-10 w-10 flex-col items-center justify-center rounded-lg ${
-                      isToday ? "bg-spotlight-gold text-spotlight-navy" : "bg-spotlight-navy/5 text-spotlight-navy"
-                    }`}>
-                      <span className="font-serif text-[16px] font-semibold leading-none">{d.getDate()}</span>
-                      <span className="text-[9px] uppercase tracking-[0.5px]">
-                        {d.toLocaleDateString("en-US", { weekday: "short" })}
-                      </span>
-                    </div>
-                    <span className="text-sm font-medium text-spotlight-navy">
-                      {dayEvents.length} event{dayEvents.length !== 1 ? "s" : ""}
+              <div key={dayKey} className="mb-6">
+                {/* Sticky date header */}
+                <div className="sticky top-0 z-10 -mx-1 mb-3 flex items-center gap-3 bg-spotlight-cream/95 px-1 py-2 backdrop-blur-sm">
+                  <div
+                    className={`flex h-12 w-12 flex-col items-center justify-center rounded-xl ${
+                      isToday
+                        ? "bg-spotlight-gold text-spotlight-navy shadow-[0_2px_8px_rgba(196,164,105,0.4)]"
+                        : "bg-spotlight-navy text-white"
+                    }`}
+                  >
+                    <span className="font-serif text-[18px] font-bold leading-none">
+                      {d.getDate()}
+                    </span>
+                    <span className="mt-0.5 text-[8px] font-medium uppercase tracking-[1px] opacity-70">
+                      {d.toLocaleDateString("en-US", { weekday: "short" })}
                     </span>
                   </div>
-                  <svg
-                    width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                    className={`text-spotlight-text-muted transition-transform ${isOpen ? "rotate-180" : ""}`}
-                  >
-                    <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-                {isOpen && (
-                  <div className="flex flex-col gap-2 px-2 pb-3">
-                    {dayEvents.map((ev) => (
-                      <button
-                        key={ev.id}
-                        onClick={() => setExpanded(ev)}
-                        className="flex items-start gap-3 rounded-lg border border-[rgba(12,27,51,0.08)] bg-white p-3 text-left transition hover:shadow-md"
-                      >
-                        <div className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${pillClass(ev.category).split(" ")[0]}`} />
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-spotlight-navy">{ev.name}</p>
-                          <p className="mt-0.5 text-[11px] text-spotlight-text-muted">
-                            {ev.time ?? "All day"}{ev.location ? ` · ${ev.location}` : ""}
-                          </p>
-                        </div>
-                      </button>
-                    ))}
+                  <div>
+                    <p className="text-[13px] font-semibold text-spotlight-navy">
+                      {d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+                    </p>
+                    <p className="text-[11px] text-spotlight-text-muted">
+                      {dayEvents.length} event{dayEvents.length !== 1 ? "s" : ""}
+                    </p>
                   </div>
-                )}
+                </div>
+
+                {/* Event cards for this day */}
+                <div className="flex flex-col gap-2.5 pl-2">
+                  {dayEvents.map((ev) => (
+                    <button
+                      key={ev.id}
+                      onClick={() => setExpanded(ev)}
+                      className="group flex items-start gap-3 rounded-xl border border-[rgba(12,27,51,0.06)] bg-white p-4 text-left shadow-[0_1px_3px_rgba(12,27,51,0.04)] transition-all active:scale-[0.98] active:shadow-none"
+                    >
+                      {/* Category color bar */}
+                      <div
+                        className={`mt-0.5 h-10 w-1 shrink-0 rounded-full ${pillClass(ev.category).split(" ")[0]}`}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="mb-1 text-[14px] font-semibold leading-snug text-spotlight-navy">
+                          {ev.name}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-spotlight-text-muted">
+                          <span className="flex items-center gap-1">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-spotlight-gold"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            {ev.time ?? "All day"}
+                          </span>
+                          {ev.location && (
+                            <>
+                              <span className="text-spotlight-text-muted/30">·</span>
+                              <span className="flex items-center gap-1 truncate">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-spotlight-gold"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <span className="truncate">{ev.location}</span>
+                              </span>
+                            </>
+                          )}
+                        </div>
+                        {ev.category && (
+                          <div className="mt-2">
+                            <span
+                              className={`inline-block rounded-full px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.8px] ${pillClass(ev.category)}`}
+                            >
+                              {ev.category}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <svg
+                        width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                        className="mt-1 shrink-0 text-spotlight-text-muted/30"
+                      >
+                        <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+                  ))}
+                </div>
               </div>
             );
           })}
