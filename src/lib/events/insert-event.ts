@@ -19,6 +19,14 @@ export type EventInsert = {
   dedupe_key: string;
 };
 
+export type InsertEventOptions = {
+  /**
+   * When false, only `dedupe_key` (and DB unique constraints) prevent duplicates.
+   * Use for feeds where the same listing URL repeats on many calendar days.
+   */
+  dedupeBySourceUrl?: boolean;
+};
+
 /**
  * Inserts one event if not already present (dedupe_key or same source_url).
  * Requires sql/20260107_events_enrichment.sql applied for full behavior.
@@ -26,8 +34,10 @@ export type EventInsert = {
 export async function insertEventIfNew(
   supabase: SupabaseClient,
   row: EventInsert,
+  options?: InsertEventOptions,
 ): Promise<{ inserted: boolean; reason?: string }> {
-  if (row.source_url) {
+  const dedupeUrl = options?.dedupeBySourceUrl !== false;
+  if (dedupeUrl && row.source_url) {
     const { data: byUrl } = await supabase
       .from("events")
       .select("id")

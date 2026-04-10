@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { scrapeBlufftonEvents } from "@/lib/scrapers/bluffton-events";
+import { scrapeHiltonHeadIslandEvents } from "@/lib/scrapers/hiltonhead-island-events";
 
 export async function runEventIngest(supabase: SupabaseClient) {
   const results: Record<string, unknown> = {};
@@ -8,6 +9,12 @@ export async function runEventIngest(supabase: SupabaseClient) {
     results.blufftonEvents = await scrapeBlufftonEvents(supabase);
   } catch (err) {
     results.blufftonEvents = { error: String(err) };
+  }
+
+  try {
+    results.hiltonHeadIslandEvents = await scrapeHiltonHeadIslandEvents(supabase);
+  } catch (err) {
+    results.hiltonHeadIslandEvents = { error: String(err) };
   }
 
   return results;

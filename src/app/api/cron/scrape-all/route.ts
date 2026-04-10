@@ -3,13 +3,14 @@ import { supabaseAdmin } from "@/lib/supabase-server";
 import { cronUnauthorized, isCronAuthorized } from "@/lib/cron-auth";
 import { scrapeIslandNews } from "@/lib/scrapers/island-news";
 import { scrapeBlufftonEvents } from "@/lib/scrapers/bluffton-events";
+import { scrapeHiltonHeadIslandEvents } from "@/lib/scrapers/hiltonhead-island-events";
 import { scrapeGoogleNews } from "@/lib/scrapers/google-news";
 import { scrapeRedfinToSupabase } from "@/lib/scrapers/redfin";
 import { replaceThingsToDoFromSeed } from "@/lib/seed-data/replace-things-to-do";
 
 /**
  * GET /api/cron/scrape-all — full batch (may exceed cron-job.org ~30s timeout).
- * Prefer separate jobs: /api/cron/island-news, /api/cron/bluffton-events, /api/cron/google-news,
+ * Prefer separate jobs: /api/cron/island-news, /api/cron/bluffton-events, /api/cron/hiltonhead-island-events, /api/cron/google-news,
  * /api/cron/google-news-beaufort, /api/cron/google-news-savannah, /api/cron/google-news-hilton-head,
  * /api/cron/google-news-bluffton, /api/cron/sync-listings,
  * /api/cron/things-to-do, /api/cron/things-to-do-enrich
@@ -29,6 +30,12 @@ export async function GET(req: NextRequest) {
     results.blufftonEvents = await scrapeBlufftonEvents(supabaseAdmin);
   } catch (err) {
     results.blufftonEvents = { error: String(err) };
+  }
+
+  try {
+    results.hiltonHeadIslandEvents = await scrapeHiltonHeadIslandEvents(supabaseAdmin);
+  } catch (err) {
+    results.hiltonHeadIslandEvents = { error: String(err) };
   }
 
   try {
