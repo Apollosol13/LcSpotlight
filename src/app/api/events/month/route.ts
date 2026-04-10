@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from("events")
-    .select("id,name,day,month,time,location,category,price,bg,cta,source_url,image_url,start_at")
+    .select("id,name,day,month,time,location,category,price,bg,cta,source_url,image_url,start_at,source")
     .or(`start_at.gte.${startYmd},start_at.is.null`)
     .lte("start_at", endYmd)
     .order("start_at", { ascending: true, nullsFirst: false })

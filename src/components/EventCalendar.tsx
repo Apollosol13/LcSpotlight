@@ -20,6 +20,27 @@ interface CalEvent {
   source_url: string | null;
   image_url: string | null;
   start_at: string | null;
+  source: string | null;
+}
+
+type Area = "all" | "hilton-head" | "bluffton" | "beaufort" | "savannah";
+
+const AREAS: { key: Area; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "hilton-head", label: "Hilton Head" },
+  { key: "bluffton", label: "Bluffton" },
+  { key: "beaufort", label: "Beaufort" },
+  { key: "savannah", label: "Savannah" },
+];
+
+function eventArea(ev: CalEvent): Area {
+  const s = (ev.source ?? "").toLowerCase();
+  const loc = (ev.location ?? "").toLowerCase();
+  if (s.includes("hiltonhead") || loc.includes("hilton head")) return "hilton-head";
+  if (s.includes("bluffton") || loc.includes("bluffton")) return "bluffton";
+  if (s.includes("beaufort") || loc.includes("beaufort")) return "beaufort";
+  if (s.includes("savannah") || loc.includes("savannah")) return "savannah";
+  return "hilton-head";
 }
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
@@ -69,6 +90,7 @@ export default function EventCalendar() {
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [area, setArea] = useState<Area>("all");
   const [expanded, setExpanded] = useState<CalEvent | null>(null);
   const [dayDetail, setDayDetail] = useState<{ date: string; events: CalEvent[] } | null>(null);
   const [mobileDay, setMobileDay] = useState<string | null>(null);
@@ -99,10 +121,24 @@ export default function EventCalendar() {
     else setMonth(month + 1);
   };
 
+  const filteredEvents = useMemo(() => {
+    if (area === "all") return events;
+    return events.filter((e) => eventArea(e) === area);
+  }, [events, area]);
+
+  const areaCounts = useMemo(() => {
+    const counts: Record<Area, number> = { all: events.length, "hilton-head": 0, bluffton: 0, beaufort: 0, savannah: 0 };
+    for (const e of events) {
+      const a = eventArea(e);
+      counts[a]++;
+    }
+    return counts;
+  }, [events]);
+
   /* Group events by YYYY-MM-DD */
   const grouped = useMemo(() => {
     const map: Record<string, CalEvent[]> = {};
-    for (const e of events) {
+    for (const e of filteredEvents) {
       if (!e.start_at) continue;
       const d = new Date(e.start_at);
       if (Number.isNaN(d.getTime())) continue;
@@ -110,7 +146,7 @@ export default function EventCalendar() {
       (map[k] ??= []).push(e);
     }
     return map;
-  }, [events]);
+  }, [filteredEvents]);
 
   /* Build the grid of 6-row x 7-col dates */
   const calendarDays = useMemo(() => {
@@ -158,6 +194,32 @@ export default function EventCalendar() {
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
         </button>
+      </div>
+
+      {/* Area filter tabs */}
+      <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
+        {AREAS.map(({ key, label }) => {
+          const count = areaCounts[key];
+          const active = area === key;
+          return (
+            <button
+              key={key}
+              onClick={() => { setArea(key); setMobileDay(null); }}
+              className={`rounded-full border px-4 py-1.5 text-[11px] font-medium uppercase tracking-[1px] transition ${
+                active
+                  ? "border-spotlight-navy bg-spotlight-navy text-spotlight-gold"
+                  : "border-[rgba(12,27,51,0.15)] bg-white text-spotlight-text-mid hover:border-spotlight-navy/40 hover:text-spotlight-navy"
+              }`}
+            >
+              {label}
+              {!loading && (
+                <span className={`ml-1.5 ${active ? "text-spotlight-gold/70" : "text-spotlight-text-muted"}`}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {loading && (
