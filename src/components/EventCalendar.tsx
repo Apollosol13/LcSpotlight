@@ -70,6 +70,7 @@ export default function EventCalendar() {
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<CalEvent | null>(null);
+  const [dayDetail, setDayDetail] = useState<{ date: string; events: CalEvent[] } | null>(null);
   const [mobileDay, setMobileDay] = useState<string | null>(null);
 
   const fetchEvents = useCallback(async (y: number, m: number) => {
@@ -215,7 +216,7 @@ export default function EventCalendar() {
                     ))}
                     {overflow > 0 && (
                       <button
-                        onClick={() => setExpanded(dayEvents[maxShow])}
+                        onClick={() => setDayDetail({ date: key, events: dayEvents })}
                         className="text-left text-[10px] font-medium text-spotlight-teal hover:underline"
                       >
                         +{overflow} more
@@ -291,6 +292,73 @@ export default function EventCalendar() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Day detail modal — all events for a given date */}
+      {dayDetail && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+          onClick={() => setDayDetail(null)}
+        >
+          <div
+            className="relative flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-xl bg-white shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div
+              className="flex shrink-0 items-center justify-between px-5 py-4"
+              style={{ background: "linear-gradient(135deg, #112250, #1E3A6E)" }}
+            >
+              <h3 className="font-serif text-xl text-white">
+                {new Date(dayDetail.date + "T12:00:00").toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </h3>
+              <button
+                onClick={() => setDayDetail(null)}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/70 transition hover:bg-white/20 hover:text-white"
+                aria-label="Close"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            {/* Scrollable event list */}
+            <div className="flex-1 overflow-y-auto px-4 py-3">
+              <div className="flex flex-col gap-2">
+                {dayDetail.events.map((ev) => (
+                  <button
+                    key={ev.id}
+                    onClick={() => { setDayDetail(null); setExpanded(ev); }}
+                    className="flex items-start gap-3 rounded-lg border border-[rgba(12,27,51,0.08)] bg-white p-3.5 text-left transition hover:border-spotlight-gold/40 hover:shadow-md"
+                  >
+                    <div className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${pillClass(ev.category).split(" ")[0]}`} />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium leading-snug text-spotlight-navy">{ev.name}</p>
+                      <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-spotlight-text-muted">
+                        {ev.time && <span>{ev.time}</span>}
+                        {ev.location && <span>{ev.location}</span>}
+                        {ev.category && (
+                          <span className={`inline-block rounded-[3px] px-1.5 py-[1px] text-[9px] uppercase tracking-[0.5px] ${pillClass(ev.category)}`}>
+                            {ev.category}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-1 shrink-0 text-spotlight-text-muted/50"><path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Footer count */}
+            <div className="shrink-0 border-t border-[rgba(12,27,51,0.08)] px-5 py-3 text-center text-[11px] text-spotlight-text-muted">
+              {dayDetail.events.length} event{dayDetail.events.length !== 1 ? "s" : ""}
+            </div>
+          </div>
         </div>
       )}
 
