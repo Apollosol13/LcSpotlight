@@ -20,6 +20,9 @@ export default async function Home() {
       <Ticker />
       <InlineCTA />
       <Suspense>
+        <ThingsToDoSection />
+      </Suspense>
+      <Suspense>
         <EventsSection />
       </Suspense>
       <Suspense>
@@ -27,9 +30,6 @@ export default async function Home() {
       </Suspense>
       <Suspense>
         <NewsSection />
-      </Suspense>
-      <Suspense>
-        <ThingsToDoSection />
       </Suspense>
       <Suspense>
         <RealEstateSection showListings={false} />
