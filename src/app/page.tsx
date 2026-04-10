@@ -7,7 +7,7 @@ import { EventsSection } from "@/components/EventsSection";
 import { OpeningsSection } from "@/components/OpeningsSection";
 import { NewsSection } from "@/components/NewsSection";
 import { ThingsToDoSection } from "@/components/ThingsToDoSection";
-import { RealEstateSection } from "@/components/RealEstateSection";
+import { RealEstateFeatured } from "@/components/RealEstateFeatured";
 import { TicketingBanner } from "@/components/TicketingBanner";
 
 export const revalidate = 300;
@@ -32,7 +32,7 @@ export default async function Home() {
         <NewsSection />
       </Suspense>
       <Suspense>
-        <RealEstateSection showListings={false} />
+        <RealEstateFeatured />
       </Suspense>
       <TicketingBanner />
     </>
