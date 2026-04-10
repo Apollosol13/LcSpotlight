@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { typeOrNameInitial } from "@/lib/text-initial";
+import { Paywall } from "@/components/Paywall";
 
 export const revalidate = 300;
 
@@ -11,6 +12,7 @@ export default async function OpeningsPage() {
     .order("created_at", { ascending: false });
 
   return (
+    <Paywall feature="new openings and businesses">
     <main className="mx-auto w-full max-w-[1200px] flex-1 px-5 py-16 min-[601px]:px-10">
       <div className="mb-10 border-b border-[rgba(12,27,51,0.1)] pb-4">
         <p className="mb-2 text-[10px] font-medium uppercase tracking-[3px] text-spotlight-text-muted">
@@ -62,5 +64,6 @@ export default async function OpeningsPage() {
         </Link>
       </div>
     </main>
+    </Paywall>
   );
 }

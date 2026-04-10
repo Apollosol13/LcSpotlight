@@ -21,6 +21,7 @@ const siteAdminNav: { title: string; items: { href: string; label: string }[] } 
   items: [
     { href: "/admin", label: "Dashboard" },
     { href: "/admin/invite-business", label: "Invite business" },
+    { href: "/admin/comp-member", label: "Grant free access" },
     { href: "/admin/story-submissions", label: "Story submissions" },
     { href: "/admin/event-submissions", label: "Event submissions" },
     { href: "/admin/events", label: "Events (all)" },

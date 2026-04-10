@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createSupabaseServer } from "@/lib/supabase-auth-server";
 import { REAL_ESTATE_MARKETS, type RealEstateMarketKey } from "@/lib/real-estate-markets";
+import { Paywall } from "@/components/Paywall";
 
 export const revalidate = 300;
 
@@ -46,6 +47,7 @@ export default async function DealsPage() {
   }
 
   return (
+    <Paywall feature="local deals and discounts">
     <div className="bg-spotlight-cream px-5 py-14 min-[601px]:px-12 min-[601px]:py-[72px]">
       <div className="mx-auto max-w-3xl">
         <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.22em] text-spotlight-teal/55">
@@ -139,5 +141,6 @@ export default async function DealsPage() {
         ) : null}
       </div>
     </div>
+    </Paywall>
   );
 }
