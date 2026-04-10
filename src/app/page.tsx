@@ -26,13 +26,13 @@ export default async function Home() {
         <EventsSection />
       </Suspense>
       <Suspense>
-        <OpeningsSection />
+        <RealEstateFeatured />
       </Suspense>
       <Suspense>
         <NewsSection />
       </Suspense>
       <Suspense>
-        <RealEstateFeatured />
+        <OpeningsSection />
       </Suspense>
       <TicketingBanner />
     </>
