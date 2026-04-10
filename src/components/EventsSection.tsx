@@ -1,13 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { eventHeroStyle } from "@/lib/event-hero-style";
 import { upcomingEventsQuery } from "@/lib/events/fetch-upcoming-events";
 import { supabase } from "@/lib/supabase";
-
-function isFreePrice(price: string | null | undefined) {
-  if (!price) return false;
-  return /\bfree\b/i.test(price);
-}
 
 function EventListingLink({
   sourceUrl,
@@ -38,11 +32,38 @@ function EventListingLink({
   );
 }
 
-export async function EventsSection() {
-  const { data: events } = await upcomingEventsQuery(supabase, { limit: 4 });
+const CATEGORY_ACCENT: Record<string, string> = {
+  "live music": "bg-purple-500",
+  comedy: "bg-rose-500",
+  theatre: "bg-pink-500",
+  art: "bg-amber-500",
+  exhibit: "bg-amber-400",
+  golf: "bg-green-500",
+  educational: "bg-sky-500",
+  tour: "bg-teal-500",
+  outdoors: "bg-emerald-500",
+  entertainment: "bg-indigo-500",
+  restaurant: "bg-orange-500",
+  "farmers market": "bg-lime-500",
+  shopping: "bg-fuchsia-500",
+  trivia: "bg-violet-500",
+  magic: "bg-red-500",
+  sports: "bg-cyan-500",
+  classes: "bg-blue-500",
+  fundraiser: "bg-rose-400",
+  benefit: "bg-pink-400",
+  community: "bg-spotlight-teal",
+};
 
+function accentDot(category: string | null): string {
+  if (!category) return "bg-spotlight-gold";
+  const key = category.toLowerCase().replace(/-\d+$/, "").replace(/-/g, " ");
+  return CATEGORY_ACCENT[key] ?? "bg-spotlight-gold";
+}
+
+export async function EventsSection() {
+  const { data: events } = await upcomingEventsQuery(supabase, { limit: 6 });
   const list = events ?? [];
-  const [featured, second, third, fourth] = list;
 
   return (
     <section className="bg-spotlight-cream px-5 py-16 min-[601px]:px-12 min-[601px]:py-[72px]">
@@ -67,165 +88,61 @@ export async function EventsSection() {
         {list.length === 0 ? (
           <p className="text-sm text-spotlight-text-muted">No upcoming events yet.</p>
         ) : (
-          <div className="grid grid-cols-1 gap-0.5 lg:grid-cols-[1.4fr_1fr_1fr] lg:grid-rows-[auto_auto]">
-            {featured && (
+          <div className="grid gap-3 min-[640px]:grid-cols-2 min-[960px]:grid-cols-3">
+            {list.map((e) => (
               <EventListingLink
-                sourceUrl={featured.source_url}
-                className="group relative overflow-hidden bg-white transition-transform hover:-translate-y-0.5 lg:row-span-2"
+                key={e.id}
+                sourceUrl={e.source_url}
+                className="group flex gap-4 rounded-lg border border-[rgba(12,27,51,0.06)] bg-white p-4 no-underline transition-all hover:-translate-y-0.5 hover:border-spotlight-gold/30 hover:shadow-[0_8px_30px_rgba(12,27,51,0.08)]"
               >
-                <div className="relative overflow-hidden">
-                  <div
-                    className="relative flex h-[220px] items-start justify-end p-4 lg:h-[300px]"
-                    style={eventHeroStyle(featured.image_url, featured.category, featured.bg)}
-                  >
-                    <span className="border border-spotlight-cream/20 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-cream/60">
-                      {featured.category}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-4 left-4 min-w-[52px] bg-spotlight-gold px-3 py-2 text-center text-spotlight-navy">
-                    <span className="block font-serif text-[26px] font-bold leading-none">
-                      {featured.day}
-                    </span>
-                    <span className="mt-0.5 block text-[9px] font-medium uppercase tracking-[0.1em]">
-                      {featured.month}
-                    </span>
-                  </div>
+                {/* Date badge */}
+                <div className="flex h-[56px] w-[56px] shrink-0 flex-col items-center justify-center rounded-lg bg-spotlight-navy text-center">
+                  <span className="font-serif text-[22px] font-bold leading-none text-spotlight-gold">
+                    {e.day}
+                  </span>
+                  <span className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.8px] text-spotlight-cream/50">
+                    {e.month}
+                  </span>
                 </div>
-                <div className="px-[22px] pb-[22px] pt-5">
-                  <h3 className="mb-2 font-serif text-2xl font-bold leading-tight text-spotlight-navy">
-                    {featured.name}
+
+                {/* Info */}
+                <div className="min-w-0 flex-1">
+                  <h3 className="mb-1 truncate font-serif text-[16px] font-semibold leading-snug text-spotlight-navy group-hover:text-spotlight-teal">
+                    {e.name}
                   </h3>
-                  <div className="mb-3 text-[11px] font-light tracking-[0.03em] text-[#8a96a8]">
-                    {featured.location && <span>{featured.location}</span>}
-                    {featured.location && featured.time && <span> · </span>}
-                    {featured.time && <span>{featured.time}</span>}
+                  <div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-spotlight-text-muted">
+                    {e.time && <span>{e.time}</span>}
+                    {e.location && (
+                      <>
+                        {e.time && <span className="text-spotlight-sand">·</span>}
+                        <span className="truncate">{e.location}</span>
+                      </>
+                    )}
                   </div>
-                  {featured.price && (
-                    <p
-                      className={`border-t border-spotlight-sand pt-2.5 text-[11px] font-medium tracking-[0.06em] text-spotlight-teal ${isFreePrice(featured.price) ? "text-[#5a8a6a]" : ""}`}
-                    >
-                      {featured.price}
-                    </p>
-                  )}
-                </div>
-              </EventListingLink>
-            )}
-
-            {second && (
-              <EventCardSmall e={second} className="lg:col-start-2 lg:row-start-1" />
-            )}
-            {third && (
-              <EventCardSmall e={third} className="lg:col-start-3 lg:row-start-1" />
-            )}
-
-            {fourth && (
-              <EventListingLink
-                sourceUrl={fourth.source_url}
-                className="group relative overflow-hidden bg-white transition-transform hover:-translate-y-0.5 lg:col-span-2 lg:col-start-2 lg:row-start-2"
-              >
-                <div className="grid lg:grid-cols-2">
-                  <div className="relative h-full min-h-[140px]">
-                    <div
-                      className="flex h-[140px] items-start justify-end p-4 lg:h-full lg:min-h-[140px]"
-                      style={eventHeroStyle(fourth.image_url, fourth.category, fourth.bg)}
-                    >
-                      <span className="border border-spotlight-cream/20 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-cream/60">
-                        {fourth.category}
+                  <div className="flex items-center gap-2">
+                    {e.category && (
+                      <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.5px] text-spotlight-text-muted/70">
+                        <span className={`inline-block h-1.5 w-1.5 rounded-full ${accentDot(e.category)}`} />
+                        {e.category}
                       </span>
-                    </div>
-                    <div className="absolute left-4 top-3 min-w-[52px] bg-spotlight-gold px-3 py-2 text-center text-spotlight-navy">
-                      <span className="block font-serif text-[26px] font-bold leading-none">
-                        {fourth.day}
-                      </span>
-                      <span className="mt-0.5 block text-[9px] font-medium uppercase tracking-[0.1em]">
-                        {fourth.month}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col justify-center px-[22px] py-5 lg:py-6">
-                    <h3 className="mb-2 font-serif text-[19px] font-bold leading-tight text-spotlight-navy">
-                      {fourth.name}
-                    </h3>
-                    <div className="mb-3 text-[11px] font-light tracking-[0.03em] text-[#8a96a8]">
-                      {fourth.location && <span>{fourth.location}</span>}
-                      {fourth.location && fourth.time && <span> · </span>}
-                      {fourth.time && <span>{fourth.time}</span>}
-                    </div>
-                    {fourth.price && (
-                      <p
-                        className={`border-t border-spotlight-sand pt-2.5 text-[11px] font-medium tracking-[0.06em] text-spotlight-teal ${isFreePrice(fourth.price) ? "text-[#5a8a6a]" : ""}`}
-                      >
-                        {fourth.price}
-                      </p>
                     )}
                   </div>
                 </div>
+
+                {/* Arrow */}
+                <div className="flex shrink-0 items-center">
+                  <svg
+                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                    className="text-spotlight-text-muted/30 transition group-hover:translate-x-0.5 group-hover:text-spotlight-gold"
+                  >
+                    <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
               </EventListingLink>
-            )}
+            ))}
           </div>
         )}
       </div>
     </section>
-  );
-}
-
-function EventCardSmall({
-  e,
-  className,
-}: {
-  e: {
-    id: string;
-    name: string;
-    category: string | null;
-    day: string;
-    month: string;
-    location: string | null;
-    time: string | null;
-    price: string | null;
-    bg: string | null;
-    image_url?: string | null;
-    source_url?: string | null;
-  };
-  className?: string;
-}) {
-  return (
-    <EventListingLink
-      sourceUrl={e.source_url}
-      className={`group relative overflow-hidden bg-white transition-transform hover:-translate-y-0.5 ${className ?? ""}`}
-    >
-      <div className="relative overflow-hidden">
-        <div
-          className="relative flex h-[220px] items-start justify-end p-4"
-          style={eventHeroStyle(e.image_url, e.category, e.bg)}
-        >
-          <span className="border border-spotlight-cream/20 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-spotlight-cream/60">
-            {e.category}
-          </span>
-        </div>
-        <div className="absolute bottom-4 left-4 min-w-[52px] bg-spotlight-gold px-3 py-2 text-center text-spotlight-navy">
-          <span className="block font-serif text-[26px] font-bold leading-none">{e.day}</span>
-          <span className="mt-0.5 block text-[9px] font-medium uppercase tracking-[0.1em]">
-            {e.month}
-          </span>
-        </div>
-      </div>
-      <div className="px-[22px] pb-[22px] pt-5">
-        <h3 className="mb-2 font-serif text-[19px] font-bold leading-tight text-spotlight-navy">
-          {e.name}
-        </h3>
-        <div className="mb-3 text-[11px] font-light tracking-[0.03em] text-[#8a96a8]">
-          {e.location && <span>{e.location}</span>}
-          {e.location && e.time && <span> · </span>}
-          {e.time && <span>{e.time}</span>}
-        </div>
-        {e.price && (
-          <p
-            className={`border-t border-spotlight-sand pt-2.5 text-[11px] font-medium tracking-[0.06em] text-spotlight-teal ${isFreePrice(e.price) ? "text-[#5a8a6a]" : ""}`}
-          >
-            {e.price}
-          </p>
-        )}
-      </div>
-    </EventListingLink>
   );
 }
