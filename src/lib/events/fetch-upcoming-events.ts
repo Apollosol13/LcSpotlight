@@ -1,12 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-/** YYYY-MM-DD in UTC — safe for PostgREST `start_at.gte` filters. */
-export function todayUtcYmd(): string {
-  const n = new Date();
-  const y = n.getUTCFullYear();
-  const m = String(n.getUTCMonth() + 1).padStart(2, "0");
-  const d = String(n.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+/** YYYY-MM-DD in America/New_York so past events drop off in local time. */
+export function todayEasternYmd(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
 /**
@@ -17,7 +18,7 @@ export function upcomingEventsQuery(
   client: SupabaseClient,
   options?: { limit?: number },
 ) {
-  const ymd = todayUtcYmd();
+  const ymd = todayEasternYmd();
   let q = client
     .from("events")
     .select("*")
