@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { scrapeBlufftonEvents } from "@/lib/scrapers/bluffton-events";
 import { scrapeBlufftonCalendarEvents } from "@/lib/scrapers/bluffton-calendar-events";
+import { scrapeBeaufortCalendarEvents } from "@/lib/scrapers/beaufort-calendar-events";
 import { scrapeHiltonHeadIslandEvents } from "@/lib/scrapers/hiltonhead-island-events";
 
 export async function runEventIngest(supabase: SupabaseClient) {
@@ -16,6 +17,12 @@ export async function runEventIngest(supabase: SupabaseClient) {
     results.blufftonCalendarEvents = await scrapeBlufftonCalendarEvents(supabase);
   } catch (err) {
     results.blufftonCalendarEvents = { error: String(err) };
+  }
+
+  try {
+    results.beaufortCalendarEvents = await scrapeBeaufortCalendarEvents(supabase);
+  } catch (err) {
+    results.beaufortCalendarEvents = { error: String(err) };
   }
 
   try {
