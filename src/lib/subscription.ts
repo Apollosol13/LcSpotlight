@@ -1,5 +1,4 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { hasInviteCookie } from "@/lib/membership-access";
 
 export type SubscriptionRow = {
   id: string;
@@ -60,13 +59,13 @@ export async function hasActiveAccess(
 }
 
 /**
- * Premium content: active subscription / comped / portal roles, OR valid invite cookie.
+ * Premium pages: logged-in user with active subscription, comped access, or portal role.
+ * Invite codes do not unlock content — use Admin → Grant free access for testers.
  */
 export async function hasPremiumAccess(
   supabase: SupabaseClient,
   userId: string | null,
 ): Promise<boolean> {
-  if (await hasInviteCookie()) return true;
   if (!userId) return false;
   return hasActiveAccess(supabase, userId);
 }

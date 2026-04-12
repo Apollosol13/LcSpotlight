@@ -40,8 +40,8 @@ export function AccessFormClient() {
           Enter invite code
         </h1>
         <p className="mb-8 text-[13px] leading-relaxed text-spotlight-text-mid">
-          You need a code from us to subscribe or view member content. After you
-          enter it, you can continue to membership or browse premium sections.
+          This code opens checkout only. After you pay, use Member login for access.
+          Testers get free access from the team via Admin → Grant free access.
         </p>
 
         <form

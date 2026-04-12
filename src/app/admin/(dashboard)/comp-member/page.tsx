@@ -39,8 +39,8 @@ export default function CompMemberPage() {
         Grant free access
       </h1>
       <p className="mb-8 text-sm text-white/40">
-        Give someone complimentary membership. They&apos;ll receive a magic link to
-        log in.
+        Grant full member access without payment — for staff, partners, and beta
+        testers. They get a magic link to log in at /member/login.
       </p>
 
       <div className="max-w-md rounded-lg border border-white/10 bg-white/5 p-6">
