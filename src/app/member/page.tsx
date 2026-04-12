@@ -118,7 +118,7 @@ export default function MemberPage() {
               No active subscription found.
             </p>
             <Link
-              href="/subscribe"
+              href="/access?next=/subscribe"
               className="inline-flex items-center justify-center rounded-lg bg-spotlight-navy px-6 py-3 text-[12px] font-semibold uppercase tracking-[1px] text-spotlight-gold no-underline transition hover:bg-spotlight-teal"
             >
               Subscribe

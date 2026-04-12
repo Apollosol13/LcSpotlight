@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  COOKIE_NAME,
+  isInviteGateEnabled,
+  verifyAccessCookieValue,
+} from "@/lib/membership-access";
 import { getStripe, getStripeMonthlyPriceId, getStripeYearlyPriceId } from "@/lib/stripe";
+import { createSupabaseServer } from "@/lib/supabase-auth-server";
+import { hasActiveAccess } from "@/lib/subscription";
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,6 +15,31 @@ export async function POST(req: NextRequest) {
 
     if (!email || typeof email !== "string") {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    }
+
+    if (isInviteGateEnabled()) {
+      const cookieOk = await verifyAccessCookieValue(
+        req.cookies.get(COOKIE_NAME)?.value,
+      );
+      if (!cookieOk) {
+        const supabase = await createSupabaseServer();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) {
+          return NextResponse.json(
+            { error: "Enter your invite code at /access first" },
+            { status: 403 },
+          );
+        }
+        const allowed = await hasActiveAccess(supabase, user.id);
+        if (!allowed) {
+          return NextResponse.json(
+            { error: "Enter your invite code at /access first" },
+            { status: 403 },
+          );
+        }
+      }
     }
 
     const priceId =

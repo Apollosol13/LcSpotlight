@@ -130,7 +130,7 @@ export default function MemberLoginPage() {
         <p className="mt-6 text-center text-[12px] text-spotlight-text-muted">
           Not a member yet?{" "}
           <Link
-            href="/subscribe"
+            href="/access?next=/subscribe"
             className="font-medium text-spotlight-navy underline-offset-2 hover:underline"
           >
             Subscribe

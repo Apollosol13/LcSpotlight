@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { createSupabaseServer } from "@/lib/supabase-auth-server";
-import { hasActiveAccess } from "@/lib/subscription";
+import { isInviteGateEnabled } from "@/lib/membership-access";
+import { hasPremiumAccess } from "@/lib/subscription";
 
 type Props = {
   children: ReactNode;
@@ -15,10 +16,8 @@ export async function Paywall({ children, feature }: Props) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (user) {
-    const active = await hasActiveAccess(supabase, user.id);
-    if (active) return <>{children}</>;
-  }
+  const allowed = await hasPremiumAccess(supabase, user?.id ?? null);
+  if (allowed) return <>{children}</>;
 
   return (
     <div className="relative">
@@ -71,7 +70,9 @@ export async function Paywall({ children, feature }: Props) {
 
           <div className="flex flex-col gap-3">
             <Link
-              href="/subscribe"
+              href={
+                isInviteGateEnabled() ? "/access?next=/subscribe" : "/subscribe"
+              }
               className="inline-flex w-full items-center justify-center rounded-lg bg-spotlight-navy py-3 text-[12px] font-semibold uppercase tracking-[1px] text-spotlight-gold no-underline transition hover:bg-spotlight-teal"
             >
               Subscribe — $10/mo

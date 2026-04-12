@@ -1,10 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  COOKIE_NAME,
+  isInviteGateEnabled,
+  verifyAccessCookieValue,
+} from "@/lib/membership-access";
+import {
   getPublicSupabaseAnonKey,
   getPublicSupabaseUrl,
 } from "@/lib/supabase-env";
 import { getPortalAccess } from "@/lib/portal-role";
+import { getSubscription, isSubscriptionActive } from "@/lib/subscription";
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -39,6 +45,29 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const subscribePaths = pathname === "/subscribe" || pathname === "/subscribe/";
+  if (subscribePaths && isInviteGateEnabled()) {
+    const cookieOk = await verifyAccessCookieValue(
+      request.cookies.get(COOKIE_NAME)?.value,
+    );
+    if (!cookieOk) {
+      if (user) {
+        const sub = await getSubscription(supabase, user.id);
+        if (!isSubscriptionActive(sub)) {
+          const url = request.nextUrl.clone();
+          url.pathname = "/access";
+          url.searchParams.set("next", "/subscribe");
+          return NextResponse.redirect(url);
+        }
+      } else {
+        const url = request.nextUrl.clone();
+        url.pathname = "/access";
+        url.searchParams.set("next", "/subscribe");
+        return NextResponse.redirect(url);
+      }
+    }
+  }
 
   const isAdminRoute = pathname.startsWith("/admin");
   const isBusinessRoute = pathname.startsWith("/business");
@@ -82,5 +111,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/login", "/admin/:path*", "/business/:path*"],
+  matcher: ["/login", "/admin/:path*", "/business/:path*", "/subscribe"],
 };
