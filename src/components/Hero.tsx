@@ -57,7 +57,7 @@ export function Hero({ hhiMedianDisplay, hhiActiveListingsDisplay }: HeroProps) 
           </h1>
           <p className="mb-9 max-w-[360px] text-[13px] font-light leading-[1.8] tracking-[0.03em] text-spotlight-cream/50">
             Events, new openings, things to do, and what&apos;s happening across
-            Hilton Head Island — all in one place, updated daily.
+            the Lowcountry — all in one place, updated daily.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
