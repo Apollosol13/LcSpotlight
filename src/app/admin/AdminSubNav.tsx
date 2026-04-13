@@ -8,6 +8,7 @@ const tabs: { href: string; label: string; exact?: boolean }[] = [
   { href: "/admin/story-submissions", label: "Story submissions" },
   { href: "/admin/event-submissions", label: "Event submissions" },
   { href: "/admin/events", label: "Events" },
+  { href: "/admin/ticket-listings", label: "Ticket listings" },
   { href: "/admin/news", label: "News" },
   { href: "/admin/openings", label: "Openings" },
   { href: "/admin/things-to-do", label: "Things to do" },

@@ -11,6 +11,7 @@ const ALLOWED_TABLES = [
   "things_to_do",
   "story_submissions",
   "event_submissions",
+  "ticket_listings",
 ];
 
 type RouteContext = { params: Promise<{ table: string }> };
@@ -30,6 +31,8 @@ function revalidatePublicForTable(table: string) {
     revalidatePath("/things-to-do");
   } else if (table === "event_submissions") {
     revalidatePath("/events");
+  } else if (table === "ticket_listings") {
+    revalidatePath("/ticketing");
   }
 }
 
