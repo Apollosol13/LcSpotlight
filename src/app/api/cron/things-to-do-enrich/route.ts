@@ -9,7 +9,10 @@ import {
   type ThingsToDoEnrichRow,
 } from "@/lib/things-to-do-enrich";
 
-const BATCH = 20;
+/** Rows enriched per request (Places calls each). Host `maxDuration` must cover BATCH × (~API latency + DELAY_MS). */
+export const maxDuration = 300;
+
+const BATCH = 40;
 /** Wide fetch then in-memory sort so never-enriched / emptiest rows win (not just first 500 by SQL order). */
 const FETCH_LIMIT = 3000;
 const DELAY_MS = 200;
