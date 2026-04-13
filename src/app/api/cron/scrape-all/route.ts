@@ -16,7 +16,7 @@ import { replaceThingsToDoFromSeed } from "@/lib/seed-data/replace-things-to-do"
  * Prefer separate jobs: /api/cron/island-news, /api/cron/bluffton-events, /api/cron/bluffton-calendar-events, /api/cron/beaufort-calendar-events, /api/cron/hiltonhead-island-events, /api/cron/savannah-calendar-events, /api/cron/google-news,
  * /api/cron/google-news-beaufort, /api/cron/google-news-savannah, /api/cron/google-news-hilton-head,
  * /api/cron/google-news-bluffton, /api/cron/sync-listings,
- * /api/cron/things-to-do, /api/cron/things-to-do-enrich
+ * /api/cron/things-to-do, /api/cron/things-to-do-enrich, /api/cron/weekly-digest
  */
 export async function GET(req: NextRequest) {
   if (!isCronAuthorized(req)) return cronUnauthorized();

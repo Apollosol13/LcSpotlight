@@ -76,7 +76,7 @@ export async function POST(request: Request) {
         subject: "You're Subscribed — LcSpotlight",
         html: `
           <p>Thanks for subscribing to <strong>LcSpotlight</strong>.</p>
-          <p>You’ll get events, openings, deals, and local news — we send on Thursdays.</p>
+          <p>You’ll get a Monday-morning roundup of events, markets, and local picks (Eastern time).</p>
           <p><a href="${origin}">Visit LC Spotlight</a></p>
           <p style="color:#666;font-size:12px;margin-top:24px">— LC Spotlight</p>
         `.trim(),
