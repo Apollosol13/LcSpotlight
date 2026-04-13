@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
 
     const { data: eventRows, error: evErr } = await supabaseAdmin
       .from("events")
-      .select("name, start_at, location, category, source_url")
+      .select("name, start_at, time, location, category, source_url")
       .gte("start_at", startIso)
       .lt("start_at", endExclusiveIso)
       .not("start_at", "is", null)

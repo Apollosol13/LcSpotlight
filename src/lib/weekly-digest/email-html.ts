@@ -22,6 +22,8 @@ function hrefAttr(url: string): string {
 export type DigestEventRow = {
   name: string;
   start_at: string | null;
+  /** From ingest (e.g. "All day", "4:00 PM – 6:00 PM"). */
+  time: string | null;
   location: string | null;
   category: string | null;
   source_url: string | null;
@@ -47,9 +49,35 @@ export type DigestThingsRow = {
   market_key: string | null;
 };
 
-function formatEventWhen(iso: string | null): string {
-  if (!iso) return "Date TBA";
+function formatEasternDateOnly(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(iso));
+}
+
+/** All-day / date-only rows use midnight Eastern; avoid showing misleading "12:00 AM". */
+function isMidnightEastern(iso: string): boolean {
   const d = new Date(iso);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: false,
+  }).formatToParts(d);
+  let hour = -1;
+  let minute = -1;
+  for (const p of parts) {
+    if (p.type === "hour") hour = parseInt(p.value, 10);
+    if (p.type === "minute") minute = parseInt(p.value, 10);
+  }
+  return hour === 0 && minute === 0;
+}
+
+function formatEventWithClock(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York",
     weekday: "short",
@@ -58,7 +86,19 @@ function formatEventWhen(iso: string | null): string {
     hour: "numeric",
     minute: "2-digit",
     timeZoneName: "short",
-  }).format(d);
+  }).format(new Date(iso));
+}
+
+export function formatDigestEventSchedule(e: DigestEventRow): string {
+  if (!e.start_at) return "Date TBA";
+  const labeled = e.time?.trim();
+  if (labeled) {
+    return `${formatEasternDateOnly(e.start_at)} · ${labeled}`;
+  }
+  if (isMidnightEastern(e.start_at)) {
+    return formatEasternDateOnly(e.start_at);
+  }
+  return formatEventWithClock(e.start_at);
 }
 
 const marketLabel = (key: string | null): string => {
@@ -88,7 +128,7 @@ ${events
       href !== "#"
         ? `<a href="${href}"><strong>${esc(e.name)}</strong></a>`
         : `<strong>${esc(e.name)}</strong>`;
-    const rest = `${esc(formatEventWhen(e.start_at))}${
+    const rest = `${esc(formatDigestEventSchedule(e))}${
       e.location ? ` · ${esc(e.location)}` : ""
     }${e.category ? ` · ${esc(e.category)}` : ""}`;
     return `<li style="margin-bottom:10px">${nameHtml} — ${rest}</li>`;
